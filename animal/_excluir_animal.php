@@ -7,8 +7,12 @@ function geraTimestamp($data) {
 set_time_limit(9999999999999);
 include "../_config.php";
 
-$id_animal = $_GET['id_animal'];
+$id_animal = (int) ($_GET['id_animal'] ?? 0);
 $animal = DBRead('animais', "WHERE id = '$id_animal'");
+if (!$animal) {
+  header('Location: ../geral.php');
+  exit;
+}
 DBDelete('animais', "id = '$id_animal'");
 DBDelete('acasalamento', "id_animal = '$id_animal'");
 if($animal[0]['sexo'] == "Fêmea"){

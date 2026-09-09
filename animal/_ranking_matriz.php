@@ -1,15 +1,16 @@
-<?
+<?php
+$qtd_crias = 0;
 
 //RANKING AVALIACAO
 $crias = DBRead('animais', "WHERE mae = '$id_mae' AND terceiro_mae = '0'");
-if($crias[0]['id'] > 0){
+if($crias){
   $tipo2=$tipo3=$tipo4=$tipo5=$qtd_avaliadas=0;
   $qtd_crias = count($crias);
-  foreach ($crias as $crias_){
+  foreach (($crias ?: []) as $crias_){
     if($crias_['tipo'] > 0){
       $id_cria = $crias_['id'];
       $teste = DBRead('avaliacao', "WHERE id_animal = '$id_cria'");
-      if($teste[0]['id'] > 0){
+      if($teste){
         $qtd_avaliadas++;
         if($crias_['tipo'] == 2){ $tipo2++;}
         if($crias_['tipo'] == 3){ $tipo3++;}
@@ -32,10 +33,10 @@ if($crias[0]['id'] > 0){
       'nota'  => $nota
     );
     $teste = DBRead('matriz', "WHERE id_femea = '$id_mae'");
-    if($teste[0]['id'] > 0){
+    if($teste){
       DBUpdate('matriz', $dados, "id_femea = '$id_mae'");
     }else{
-      DBCreate('matriz', $dados);
+      DBCreate('matriz', array_merge(['qtd_vendas' => 0, 'qtd_mortes' => 0, 'venda_macho' => 0, 'venda_femea' => 0, 'venda_geral' => 0, 'pesagem' => 0, 'cabeca' => 0, 'pescoco' => 0, 'quarto_anterior' => 0, 'barril' => 0, 'quarto_posterior' => 0, 'comprimento' => 0, 'orgao' => 0, 'gordura' => 0, 'cobertura' => 0, 'cor' => 0, 'conformacao' => 0, 'peso_apartacao' => 0, 'intervalo' => 0, 'prolificidade' => 0, 'qtd_partos' => 0], $dados));
     }
   }
 }
@@ -43,10 +44,11 @@ if($crias[0]['id'] > 0){
 
 
 //RANKING INTERVALO
+$data_anterior = null;
 $cria = DBRead('animais', "WHERE mae = '$id_mae' AND tipo_reproducao != 'Embrionagem' AND terceiro_mae = '0' AND data_de_nascimento > '2011-01-01' ORDER BY data_de_nascimento asc");
 $total=$qtd=$dias_total=$qtd_=$qtd_partos=$qtd_crias_prolificidade=$qtd_partos_prolificidade=0;
 $qtd_crias = $cria ? count($cria) : 0;
-foreach ($cria as $cria_){
+foreach (($cria ?: []) as $cria_){
   $data_nova = $cria_['data_de_nascimento'];
 
   if($qtd != 0){
@@ -137,8 +139,8 @@ foreach ($cria as $cria_){
 }
 
 if ($cria) {
-  $prolificidade = $qtd_crias_prolificidade/$qtd_partos_prolificidade;
-  $media = $dias_total/$qtd_;
+  $prolificidade = $qtd_partos_prolificidade ? $qtd_crias_prolificidade/$qtd_partos_prolificidade : 0;
+  $media = $qtd_ ? $dias_total/$qtd_ : 0;
   $dados = array(
     'intervalo' => $media,
     'qtd_partos'  => $qtd_partos+1,
@@ -154,7 +156,7 @@ if ($cria) {
 $morte = DBRead('animais', "WHERE mae = '$id_mae' AND terceiro_mae = '0' AND status = '1'");
 $qtd_mortes=0;
 
-foreach ($morte as $morte_) {
+foreach (($morte ?: []) as $morte_) {
 $data = $morte_['data_de_nascimento'];
 $data_atual = $data;
 $data = '0';
@@ -195,8 +197,8 @@ $qtd_mortes++;
 }
 }
 
-if ($matriz_['qtd_crias']) {
-  $mortes = ($qtd_mortes*100)/$matriz_['qtd_crias'];
+if ($qtd_crias) {
+  $mortes = ($qtd_mortes*100)/$qtd_crias;
   $dados = array(
     'qtd_mortes' => $mortes
   );
@@ -208,7 +210,7 @@ if ($matriz_['qtd_crias']) {
 //RANKING PESAGEM
 $cria = DBRead('animais', "WHERE mae = '$id_mae' AND peso2 > '0' AND terceiro_mae = '0' AND tipo_reproducao != 'Embrionagem'");
 $gmd=$qtd=$qtd_partos=0;
-foreach ($cria as $cria_) {
+foreach (($cria ?: []) as $cria_) {
 $data_nova = $cria_['data_de_nascimento'];
 
 $data = $cria_['data_de_nascimento'];
@@ -247,7 +249,7 @@ $time_final = geraTimestamp($data_adulto);
 $diferenca = $time_final - $time_inicial;
 $dias = (int)floor( $diferenca / (60 * 60 * 24));
 
-if(($qtd_partos > 0) && ($dias < 150)){
+if(($qtd_partos > 0) && ($dias > 0 && $dias < 150)){
   if($data_anterior == $data_nova){
     $gmd = $gmd + ($cria_['peso2']/$dias);
   }else{
@@ -256,7 +258,7 @@ if(($qtd_partos > 0) && ($dias < 150)){
   }
 }
 
-if(($dias < 150) && ($qtd_partos == 0)){
+if(($dias > 0 && $dias < 150) && ($qtd_partos == 0)){
   $gmd = $gmd + ($cria_['peso2']/$dias);
   $qtd_partos++;
 }
@@ -264,7 +266,7 @@ $data_anterior = $cria_['data_de_nascimento'];
 }
 
 if ($cria) {
-  $gmd = ($gmd*90)/$qtd_partos;
+  $gmd = $qtd_partos ? ($gmd*90)/$qtd_partos : 0;
   $dados = array(
     'peso_apartacao' => $gmd
   );
@@ -276,19 +278,19 @@ if ($cria) {
 //RANKING VENDAS
 $vendas = DBRead('animais', "WHERE status = '2' AND mae = '$id_mae' AND terceiro_mae = '0'  AND data_de_nascimento > '2011-01-01'");
 $qtd_macho=$qtd_femea=$total_macho=$total_femea=$valor_total=0;
-foreach ($vendas as $vendas_) {
+foreach (($vendas ?: []) as $vendas_) {
   $id_cria = $vendas_['id'];
   $valor = DBRead('vendas', "WHERE id_animal = '$id_cria' AND data > '2011-01-01'");
-  if($valor[0]['id'] > 0){
+  if($valor){
   if($vendas_['sexo'] == 'Macho'){ $total_macho = $total_macho+$valor[0]['preco_de_venda']; $qtd_macho++;}
   if($vendas_['sexo'] == 'Fêmea'){ $total_femea = $total_femea+$valor[0]['preco_de_venda']; $qtd_femea++;}
   $valor_total = $valor_total+$valor[0]['preco_de_venda'];
 }}
 
 if ($vendas) {
-  $media_macho = $total_macho/$qtd_macho;
-  $media_femea = $total_femea/$qtd_femea;
-  $media_total = $valor_total/($qtd_macho+$qtd_femea);
+  $media_macho = $qtd_macho ? $total_macho/$qtd_macho : 0;
+  $media_femea = $qtd_femea ? $total_femea/$qtd_femea : 0;
+  $media_total = ($qtd_macho+$qtd_femea) ? $valor_total/($qtd_macho+$qtd_femea) : 0;
   $qtd_total = $qtd_macho+$qtd_femea;
   $dados = array(
     'qtd_vendas'	=> $qtd_total,

@@ -239,7 +239,7 @@ if($animal[0]['terceiro_mae']){
     <div class="form-group">
       <button type="submit" class="btn btn-warning" style="margin-top:2%; width:100%;">Alterar animal</button>
       <a href="animal/_imprimir.php?id_animal=<?=$id_animal?>" target="_blank"><button type="button" class="btn btn-primary" style="margin-top:2%; width:100%;">Imprimir animal</button></a>
-      <a href="animal/_excluir_animal.php?id_animal=<?=$id_animal?>"><button type="button" class="btn btn-danger" style="margin-top:2%; width:100%;">Excluir animal</button></a>
+      <a href="animal/_excluir_animal.php?id_animal=<?=$id_animal?>" onclick="return confirm('Tem certeza de que deseja excluir este animal?');" class="btn btn-danger" style="margin-top:2%; width:100%;">Excluir animal</a>
     </div>
 
   </div>
