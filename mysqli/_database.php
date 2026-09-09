@@ -15,7 +15,7 @@ DELETE
 	//Executar Querys
 	function DBExecute($query, $insertId = false){
 		$link = DBconnect();
-		$result = @mysqli_query($link, $query) or die (mysqli_error());
+		$result = @mysqli_query($link, $query) or die (mysqli_error($link));
 
 		if($insertId){
 			$result = mysqli_insert_id($link);

@@ -1,6 +1,5 @@
-﻿<?
+<?php
 //ini_set('display_errors', 0);
-session_start();
 include "_config.php";
 $user = DBRead('admin');
 $id_user = $user[0]['id'];

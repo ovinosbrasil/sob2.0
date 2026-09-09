@@ -1,9 +1,5 @@
-<?
-define('DB_HOSTNAME', 'localhost');
-define('DB_USERNAME', 'siste870_sob');
-define('DB_PASSWORD', 'sob123');
-define('DB_DATABASE', 'siste870_sob');
-define('DB_CHARSET', 'latin1');
+<?php
+require dirname(__DIR__) . "/mysqli/environment.php";
 
 require '../mysqli/_conexao.php';
 require '../mysqli/_database.php';

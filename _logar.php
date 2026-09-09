@@ -1,19 +1,8 @@
 <?php
 session_start();
 
-define('DB_HOSTNAME', 'localhost');
-define('DB_USERNAME', 'siste870_sob');
-define('DB_PASSWORD', 'sob123');
-define('DB_DATABASE', 'siste870_sob');
-define('DB_CHARSET', 'latin1');
+require __DIR__ . "/mysqli/environment.php";
 
-/*
-define('DB_HOSTNAME', 'localhost');
-define('DB_USERNAME', 'root');
-define('DB_PASSWORD', '');
-define('DB_DATABASE', 'sob');
-define('DB_CHARSET', 'latin1');
-*/
 require 'mysqli/_conexao.php';
 require 'mysqli/_database.php';
 
