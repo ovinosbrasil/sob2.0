@@ -1,0 +1,13 @@
+[04-Jul-2026 22:05:45 America/Fortaleza] PHP Warning:  Undefined array key "data_de_nascimento" in /home2/siste870/public_html/sob2.0/reproducao/ultrassom/lista_mae.php on line 44
+[04-Jul-2026 22:05:45 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type null in /home2/siste870/public_html/sob2.0/reproducao/ultrassom/lista_mae.php on line 47
+[04-Jul-2026 22:05:45 America/Fortaleza] PHP Fatal error:  Uncaught Error: Cannot assign an empty string to a string offset in /home2/siste870/public_html/sob2.0/reproducao/ultrassom/lista_mae.php:47
+Stack trace:
+#0 {main}
+  thrown in /home2/siste870/public_html/sob2.0/reproducao/ultrassom/lista_mae.php on line 47
+[04-Jul-2026 22:05:46 America/Fortaleza] PHP Warning:  Undefined array key "data_de_nascimento" in /home2/siste870/public_html/sob2.0/reproducao/ultrassom/lista_mae.php on line 44
+[04-Jul-2026 22:05:46 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type null in /home2/siste870/public_html/sob2.0/reproducao/ultrassom/lista_mae.php on line 47
+[04-Jul-2026 22:05:46 America/Fortaleza] PHP Fatal error:  Uncaught Error: Cannot assign an empty string to a string offset in /home2/siste870/public_html/sob2.0/reproducao/ultrassom/lista_mae.php:47
+Stack trace:
+#0 {main}
+  thrown in /home2/siste870/public_html/sob2.0/reproducao/ultrassom/lista_mae.php on line 47
+[04-Jul-2026 22:05:46 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/reproducao/ultrassom/lista_mae.php on line 43

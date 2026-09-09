@@ -1,0 +1,70 @@
+[03-May-2026 10:35:52 America/Fortaleza] PHP Fatal error:  Uncaught TypeError: count(): Argument #1 ($value) must be of type Countable|array, bool given in /home2/siste870/public_html/sob2.0/animal/saida/_saida.php:21
+Stack trace:
+#0 {main}
+  thrown in /home2/siste870/public_html/sob2.0/animal/saida/_saida.php on line 21
+[08-Jun-2026 12:06:06 America/Fortaleza] PHP Fatal error:  Uncaught TypeError: count(): Argument #1 ($value) must be of type Countable|array, bool given in /home2/siste870/public_html/sob2.0/animal/saida/_saida.php:21
+Stack trace:
+#0 {main}
+  thrown in /home2/siste870/public_html/sob2.0/animal/saida/_saida.php on line 21
+[08-Jun-2026 13:14:17 America/Fortaleza] PHP Warning:  Undefined array key "banco" in /home2/siste870/public_html/sob2.0/_config.php on line 4
+[08-Jun-2026 13:14:17 America/Fortaleza] PHP Warning:  Undefined array key "login" in /home2/siste870/public_html/sob2.0/_config.php on line 5
+[08-Jun-2026 13:14:17 America/Fortaleza] PHP Fatal error:  Uncaught mysqli_sql_exception: Access denied for user 'siste870_sob'@'localhost' to database 'siste870_' in /home2/siste870/public_html/sob2.0/mysqli/_conexao.php:4
+Stack trace:
+#0 /home2/siste870/public_html/sob2.0/mysqli/_conexao.php(4): mysqli_connect('localhost', 'siste870_sob', Object(SensitiveParameterValue), 'siste870_')
+#1 /home2/siste870/public_html/sob2.0/mysqli/_database.php(17): DBConnect()
+#2 /home2/siste870/public_html/sob2.0/mysqli/_database.php(65): DBExecute('UPDATE animais ...', false)
+#3 /home2/siste870/public_html/sob2.0/animal/saida/_saida.php(15): DBUpdate('animais', Array, ' WHERE id = '74...')
+#4 {main}
+  thrown in /home2/siste870/public_html/sob2.0/mysqli/_conexao.php on line 4
+[10-Jul-2026 09:54:45 America/Fortaleza] PHP Fatal error:  Uncaught TypeError: count(): Argument #1 ($value) must be of type Countable|array, bool given in /home2/siste870/public_html/sob2.0/animal/saida/_saida.php:23
+Stack trace:
+#0 {main}
+  thrown in /home2/siste870/public_html/sob2.0/animal/saida/_saida.php on line 23
+[10-Jul-2026 10:31:31 America/Fortaleza] PHP Fatal error:  Uncaught TypeError: count(): Argument #1 ($value) must be of type Countable|array, bool given in /home2/siste870/public_html/sob2.0/animal/saida/_saida.php:21
+Stack trace:
+#0 {main}
+  thrown in /home2/siste870/public_html/sob2.0/animal/saida/_saida.php on line 21
+[05-Aug-2026 12:05:14 America/Fortaleza] PHP Fatal error:  Uncaught TypeError: count(): Argument #1 ($value) must be of type Countable|array, bool given in /home2/siste870/public_html/sob2.0/animal/saida/_saida.php:21
+Stack trace:
+#0 {main}
+  thrown in /home2/siste870/public_html/sob2.0/animal/saida/_saida.php on line 21
+[05-Aug-2026 19:16:54 America/Fortaleza] PHP Warning:  Undefined array key "banco" in /home2/siste870/public_html/sob2.0/_config.php on line 4
+[05-Aug-2026 19:16:54 America/Fortaleza] PHP Warning:  Undefined array key "login" in /home2/siste870/public_html/sob2.0/_config.php on line 5
+[05-Aug-2026 19:16:54 America/Fortaleza] PHP Fatal error:  Uncaught mysqli_sql_exception: Access denied for user 'siste870_sob'@'localhost' to database 'siste870_' in /home2/siste870/public_html/sob2.0/mysqli/_conexao.php:4
+Stack trace:
+#0 /home2/siste870/public_html/sob2.0/mysqli/_conexao.php(4): mysqli_connect('localhost', 'siste870_sob', Object(SensitiveParameterValue), 'siste870_')
+#1 /home2/siste870/public_html/sob2.0/mysqli/_database.php(17): DBConnect()
+#2 /home2/siste870/public_html/sob2.0/mysqli/_database.php(65): DBExecute('UPDATE animais ...', false)
+#3 /home2/siste870/public_html/sob2.0/animal/saida/_saida.php(15): DBUpdate('animais', Array, ' WHERE id = '74...')
+#4 {main}
+  thrown in /home2/siste870/public_html/sob2.0/mysqli/_conexao.php on line 4
+[10-Aug-2026 16:38:28 America/Fortaleza] PHP Fatal error:  Uncaught TypeError: count(): Argument #1 ($value) must be of type Countable|array, bool given in /home2/siste870/public_html/sob2.0/animal/saida/_saida.php:21
+Stack trace:
+#0 {main}
+  thrown in /home2/siste870/public_html/sob2.0/animal/saida/_saida.php on line 21
+[10-Aug-2026 16:39:57 America/Fortaleza] PHP Fatal error:  Uncaught TypeError: count(): Argument #1 ($value) must be of type Countable|array, bool given in /home2/siste870/public_html/sob2.0/animal/saida/_saida.php:21
+Stack trace:
+#0 {main}
+  thrown in /home2/siste870/public_html/sob2.0/animal/saida/_saida.php on line 21
+[20-Aug-2026 07:56:29 America/Fortaleza] PHP Fatal error:  Uncaught TypeError: count(): Argument #1 ($value) must be of type Countable|array, bool given in /home2/siste870/public_html/sob2.0/animal/saida/_saida.php:21
+Stack trace:
+#0 {main}
+  thrown in /home2/siste870/public_html/sob2.0/animal/saida/_saida.php on line 21
+[31-Aug-2026 09:04:28 America/Fortaleza] PHP Fatal error:  Uncaught TypeError: count(): Argument #1 ($value) must be of type Countable|array, bool given in /home2/siste870/public_html/sob2.0/animal/saida/_saida.php:21
+Stack trace:
+#0 {main}
+  thrown in /home2/siste870/public_html/sob2.0/animal/saida/_saida.php on line 21
+[31-Aug-2026 13:36:54 America/Fortaleza] PHP Warning:  Undefined array key "banco" in /home2/siste870/public_html/sob2.0/_config.php on line 4
+[31-Aug-2026 13:36:54 America/Fortaleza] PHP Warning:  Undefined array key "login" in /home2/siste870/public_html/sob2.0/_config.php on line 5
+[31-Aug-2026 13:36:54 America/Fortaleza] PHP Fatal error:  Uncaught mysqli_sql_exception: Access denied for user 'siste870_sob'@'localhost' to database 'siste870_' in /home2/siste870/public_html/sob2.0/mysqli/_conexao.php:4
+Stack trace:
+#0 /home2/siste870/public_html/sob2.0/mysqli/_conexao.php(4): mysqli_connect('localhost', 'siste870_sob', Object(SensitiveParameterValue), 'siste870_')
+#1 /home2/siste870/public_html/sob2.0/mysqli/_database.php(17): DBConnect()
+#2 /home2/siste870/public_html/sob2.0/mysqli/_database.php(65): DBExecute('UPDATE animais ...', false)
+#3 /home2/siste870/public_html/sob2.0/animal/saida/_saida.php(15): DBUpdate('animais', Array, ' WHERE id = '63...')
+#4 {main}
+  thrown in /home2/siste870/public_html/sob2.0/mysqli/_conexao.php on line 4
+[02-Sep-2026 10:47:35 America/Fortaleza] PHP Fatal error:  Uncaught TypeError: count(): Argument #1 ($value) must be of type Countable|array, bool given in /home2/siste870/public_html/sob2.0/animal/saida/_saida.php:21
+Stack trace:
+#0 {main}
+  thrown in /home2/siste870/public_html/sob2.0/animal/saida/_saida.php on line 21

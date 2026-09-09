@@ -1,0 +1,775 @@
+[24-Apr-2026 09:19:24 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type bool in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[24-Apr-2026 09:19:24 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type null in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[24-Apr-2026 09:27:13 America/Fortaleza] PHP Fatal error:  Uncaught DivisionByZeroError: Division by zero in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php:84
+Stack trace:
+#0 {main}
+  thrown in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 84
+[24-Apr-2026 11:27:35 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type bool in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[24-Apr-2026 11:27:35 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type null in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[24-Apr-2026 14:47:02 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type bool in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[24-Apr-2026 14:47:02 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type null in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[24-Apr-2026 14:48:00 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type bool in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[24-Apr-2026 14:48:00 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type null in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[24-Apr-2026 14:49:08 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type bool in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[24-Apr-2026 14:49:08 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type null in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[24-Apr-2026 14:49:08 America/Fortaleza] PHP Fatal error:  Uncaught DivisionByZeroError: Division by zero in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php:85
+Stack trace:
+#0 {main}
+  thrown in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 85
+[24-Apr-2026 15:17:08 America/Fortaleza] PHP Warning:  Undefined array key "banco" in /home2/siste870/public_html/sob2.0/_config.php on line 4
+[24-Apr-2026 15:17:08 America/Fortaleza] PHP Warning:  Undefined array key "login" in /home2/siste870/public_html/sob2.0/_config.php on line 5
+[24-Apr-2026 15:17:08 America/Fortaleza] PHP Fatal error:  Uncaught mysqli_sql_exception: Access denied for user 'siste870_sob'@'localhost' to database 'siste870_' in /home2/siste870/public_html/sob2.0/mysqli/_conexao.php:4
+Stack trace:
+#0 /home2/siste870/public_html/sob2.0/mysqli/_conexao.php(4): mysqli_connect('localhost', 'siste870_sob', Object(SensitiveParameterValue), 'siste870_')
+#1 /home2/siste870/public_html/sob2.0/mysqli/_database.php(17): DBConnect()
+#2 /home2/siste870/public_html/sob2.0/mysqli/_database.php(44): DBExecute('SELECT * FROM m...')
+#3 /home2/siste870/public_html/sob2.0/animal/vender/_vender.php(6): DBRead('mercado', ' WHERE nome = '...')
+#4 {main}
+  thrown in /home2/siste870/public_html/sob2.0/mysqli/_conexao.php on line 4
+[24-Apr-2026 17:09:59 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type bool in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[24-Apr-2026 17:09:59 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type null in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[24-Apr-2026 17:09:59 America/Fortaleza] PHP Fatal error:  Uncaught DivisionByZeroError: Division by zero in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php:85
+Stack trace:
+#0 {main}
+  thrown in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 85
+[24-Apr-2026 17:11:13 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type bool in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[24-Apr-2026 17:11:13 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type null in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[25-Apr-2026 10:19:09 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type bool in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[25-Apr-2026 10:19:09 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type null in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[25-Apr-2026 12:27:45 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type bool in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[25-Apr-2026 12:27:45 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type null in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[01-May-2026 14:06:04 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/animal/vender/lista_comprador.php on line 6
+[01-May-2026 14:06:38 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type bool in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[01-May-2026 14:06:38 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type null in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[01-May-2026 14:06:38 America/Fortaleza] PHP Fatal error:  Uncaught DivisionByZeroError: Division by zero in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php:85
+Stack trace:
+#0 {main}
+  thrown in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 85
+[06-May-2026 10:50:12 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/animal/vender/lista_comprador.php on line 6
+[06-May-2026 10:50:48 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type bool in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[06-May-2026 10:50:48 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type null in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[06-May-2026 10:50:48 America/Fortaleza] PHP Fatal error:  Uncaught DivisionByZeroError: Division by zero in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php:85
+Stack trace:
+#0 {main}
+  thrown in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 85
+[06-May-2026 11:08:28 America/Fortaleza] PHP Warning:  Undefined array key "banco" in /home2/siste870/public_html/sob2.0/_config.php on line 4
+[06-May-2026 11:08:28 America/Fortaleza] PHP Warning:  Undefined array key "login" in /home2/siste870/public_html/sob2.0/_config.php on line 5
+[06-May-2026 11:08:28 America/Fortaleza] PHP Fatal error:  Uncaught mysqli_sql_exception: Access denied for user 'siste870_sob'@'localhost' to database 'siste870_' in /home2/siste870/public_html/sob2.0/mysqli/_conexao.php:4
+Stack trace:
+#0 /home2/siste870/public_html/sob2.0/mysqli/_conexao.php(4): mysqli_connect('localhost', 'siste870_sob', Object(SensitiveParameterValue), 'siste870_')
+#1 /home2/siste870/public_html/sob2.0/mysqli/_database.php(17): DBConnect()
+#2 /home2/siste870/public_html/sob2.0/mysqli/_database.php(44): DBExecute('SELECT * FROM m...')
+#3 /home2/siste870/public_html/sob2.0/animal/vender/_vender.php(6): DBRead('mercado', ' WHERE nome = '...')
+#4 {main}
+  thrown in /home2/siste870/public_html/sob2.0/mysqli/_conexao.php on line 4
+[06-May-2026 11:21:14 America/Fortaleza] PHP Warning:  Undefined array key "banco" in /home2/siste870/public_html/sob2.0/_config.php on line 4
+[06-May-2026 11:21:14 America/Fortaleza] PHP Warning:  Undefined array key "login" in /home2/siste870/public_html/sob2.0/_config.php on line 5
+[06-May-2026 11:21:14 America/Fortaleza] PHP Fatal error:  Uncaught mysqli_sql_exception: Access denied for user 'siste870_sob'@'localhost' to database 'siste870_' in /home2/siste870/public_html/sob2.0/mysqli/_conexao.php:4
+Stack trace:
+#0 /home2/siste870/public_html/sob2.0/mysqli/_conexao.php(4): mysqli_connect('localhost', 'siste870_sob', Object(SensitiveParameterValue), 'siste870_')
+#1 /home2/siste870/public_html/sob2.0/mysqli/_database.php(17): DBConnect()
+#2 /home2/siste870/public_html/sob2.0/mysqli/_database.php(44): DBExecute('SELECT * FROM m...')
+#3 /home2/siste870/public_html/sob2.0/animal/vender/_vender.php(6): DBRead('mercado', ' WHERE nome = '...')
+#4 {main}
+  thrown in /home2/siste870/public_html/sob2.0/mysqli/_conexao.php on line 4
+[06-May-2026 15:32:35 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type bool in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[06-May-2026 15:32:35 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type null in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[06-May-2026 15:32:35 America/Fortaleza] PHP Fatal error:  Uncaught DivisionByZeroError: Division by zero in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php:85
+Stack trace:
+#0 {main}
+  thrown in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 85
+[06-May-2026 15:33:16 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type bool in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[06-May-2026 15:33:16 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type null in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[06-May-2026 15:33:16 America/Fortaleza] PHP Fatal error:  Uncaught DivisionByZeroError: Division by zero in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php:85
+Stack trace:
+#0 {main}
+  thrown in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 85
+[06-May-2026 19:46:38 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/animal/vender/lista_comprador.php on line 6
+[06-May-2026 19:47:08 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/animal/vender/lista_comprador.php on line 6
+[06-May-2026 19:47:08 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/animal/vender/lista_comprador.php on line 6
+[06-May-2026 19:49:47 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/animal/vender/lista_comprador.php on line 6
+[06-May-2026 19:49:48 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/animal/vender/lista_comprador.php on line 6
+[06-May-2026 21:16:40 America/Fortaleza] PHP Warning:  Undefined array key "banco" in /home2/siste870/public_html/sob2.0/_config.php on line 4
+[06-May-2026 21:16:40 America/Fortaleza] PHP Warning:  Undefined array key "login" in /home2/siste870/public_html/sob2.0/_config.php on line 5
+[06-May-2026 21:16:40 America/Fortaleza] PHP Fatal error:  Uncaught mysqli_sql_exception: Access denied for user 'siste870_sob'@'localhost' to database 'siste870_' in /home2/siste870/public_html/sob2.0/mysqli/_conexao.php:4
+Stack trace:
+#0 /home2/siste870/public_html/sob2.0/mysqli/_conexao.php(4): mysqli_connect('localhost', 'siste870_sob', Object(SensitiveParameterValue), 'siste870_')
+#1 /home2/siste870/public_html/sob2.0/mysqli/_database.php(17): DBConnect()
+#2 /home2/siste870/public_html/sob2.0/mysqli/_database.php(44): DBExecute('SELECT * FROM m...')
+#3 /home2/siste870/public_html/sob2.0/animal/vender/_vender.php(6): DBRead('mercado', ' WHERE nome = '...')
+#4 {main}
+  thrown in /home2/siste870/public_html/sob2.0/mysqli/_conexao.php on line 4
+[07-May-2026 09:15:17 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type bool in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[07-May-2026 09:15:17 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type null in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[07-May-2026 09:15:18 America/Fortaleza] PHP Fatal error:  Uncaught DivisionByZeroError: Division by zero in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php:85
+Stack trace:
+#0 {main}
+  thrown in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 85
+[07-May-2026 09:16:27 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type bool in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[07-May-2026 09:16:27 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type null in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[07-May-2026 09:16:27 America/Fortaleza] PHP Fatal error:  Uncaught DivisionByZeroError: Division by zero in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php:56
+Stack trace:
+#0 {main}
+  thrown in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 56
+[07-May-2026 09:17:18 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type bool in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[07-May-2026 09:17:18 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type null in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[07-May-2026 09:20:22 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/animal/vender/lista_comprador.php on line 6
+[07-May-2026 09:21:01 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type bool in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[07-May-2026 09:21:01 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type null in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[07-May-2026 09:21:01 America/Fortaleza] PHP Fatal error:  Uncaught DivisionByZeroError: Division by zero in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php:85
+Stack trace:
+#0 {main}
+  thrown in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 85
+[07-May-2026 09:21:40 America/Fortaleza] PHP Warning:  Undefined array key "banco" in /home2/siste870/public_html/sob2.0/_config.php on line 4
+[07-May-2026 09:21:40 America/Fortaleza] PHP Warning:  Undefined array key "login" in /home2/siste870/public_html/sob2.0/_config.php on line 5
+[07-May-2026 09:21:40 America/Fortaleza] PHP Fatal error:  Uncaught mysqli_sql_exception: Access denied for user 'siste870_sob'@'localhost' to database 'siste870_' in /home2/siste870/public_html/sob2.0/mysqli/_conexao.php:4
+Stack trace:
+#0 /home2/siste870/public_html/sob2.0/mysqli/_conexao.php(4): mysqli_connect('localhost', 'siste870_sob', Object(SensitiveParameterValue), 'siste870_')
+#1 /home2/siste870/public_html/sob2.0/mysqli/_database.php(17): DBConnect()
+#2 /home2/siste870/public_html/sob2.0/mysqli/_database.php(44): DBExecute('SELECT * FROM m...')
+#3 /home2/siste870/public_html/sob2.0/animal/vender/_vender.php(6): DBRead('mercado', ' WHERE nome = '...')
+#4 {main}
+  thrown in /home2/siste870/public_html/sob2.0/mysqli/_conexao.php on line 4
+[07-May-2026 09:24:31 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type bool in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[07-May-2026 09:24:31 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type null in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[07-May-2026 09:24:31 America/Fortaleza] PHP Fatal error:  Uncaught DivisionByZeroError: Division by zero in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php:85
+Stack trace:
+#0 {main}
+  thrown in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 85
+[07-May-2026 09:25:38 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type bool in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[07-May-2026 09:25:38 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type null in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[07-May-2026 09:25:38 America/Fortaleza] PHP Fatal error:  Uncaught DivisionByZeroError: Division by zero in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php:56
+Stack trace:
+#0 {main}
+  thrown in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 56
+[07-May-2026 09:26:23 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type bool in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[07-May-2026 09:26:23 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type null in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[07-May-2026 09:26:23 America/Fortaleza] PHP Fatal error:  Uncaught DivisionByZeroError: Division by zero in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php:84
+Stack trace:
+#0 {main}
+  thrown in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 84
+[07-May-2026 09:27:09 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type bool in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[07-May-2026 09:27:09 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type null in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[07-May-2026 09:27:54 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type bool in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[07-May-2026 09:27:54 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type null in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[07-May-2026 09:27:54 America/Fortaleza] PHP Fatal error:  Uncaught DivisionByZeroError: Division by zero in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php:84
+Stack trace:
+#0 {main}
+  thrown in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 84
+[07-May-2026 09:29:44 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type bool in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[07-May-2026 09:29:44 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type null in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[07-May-2026 09:32:28 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type bool in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[07-May-2026 09:32:28 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type null in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[07-May-2026 09:33:44 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/animal/vender/lista_comprador.php on line 6
+[07-May-2026 09:33:44 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/animal/vender/lista_comprador.php on line 6
+[07-May-2026 09:33:44 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/animal/vender/lista_comprador.php on line 6
+[07-May-2026 09:33:44 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/animal/vender/lista_comprador.php on line 6
+[07-May-2026 09:33:45 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/animal/vender/lista_comprador.php on line 6
+[07-May-2026 09:33:45 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/animal/vender/lista_comprador.php on line 6
+[07-May-2026 09:33:46 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/animal/vender/lista_comprador.php on line 6
+[07-May-2026 09:33:49 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/animal/vender/lista_comprador.php on line 6
+[07-May-2026 09:33:49 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/animal/vender/lista_comprador.php on line 6
+[07-May-2026 09:33:50 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/animal/vender/lista_comprador.php on line 6
+[07-May-2026 09:33:52 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/animal/vender/lista_comprador.php on line 6
+[07-May-2026 09:33:52 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/animal/vender/lista_comprador.php on line 6
+[07-May-2026 09:33:52 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/animal/vender/lista_comprador.php on line 6
+[07-May-2026 09:34:18 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/animal/vender/lista_comprador.php on line 6
+[07-May-2026 09:34:24 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/animal/vender/lista_comprador.php on line 6
+[07-May-2026 09:34:25 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/animal/vender/lista_comprador.php on line 6
+[07-May-2026 09:34:25 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/animal/vender/lista_comprador.php on line 6
+[07-May-2026 09:34:25 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/animal/vender/lista_comprador.php on line 6
+[07-May-2026 09:34:26 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/animal/vender/lista_comprador.php on line 6
+[07-May-2026 09:37:10 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type bool in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[07-May-2026 09:37:10 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type null in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[07-May-2026 09:38:31 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type bool in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[07-May-2026 09:38:31 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type null in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[07-May-2026 09:39:19 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type bool in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[07-May-2026 09:39:19 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type null in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[07-May-2026 09:40:19 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type bool in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[07-May-2026 09:40:19 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type null in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[07-May-2026 09:41:03 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type bool in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[07-May-2026 09:41:03 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type null in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[07-May-2026 19:55:31 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type bool in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[07-May-2026 19:55:31 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type null in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[07-May-2026 19:55:31 America/Fortaleza] PHP Fatal error:  Uncaught DivisionByZeroError: Division by zero in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php:84
+Stack trace:
+#0 {main}
+  thrown in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 84
+[07-May-2026 19:56:38 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type bool in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[07-May-2026 19:56:38 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type null in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[07-May-2026 19:57:30 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type bool in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[07-May-2026 19:57:30 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type null in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[07-May-2026 19:57:30 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type bool in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 79
+[07-May-2026 19:57:30 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type null in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 79
+[07-May-2026 19:58:37 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type bool in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[07-May-2026 19:58:37 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type null in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[07-May-2026 19:59:32 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type bool in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[07-May-2026 19:59:32 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type null in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[07-May-2026 20:00:35 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type bool in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[07-May-2026 20:00:35 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type null in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[07-May-2026 20:00:35 America/Fortaleza] PHP Fatal error:  Uncaught DivisionByZeroError: Division by zero in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php:84
+Stack trace:
+#0 {main}
+  thrown in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 84
+[13-May-2026 11:48:30 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/animal/vender/lista_comprador.php on line 6
+[13-May-2026 11:51:17 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type bool in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[13-May-2026 11:51:17 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type null in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[14-May-2026 20:25:24 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type bool in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[14-May-2026 20:25:24 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type null in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[14-May-2026 20:27:31 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/animal/vender/lista_comprador.php on line 6
+[14-May-2026 20:27:32 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/animal/vender/lista_comprador.php on line 6
+[14-May-2026 20:27:32 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/animal/vender/lista_comprador.php on line 6
+[14-May-2026 20:27:34 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/animal/vender/lista_comprador.php on line 6
+[14-May-2026 20:27:34 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/animal/vender/lista_comprador.php on line 6
+[14-May-2026 20:29:22 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type bool in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[14-May-2026 20:29:22 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type null in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[14-May-2026 20:32:49 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type bool in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[14-May-2026 20:32:49 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type null in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[14-May-2026 20:32:49 America/Fortaleza] PHP Fatal error:  Uncaught DivisionByZeroError: Division by zero in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php:84
+Stack trace:
+#0 {main}
+  thrown in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 84
+[16-May-2026 18:36:38 America/Fortaleza] PHP Fatal error:  Uncaught DivisionByZeroError: Division by zero in /home2/siste870/public_html/sob2.0/animal/vender/_desfazer_venda.php:51
+Stack trace:
+#0 {main}
+  thrown in /home2/siste870/public_html/sob2.0/animal/vender/_desfazer_venda.php on line 51
+[16-May-2026 18:37:11 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/animal/vender/lista_comprador.php on line 6
+[16-May-2026 18:37:43 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/animal/vender/lista_comprador.php on line 6
+[16-May-2026 18:38:05 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/animal/vender/lista_comprador.php on line 6
+[16-May-2026 18:38:44 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/animal/vender/lista_comprador.php on line 6
+[16-May-2026 18:38:47 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/animal/vender/lista_comprador.php on line 6
+[16-May-2026 18:38:48 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/animal/vender/lista_comprador.php on line 6
+[16-May-2026 18:38:49 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/animal/vender/lista_comprador.php on line 6
+[16-May-2026 18:40:52 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type bool in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[16-May-2026 18:40:52 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type null in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[16-May-2026 19:23:15 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type bool in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[16-May-2026 19:23:15 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type null in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[17-May-2026 15:43:29 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/animal/vender/lista_comprador.php on line 6
+[17-May-2026 15:43:46 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/animal/vender/lista_comprador.php on line 6
+[17-May-2026 15:46:27 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type bool in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[17-May-2026 15:46:27 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type null in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[18-May-2026 10:36:53 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type bool in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[18-May-2026 10:36:53 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type null in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[18-May-2026 10:36:53 America/Fortaleza] PHP Fatal error:  Uncaught DivisionByZeroError: Division by zero in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php:85
+Stack trace:
+#0 {main}
+  thrown in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 85
+[18-May-2026 10:37:52 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/animal/vender/lista_comprador.php on line 6
+[18-May-2026 10:39:36 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/animal/vender/lista_comprador.php on line 6
+[18-May-2026 10:41:55 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type bool in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[18-May-2026 10:41:55 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type null in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[19-May-2026 10:37:04 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type bool in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[19-May-2026 10:37:04 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type null in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[19-May-2026 22:54:35 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type bool in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[19-May-2026 22:54:35 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type null in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[19-May-2026 22:55:32 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type bool in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[19-May-2026 22:55:32 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type null in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[20-May-2026 08:43:24 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type bool in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[20-May-2026 08:43:24 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type null in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[20-May-2026 11:57:32 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/animal/vender/lista_comprador.php on line 6
+[20-May-2026 11:57:32 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/animal/vender/lista_comprador.php on line 6
+[20-May-2026 11:57:34 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/animal/vender/lista_comprador.php on line 6
+[20-May-2026 12:03:59 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type bool in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[20-May-2026 12:03:59 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type null in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[23-May-2026 10:37:58 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/animal/vender/lista_comprador.php on line 6
+[25-May-2026 14:49:24 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/animal/vender/lista_comprador.php on line 6
+[25-May-2026 14:49:47 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/animal/vender/lista_comprador.php on line 6
+[25-May-2026 14:49:47 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/animal/vender/lista_comprador.php on line 6
+[25-May-2026 14:49:49 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/animal/vender/lista_comprador.php on line 6
+[25-May-2026 14:50:00 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/animal/vender/lista_comprador.php on line 6
+[25-May-2026 14:52:53 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type bool in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[25-May-2026 14:52:53 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type null in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[25-May-2026 14:53:34 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type bool in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[25-May-2026 14:53:34 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type null in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[25-May-2026 14:55:37 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type bool in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[25-May-2026 14:55:37 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type null in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[25-May-2026 14:57:02 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type bool in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[25-May-2026 14:57:02 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type null in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[25-May-2026 15:04:15 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/animal/vender/lista_comprador.php on line 6
+[25-May-2026 15:04:16 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/animal/vender/lista_comprador.php on line 6
+[25-May-2026 15:04:16 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/animal/vender/lista_comprador.php on line 6
+[25-May-2026 15:04:17 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/animal/vender/lista_comprador.php on line 6
+[25-May-2026 15:04:18 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/animal/vender/lista_comprador.php on line 6
+[25-May-2026 15:04:22 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/animal/vender/lista_comprador.php on line 6
+[25-May-2026 15:04:49 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/animal/vender/lista_comprador.php on line 6
+[25-May-2026 15:07:40 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type bool in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[25-May-2026 15:07:40 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type null in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[25-May-2026 15:07:40 America/Fortaleza] PHP Fatal error:  Uncaught DivisionByZeroError: Division by zero in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php:84
+Stack trace:
+#0 {main}
+  thrown in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 84
+[25-May-2026 15:11:38 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type bool in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[25-May-2026 15:11:38 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type null in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[25-May-2026 15:11:38 America/Fortaleza] PHP Fatal error:  Uncaught DivisionByZeroError: Division by zero in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php:56
+Stack trace:
+#0 {main}
+  thrown in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 56
+[25-May-2026 15:16:34 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/animal/vender/lista_comprador.php on line 6
+[25-May-2026 15:19:33 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type bool in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[25-May-2026 15:19:33 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type null in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[25-May-2026 15:19:33 America/Fortaleza] PHP Fatal error:  Uncaught DivisionByZeroError: Division by zero in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php:85
+Stack trace:
+#0 {main}
+  thrown in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 85
+[25-May-2026 15:44:17 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type bool in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[25-May-2026 15:44:17 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type null in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[25-May-2026 17:05:45 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type bool in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[25-May-2026 17:05:45 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type null in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[26-May-2026 19:22:24 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/animal/vender/lista_comprador.php on line 6
+[26-May-2026 19:23:58 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type bool in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[26-May-2026 19:23:58 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type null in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[26-May-2026 19:25:48 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type bool in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[26-May-2026 19:25:48 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type null in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[26-May-2026 19:25:48 America/Fortaleza] PHP Fatal error:  Uncaught DivisionByZeroError: Division by zero in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php:85
+Stack trace:
+#0 {main}
+  thrown in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 85
+[26-May-2026 19:28:16 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/animal/vender/lista_comprador.php on line 6
+[26-May-2026 19:40:58 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type bool in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[26-May-2026 19:40:58 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type null in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[26-May-2026 19:42:26 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type bool in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[26-May-2026 19:42:26 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type null in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[26-May-2026 19:42:26 America/Fortaleza] PHP Fatal error:  Uncaught DivisionByZeroError: Division by zero in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php:56
+Stack trace:
+#0 {main}
+  thrown in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 56
+[26-May-2026 19:45:10 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type bool in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[26-May-2026 19:45:10 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type null in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[26-May-2026 19:45:10 America/Fortaleza] PHP Fatal error:  Uncaught DivisionByZeroError: Division by zero in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php:84
+Stack trace:
+#0 {main}
+  thrown in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 84
+[26-May-2026 19:46:30 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/animal/vender/lista_comprador.php on line 6
+[26-May-2026 19:48:22 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type bool in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[26-May-2026 19:48:22 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type null in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[26-May-2026 19:48:22 America/Fortaleza] PHP Fatal error:  Uncaught DivisionByZeroError: Division by zero in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php:84
+Stack trace:
+#0 {main}
+  thrown in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 84
+[26-May-2026 19:51:13 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/animal/vender/lista_comprador.php on line 6
+[26-May-2026 19:56:40 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/animal/vender/lista_comprador.php on line 6
+[26-May-2026 19:57:36 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type bool in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[26-May-2026 19:57:36 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type null in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[26-May-2026 19:57:36 America/Fortaleza] PHP Fatal error:  Uncaught DivisionByZeroError: Division by zero in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php:84
+Stack trace:
+#0 {main}
+  thrown in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 84
+[26-May-2026 19:58:31 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/animal/vender/lista_comprador.php on line 6
+[26-May-2026 19:58:31 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/animal/vender/lista_comprador.php on line 6
+[26-May-2026 19:58:35 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/animal/vender/lista_comprador.php on line 6
+[26-May-2026 19:59:10 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/animal/vender/lista_comprador.php on line 6
+[26-May-2026 19:59:24 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/animal/vender/lista_comprador.php on line 6
+[26-May-2026 19:59:24 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/animal/vender/lista_comprador.php on line 6
+[26-May-2026 19:59:27 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/animal/vender/lista_comprador.php on line 6
+[26-May-2026 19:59:37 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/animal/vender/lista_comprador.php on line 6
+[26-May-2026 20:00:20 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type bool in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[26-May-2026 20:00:20 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type null in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[26-May-2026 20:00:20 America/Fortaleza] PHP Fatal error:  Uncaught DivisionByZeroError: Division by zero in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php:84
+Stack trace:
+#0 {main}
+  thrown in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 84
+[26-May-2026 20:03:35 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type bool in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[26-May-2026 20:03:35 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type null in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[26-May-2026 20:03:35 America/Fortaleza] PHP Fatal error:  Uncaught DivisionByZeroError: Division by zero in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php:84
+Stack trace:
+#0 {main}
+  thrown in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 84
+[28-May-2026 13:37:17 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type bool in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[28-May-2026 13:37:17 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type null in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[29-May-2026 13:04:13 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/animal/vender/lista_comprador.php on line 6
+[29-May-2026 16:31:36 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type bool in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[29-May-2026 16:31:36 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type null in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[29-May-2026 16:33:10 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type bool in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[29-May-2026 16:33:10 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type null in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[29-May-2026 16:33:10 America/Fortaleza] PHP Fatal error:  Uncaught DivisionByZeroError: Division by zero in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php:84
+Stack trace:
+#0 {main}
+  thrown in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 84
+[29-May-2026 16:34:07 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type bool in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[29-May-2026 16:34:07 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type null in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[01-Jun-2026 07:41:24 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/animal/vender/lista_comprador.php on line 6
+[01-Jun-2026 07:42:33 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/animal/vender/lista_comprador.php on line 6
+[02-Jun-2026 07:34:00 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/animal/vender/lista_comprador.php on line 6
+[02-Jun-2026 07:34:16 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/animal/vender/lista_comprador.php on line 6
+[02-Jun-2026 07:35:04 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type bool in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[02-Jun-2026 07:35:04 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type null in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[02-Jun-2026 07:35:04 America/Fortaleza] PHP Fatal error:  Uncaught DivisionByZeroError: Division by zero in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php:85
+Stack trace:
+#0 {main}
+  thrown in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 85
+[02-Jun-2026 07:36:06 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type bool in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[02-Jun-2026 07:36:06 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type null in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[02-Jun-2026 07:36:06 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type bool in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 79
+[02-Jun-2026 07:36:06 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type null in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 79
+[02-Jun-2026 07:37:05 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type bool in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[02-Jun-2026 07:37:05 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type null in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[02-Jun-2026 07:37:44 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/animal/vender/lista_comprador.php on line 6
+[02-Jun-2026 07:37:45 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/animal/vender/lista_comprador.php on line 6
+[02-Jun-2026 07:37:46 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/animal/vender/lista_comprador.php on line 6
+[02-Jun-2026 07:40:46 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type bool in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[02-Jun-2026 07:40:46 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type null in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[02-Jun-2026 07:42:18 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type bool in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[02-Jun-2026 07:42:18 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type null in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[02-Jun-2026 11:43:21 America/Fortaleza] PHP Fatal error:  Uncaught DivisionByZeroError: Division by zero in /home2/siste870/public_html/sob2.0/animal/vender/_desfazer_venda.php:52
+Stack trace:
+#0 {main}
+  thrown in /home2/siste870/public_html/sob2.0/animal/vender/_desfazer_venda.php on line 52
+[02-Jun-2026 11:44:59 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type bool in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[02-Jun-2026 11:44:59 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type null in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[02-Jun-2026 15:48:34 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/animal/vender/lista_comprador.php on line 6
+[02-Jun-2026 15:48:50 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/animal/vender/lista_comprador.php on line 6
+[02-Jun-2026 15:48:50 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/animal/vender/lista_comprador.php on line 6
+[02-Jun-2026 15:48:52 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/animal/vender/lista_comprador.php on line 6
+[02-Jun-2026 15:49:07 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/animal/vender/lista_comprador.php on line 6
+[02-Jun-2026 15:49:10 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/animal/vender/lista_comprador.php on line 6
+[02-Jun-2026 15:49:12 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/animal/vender/lista_comprador.php on line 6
+[02-Jun-2026 15:49:13 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/animal/vender/lista_comprador.php on line 6
+[02-Jun-2026 15:49:22 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/animal/vender/lista_comprador.php on line 6
+[02-Jun-2026 15:50:23 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type bool in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[02-Jun-2026 15:50:23 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type null in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[02-Jun-2026 15:50:23 America/Fortaleza] PHP Fatal error:  Uncaught DivisionByZeroError: Division by zero in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php:84
+Stack trace:
+#0 {main}
+  thrown in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 84
+[02-Jun-2026 19:16:46 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type bool in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[02-Jun-2026 19:16:46 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type null in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[02-Jun-2026 19:16:46 America/Fortaleza] PHP Fatal error:  Uncaught DivisionByZeroError: Division by zero in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php:84
+Stack trace:
+#0 {main}
+  thrown in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 84
+[05-Jun-2026 12:55:17 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/animal/vender/lista_comprador.php on line 6
+[05-Jun-2026 12:55:23 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/animal/vender/lista_comprador.php on line 6
+[05-Jun-2026 12:56:01 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/animal/vender/lista_comprador.php on line 6
+[05-Jun-2026 12:57:29 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type bool in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[05-Jun-2026 12:57:29 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type null in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[05-Jun-2026 13:00:58 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type bool in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[05-Jun-2026 13:00:58 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type null in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[05-Jun-2026 13:00:59 America/Fortaleza] PHP Fatal error:  Uncaught DivisionByZeroError: Division by zero in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php:85
+Stack trace:
+#0 {main}
+  thrown in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 85
+[05-Jun-2026 13:02:56 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type bool in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[05-Jun-2026 13:02:56 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type null in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[06-Jun-2026 11:43:03 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/animal/vender/lista_comprador.php on line 6
+[06-Jun-2026 11:43:04 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/animal/vender/lista_comprador.php on line 6
+[06-Jun-2026 11:43:05 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/animal/vender/lista_comprador.php on line 6
+[06-Jun-2026 11:43:05 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/animal/vender/lista_comprador.php on line 6
+[06-Jun-2026 11:43:06 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/animal/vender/lista_comprador.php on line 6
+[06-Jun-2026 11:43:09 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/animal/vender/lista_comprador.php on line 6
+[06-Jun-2026 11:43:10 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/animal/vender/lista_comprador.php on line 6
+[06-Jun-2026 11:43:10 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/animal/vender/lista_comprador.php on line 6
+[06-Jun-2026 11:43:10 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/animal/vender/lista_comprador.php on line 6
+[06-Jun-2026 11:43:14 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/animal/vender/lista_comprador.php on line 6
+[06-Jun-2026 11:45:42 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type bool in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[06-Jun-2026 11:45:42 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type null in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[06-Jun-2026 15:48:05 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type bool in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[06-Jun-2026 15:48:05 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type null in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[06-Jun-2026 15:48:05 America/Fortaleza] PHP Fatal error:  Uncaught DivisionByZeroError: Division by zero in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php:85
+Stack trace:
+#0 {main}
+  thrown in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 85
+[06-Jun-2026 15:48:29 America/Fortaleza] PHP Warning:  Undefined array key "banco" in /home2/siste870/public_html/sob2.0/_config.php on line 4
+[06-Jun-2026 15:48:29 America/Fortaleza] PHP Warning:  Undefined array key "login" in /home2/siste870/public_html/sob2.0/_config.php on line 5
+[06-Jun-2026 15:48:29 America/Fortaleza] PHP Fatal error:  Uncaught mysqli_sql_exception: Access denied for user 'siste870_sob'@'localhost' to database 'siste870_' in /home2/siste870/public_html/sob2.0/mysqli/_conexao.php:4
+Stack trace:
+#0 /home2/siste870/public_html/sob2.0/mysqli/_conexao.php(4): mysqli_connect('localhost', 'siste870_sob', Object(SensitiveParameterValue), 'siste870_')
+#1 /home2/siste870/public_html/sob2.0/mysqli/_database.php(17): DBConnect()
+#2 /home2/siste870/public_html/sob2.0/mysqli/_database.php(44): DBExecute('SELECT * FROM m...')
+#3 /home2/siste870/public_html/sob2.0/animal/vender/_vender.php(6): DBRead('mercado', ' WHERE nome = '...')
+#4 {main}
+  thrown in /home2/siste870/public_html/sob2.0/mysqli/_conexao.php on line 4
+[09-Jun-2026 12:35:30 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/animal/vender/lista_comprador.php on line 6
+[09-Jun-2026 12:35:31 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/animal/vender/lista_comprador.php on line 6
+[09-Jun-2026 12:35:33 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/animal/vender/lista_comprador.php on line 6
+[09-Jun-2026 12:35:33 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/animal/vender/lista_comprador.php on line 6
+[09-Jun-2026 12:36:38 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type bool in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[09-Jun-2026 12:36:38 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type null in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[09-Jun-2026 16:31:29 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/animal/vender/lista_comprador.php on line 6
+[09-Jun-2026 16:31:34 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/animal/vender/lista_comprador.php on line 6
+[09-Jun-2026 16:32:50 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type bool in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[09-Jun-2026 16:32:50 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type null in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[18-Jun-2026 06:53:31 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/animal/vender/lista_comprador.php on line 6
+[18-Jun-2026 09:47:22 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type bool in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[18-Jun-2026 09:47:22 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type null in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[18-Jun-2026 15:58:13 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/animal/vender/lista_comprador.php on line 6
+[18-Jun-2026 15:59:57 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type bool in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[18-Jun-2026 15:59:57 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type null in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[19-Jun-2026 09:22:14 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/animal/vender/lista_comprador.php on line 6
+[19-Jun-2026 09:23:16 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/animal/vender/lista_comprador.php on line 6
+[19-Jun-2026 09:25:53 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type bool in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[19-Jun-2026 09:25:53 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type null in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[19-Jun-2026 09:25:53 America/Fortaleza] PHP Fatal error:  Uncaught DivisionByZeroError: Division by zero in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php:84
+Stack trace:
+#0 {main}
+  thrown in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 84
+[19-Jun-2026 09:27:16 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type bool in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[19-Jun-2026 09:27:16 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type null in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[20-Jun-2026 14:25:59 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/animal/vender/lista_comprador.php on line 6
+[20-Jun-2026 14:26:02 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/animal/vender/lista_comprador.php on line 6
+[20-Jun-2026 14:26:09 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/animal/vender/lista_comprador.php on line 6
+[20-Jun-2026 14:26:11 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/animal/vender/lista_comprador.php on line 6
+[20-Jun-2026 15:09:34 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type bool in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[20-Jun-2026 15:09:34 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type null in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[20-Jun-2026 15:09:35 America/Fortaleza] PHP Fatal error:  Uncaught DivisionByZeroError: Division by zero in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php:84
+Stack trace:
+#0 {main}
+  thrown in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 84
+[21-Jun-2026 09:01:37 America/Fortaleza] PHP Warning:  Undefined array key "banco" in /home2/siste870/public_html/sob2.0/_config.php on line 4
+[21-Jun-2026 09:01:37 America/Fortaleza] PHP Warning:  Undefined array key "login" in /home2/siste870/public_html/sob2.0/_config.php on line 5
+[21-Jun-2026 09:01:37 America/Fortaleza] PHP Fatal error:  Uncaught mysqli_sql_exception: Access denied for user 'siste870_sob'@'localhost' to database 'siste870_' in /home2/siste870/public_html/sob2.0/mysqli/_conexao.php:4
+Stack trace:
+#0 /home2/siste870/public_html/sob2.0/mysqli/_conexao.php(4): mysqli_connect('localhost', 'siste870_sob', Object(SensitiveParameterValue), 'siste870_')
+#1 /home2/siste870/public_html/sob2.0/mysqli/_database.php(17): DBConnect()
+#2 /home2/siste870/public_html/sob2.0/mysqli/_database.php(44): DBExecute('SELECT * FROM m...')
+#3 /home2/siste870/public_html/sob2.0/animal/vender/_vender.php(6): DBRead('mercado', ' WHERE nome = '...')
+#4 {main}
+  thrown in /home2/siste870/public_html/sob2.0/mysqli/_conexao.php on line 4
+[22-Jun-2026 13:14:16 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type bool in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[22-Jun-2026 13:14:16 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type null in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[24-Jun-2026 12:20:37 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type bool in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[24-Jun-2026 12:20:37 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type null in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[25-Jun-2026 14:10:56 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/animal/vender/lista_comprador.php on line 6
+[25-Jun-2026 14:17:35 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/animal/vender/lista_comprador.php on line 6
+[25-Jun-2026 14:17:35 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/animal/vender/lista_comprador.php on line 6
+[25-Jun-2026 14:17:36 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/animal/vender/lista_comprador.php on line 6
+[03-Jul-2026 14:01:45 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type bool in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[03-Jul-2026 14:01:45 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type null in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[03-Jul-2026 14:01:45 America/Fortaleza] PHP Fatal error:  Uncaught DivisionByZeroError: Division by zero in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php:85
+Stack trace:
+#0 {main}
+  thrown in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 85
+[06-Jul-2026 17:58:24 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/animal/vender/lista_comprador.php on line 6
+[06-Jul-2026 17:58:24 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/animal/vender/lista_comprador.php on line 6
+[06-Jul-2026 17:58:26 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/animal/vender/lista_comprador.php on line 6
+[07-Jul-2026 13:53:19 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type bool in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[07-Jul-2026 13:53:19 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type null in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[09-Jul-2026 14:35:43 America/Fortaleza] PHP Fatal error:  Uncaught DivisionByZeroError: Division by zero in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php:84
+Stack trace:
+#0 {main}
+  thrown in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 84
+[12-Jul-2026 07:07:18 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type bool in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[12-Jul-2026 07:07:18 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type null in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[13-Jul-2026 17:14:37 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/animal/vender/lista_comprador.php on line 6
+[13-Jul-2026 17:14:43 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/animal/vender/lista_comprador.php on line 6
+[13-Jul-2026 17:14:49 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/animal/vender/lista_comprador.php on line 6
+[13-Jul-2026 17:14:50 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/animal/vender/lista_comprador.php on line 6
+[13-Jul-2026 17:14:50 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/animal/vender/lista_comprador.php on line 6
+[13-Jul-2026 17:14:52 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/animal/vender/lista_comprador.php on line 6
+[13-Jul-2026 17:14:53 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/animal/vender/lista_comprador.php on line 6
+[13-Jul-2026 17:16:32 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/animal/vender/lista_comprador.php on line 6
+[13-Jul-2026 17:16:41 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/animal/vender/lista_comprador.php on line 6
+[13-Jul-2026 17:17:15 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type bool in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[13-Jul-2026 17:17:15 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type null in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[13-Jul-2026 17:17:55 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/animal/vender/lista_comprador.php on line 6
+[13-Jul-2026 17:17:56 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/animal/vender/lista_comprador.php on line 6
+[13-Jul-2026 17:17:57 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/animal/vender/lista_comprador.php on line 6
+[13-Jul-2026 17:20:08 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type bool in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[13-Jul-2026 17:20:08 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type null in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[13-Jul-2026 17:20:08 America/Fortaleza] PHP Fatal error:  Uncaught DivisionByZeroError: Division by zero in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php:85
+Stack trace:
+#0 {main}
+  thrown in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 85
+[15-Jul-2026 16:19:00 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/animal/vender/lista_comprador.php on line 6
+[15-Jul-2026 16:21:37 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type bool in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[15-Jul-2026 16:21:37 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type null in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[15-Jul-2026 16:21:37 America/Fortaleza] PHP Fatal error:  Uncaught DivisionByZeroError: Division by zero in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php:85
+Stack trace:
+#0 {main}
+  thrown in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 85
+[15-Jul-2026 16:22:33 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type bool in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[15-Jul-2026 16:22:33 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type null in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[15-Jul-2026 16:22:33 America/Fortaleza] PHP Fatal error:  Uncaught DivisionByZeroError: Division by zero in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php:85
+Stack trace:
+#0 {main}
+  thrown in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 85
+[15-Jul-2026 17:33:57 America/Fortaleza] PHP Warning:  Undefined array key "banco" in /home2/siste870/public_html/sob2.0/_config.php on line 4
+[15-Jul-2026 17:33:57 America/Fortaleza] PHP Warning:  Undefined array key "login" in /home2/siste870/public_html/sob2.0/_config.php on line 5
+[15-Jul-2026 17:33:57 America/Fortaleza] PHP Fatal error:  Uncaught mysqli_sql_exception: Access denied for user 'siste870_sob'@'localhost' to database 'siste870_' in /home2/siste870/public_html/sob2.0/mysqli/_conexao.php:4
+Stack trace:
+#0 /home2/siste870/public_html/sob2.0/mysqli/_conexao.php(4): mysqli_connect('localhost', 'siste870_sob', Object(SensitiveParameterValue), 'siste870_')
+#1 /home2/siste870/public_html/sob2.0/mysqli/_database.php(17): DBConnect()
+#2 /home2/siste870/public_html/sob2.0/mysqli/_database.php(44): DBExecute('SELECT * FROM m...')
+#3 /home2/siste870/public_html/sob2.0/animal/vender/_vender.php(6): DBRead('mercado', ' WHERE nome = '...')
+#4 {main}
+  thrown in /home2/siste870/public_html/sob2.0/mysqli/_conexao.php on line 4
+[15-Jul-2026 17:34:25 America/Fortaleza] PHP Warning:  Undefined array key "banco" in /home2/siste870/public_html/sob2.0/_config.php on line 4
+[15-Jul-2026 17:34:25 America/Fortaleza] PHP Warning:  Undefined array key "login" in /home2/siste870/public_html/sob2.0/_config.php on line 5
+[15-Jul-2026 17:34:25 America/Fortaleza] PHP Fatal error:  Uncaught mysqli_sql_exception: Access denied for user 'siste870_sob'@'localhost' to database 'siste870_' in /home2/siste870/public_html/sob2.0/mysqli/_conexao.php:4
+Stack trace:
+#0 /home2/siste870/public_html/sob2.0/mysqli/_conexao.php(4): mysqli_connect('localhost', 'siste870_sob', Object(SensitiveParameterValue), 'siste870_')
+#1 /home2/siste870/public_html/sob2.0/mysqli/_database.php(17): DBConnect()
+#2 /home2/siste870/public_html/sob2.0/mysqli/_database.php(44): DBExecute('SELECT * FROM m...')
+#3 /home2/siste870/public_html/sob2.0/animal/vender/_vender.php(6): DBRead('mercado', ' WHERE nome = '...')
+#4 {main}
+  thrown in /home2/siste870/public_html/sob2.0/mysqli/_conexao.php on line 4
+[15-Jul-2026 20:03:40 America/Fortaleza] PHP Warning:  Undefined array key "banco" in /home2/siste870/public_html/sob2.0/_config.php on line 4
+[15-Jul-2026 20:03:40 America/Fortaleza] PHP Warning:  Undefined array key "login" in /home2/siste870/public_html/sob2.0/_config.php on line 5
+[15-Jul-2026 20:03:40 America/Fortaleza] PHP Fatal error:  Uncaught mysqli_sql_exception: Access denied for user 'siste870_sob'@'localhost' to database 'siste870_' in /home2/siste870/public_html/sob2.0/mysqli/_conexao.php:4
+Stack trace:
+#0 /home2/siste870/public_html/sob2.0/mysqli/_conexao.php(4): mysqli_connect('localhost', 'siste870_sob', Object(SensitiveParameterValue), 'siste870_')
+#1 /home2/siste870/public_html/sob2.0/mysqli/_database.php(17): DBConnect()
+#2 /home2/siste870/public_html/sob2.0/mysqli/_database.php(44): DBExecute('SELECT * FROM m...')
+#3 /home2/siste870/public_html/sob2.0/animal/vender/_vender.php(6): DBRead('mercado', ' WHERE nome = '...')
+#4 {main}
+  thrown in /home2/siste870/public_html/sob2.0/mysqli/_conexao.php on line 4
+[18-Jul-2026 10:03:35 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type bool in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[18-Jul-2026 10:03:35 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type null in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[18-Jul-2026 10:05:50 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type bool in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[18-Jul-2026 10:05:50 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type null in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[18-Jul-2026 10:07:46 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type bool in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[18-Jul-2026 10:07:46 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type null in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[18-Jul-2026 10:07:46 America/Fortaleza] PHP Fatal error:  Uncaught DivisionByZeroError: Division by zero in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php:85
+Stack trace:
+#0 {main}
+  thrown in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 85
+[18-Jul-2026 11:55:44 America/Fortaleza] PHP Warning:  Undefined array key "banco" in /home2/siste870/public_html/sob2.0/_config.php on line 4
+[18-Jul-2026 11:55:44 America/Fortaleza] PHP Warning:  Undefined array key "login" in /home2/siste870/public_html/sob2.0/_config.php on line 5
+[18-Jul-2026 11:55:44 America/Fortaleza] PHP Fatal error:  Uncaught mysqli_sql_exception: Access denied for user 'siste870_sob'@'localhost' to database 'siste870_' in /home2/siste870/public_html/sob2.0/mysqli/_conexao.php:4
+Stack trace:
+#0 /home2/siste870/public_html/sob2.0/mysqli/_conexao.php(4): mysqli_connect('localhost', 'siste870_sob', Object(SensitiveParameterValue), 'siste870_')
+#1 /home2/siste870/public_html/sob2.0/mysqli/_database.php(17): DBConnect()
+#2 /home2/siste870/public_html/sob2.0/mysqli/_database.php(44): DBExecute('SELECT * FROM m...')
+#3 /home2/siste870/public_html/sob2.0/animal/vender/_vender.php(6): DBRead('mercado', ' WHERE nome = '...')
+#4 {main}
+  thrown in /home2/siste870/public_html/sob2.0/mysqli/_conexao.php on line 4
+[18-Jul-2026 12:00:09 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type bool in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[18-Jul-2026 12:00:09 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type null in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[22-Jul-2026 16:05:20 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type bool in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[22-Jul-2026 16:05:20 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type null in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[23-Jul-2026 11:42:14 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type bool in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[23-Jul-2026 11:42:14 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type null in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[23-Jul-2026 11:44:16 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type bool in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[23-Jul-2026 11:44:16 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type null in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[24-Jul-2026 13:55:30 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/animal/vender/lista_comprador.php on line 6
+[24-Jul-2026 13:57:43 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type bool in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[24-Jul-2026 13:57:43 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type null in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[26-Jul-2026 17:08:37 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/animal/vender/lista_comprador.php on line 6
+[26-Jul-2026 17:08:37 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/animal/vender/lista_comprador.php on line 6
+[26-Jul-2026 17:08:37 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/animal/vender/lista_comprador.php on line 6
+[26-Jul-2026 17:08:38 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/animal/vender/lista_comprador.php on line 6
+[26-Jul-2026 17:08:38 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/animal/vender/lista_comprador.php on line 6
+[26-Jul-2026 17:08:40 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/animal/vender/lista_comprador.php on line 6
+[26-Jul-2026 17:08:40 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/animal/vender/lista_comprador.php on line 6
+[26-Jul-2026 17:08:41 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/animal/vender/lista_comprador.php on line 6
+[26-Jul-2026 17:08:44 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/animal/vender/lista_comprador.php on line 6
+[27-Jul-2026 10:16:04 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type bool in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[27-Jul-2026 10:16:04 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type null in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[27-Jul-2026 10:16:04 America/Fortaleza] PHP Fatal error:  Uncaught DivisionByZeroError: Division by zero in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php:84
+Stack trace:
+#0 {main}
+  thrown in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 84
+[27-Jul-2026 14:40:09 America/Fortaleza] PHP Warning:  Undefined array key "banco" in /home2/siste870/public_html/sob2.0/_config.php on line 4
+[27-Jul-2026 14:40:09 America/Fortaleza] PHP Warning:  Undefined array key "login" in /home2/siste870/public_html/sob2.0/_config.php on line 5
+[27-Jul-2026 14:40:09 America/Fortaleza] PHP Fatal error:  Uncaught mysqli_sql_exception: Access denied for user 'siste870_sob'@'localhost' to database 'siste870_' in /home2/siste870/public_html/sob2.0/mysqli/_conexao.php:4
+Stack trace:
+#0 /home2/siste870/public_html/sob2.0/mysqli/_conexao.php(4): mysqli_connect('localhost', 'siste870_sob', Object(SensitiveParameterValue), 'siste870_')
+#1 /home2/siste870/public_html/sob2.0/mysqli/_database.php(17): DBConnect()
+#2 /home2/siste870/public_html/sob2.0/mysqli/_database.php(44): DBExecute('SELECT * FROM m...')
+#3 /home2/siste870/public_html/sob2.0/animal/vender/_vender.php(6): DBRead('mercado', ' WHERE nome = '...')
+#4 {main}
+  thrown in /home2/siste870/public_html/sob2.0/mysqli/_conexao.php on line 4
+[29-Jul-2026 10:46:49 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type bool in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[29-Jul-2026 10:46:49 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type null in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[31-Jul-2026 07:39:30 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type bool in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[31-Jul-2026 07:39:30 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type null in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[31-Jul-2026 07:40:15 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type bool in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[31-Jul-2026 07:40:15 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type null in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[02-Aug-2026 09:15:19 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type bool in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[02-Aug-2026 09:15:19 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type null in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[02-Aug-2026 09:18:02 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type bool in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[02-Aug-2026 09:18:02 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type null in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[02-Aug-2026 09:18:58 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/animal/vender/lista_comprador.php on line 6
+[02-Aug-2026 09:18:58 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/animal/vender/lista_comprador.php on line 6
+[02-Aug-2026 09:19:00 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/animal/vender/lista_comprador.php on line 6
+[02-Aug-2026 09:19:54 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type bool in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[02-Aug-2026 09:19:54 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type null in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[03-Aug-2026 10:40:26 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/animal/vender/lista_comprador.php on line 6
+[03-Aug-2026 10:40:26 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/animal/vender/lista_comprador.php on line 6
+[03-Aug-2026 10:40:27 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/animal/vender/lista_comprador.php on line 6
+[03-Aug-2026 10:40:27 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/animal/vender/lista_comprador.php on line 6
+[03-Aug-2026 10:40:27 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/animal/vender/lista_comprador.php on line 6
+[03-Aug-2026 10:40:28 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/animal/vender/lista_comprador.php on line 6
+[03-Aug-2026 10:40:28 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/animal/vender/lista_comprador.php on line 6
+[03-Aug-2026 10:40:28 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/animal/vender/lista_comprador.php on line 6
+[03-Aug-2026 10:40:28 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/animal/vender/lista_comprador.php on line 6
+[03-Aug-2026 10:40:28 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/animal/vender/lista_comprador.php on line 6
+[03-Aug-2026 10:40:28 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/animal/vender/lista_comprador.php on line 6
+[03-Aug-2026 10:40:28 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/animal/vender/lista_comprador.php on line 6
+[03-Aug-2026 10:40:43 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type bool in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[03-Aug-2026 10:40:43 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type null in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[03-Aug-2026 10:40:43 America/Fortaleza] PHP Fatal error:  Uncaught DivisionByZeroError: Division by zero in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php:85
+Stack trace:
+#0 {main}
+  thrown in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 85
+[03-Aug-2026 12:29:16 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type bool in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[03-Aug-2026 12:29:16 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type null in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[03-Aug-2026 12:29:16 America/Fortaleza] PHP Fatal error:  Uncaught DivisionByZeroError: Division by zero in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php:85
+Stack trace:
+#0 {main}
+  thrown in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 85
+[03-Aug-2026 13:35:36 America/Fortaleza] PHP Warning:  Undefined array key "banco" in /home2/siste870/public_html/sob2.0/_config.php on line 4
+[03-Aug-2026 13:35:36 America/Fortaleza] PHP Warning:  Undefined array key "login" in /home2/siste870/public_html/sob2.0/_config.php on line 5
+[03-Aug-2026 13:35:36 America/Fortaleza] PHP Fatal error:  Uncaught mysqli_sql_exception: Access denied for user 'siste870_sob'@'localhost' to database 'siste870_' in /home2/siste870/public_html/sob2.0/mysqli/_conexao.php:4
+Stack trace:
+#0 /home2/siste870/public_html/sob2.0/mysqli/_conexao.php(4): mysqli_connect('localhost', 'siste870_sob', Object(SensitiveParameterValue), 'siste870_')
+#1 /home2/siste870/public_html/sob2.0/mysqli/_database.php(17): DBConnect()
+#2 /home2/siste870/public_html/sob2.0/mysqli/_database.php(44): DBExecute('SELECT * FROM m...')
+#3 /home2/siste870/public_html/sob2.0/animal/vender/_vender.php(6): DBRead('mercado', ' WHERE nome = '...')
+#4 {main}
+  thrown in /home2/siste870/public_html/sob2.0/mysqli/_conexao.php on line 4
+[03-Aug-2026 13:37:07 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type bool in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[03-Aug-2026 13:37:07 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type null in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[08-Aug-2026 17:26:41 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/animal/vender/lista_comprador.php on line 6
+[10-Aug-2026 11:14:15 America/Fortaleza] PHP Fatal error:  Uncaught DivisionByZeroError: Division by zero in /home2/siste870/public_html/sob2.0/animal/vender/_desfazer_venda.php:52
+Stack trace:
+#0 {main}
+  thrown in /home2/siste870/public_html/sob2.0/animal/vender/_desfazer_venda.php on line 52
+[10-Aug-2026 11:14:16 America/Fortaleza] PHP Fatal error:  Uncaught DivisionByZeroError: Division by zero in /home2/siste870/public_html/sob2.0/animal/vender/_desfazer_venda.php:52
+Stack trace:
+#0 {main}
+  thrown in /home2/siste870/public_html/sob2.0/animal/vender/_desfazer_venda.php on line 52
+[10-Aug-2026 11:14:17 America/Fortaleza] PHP Fatal error:  Uncaught DivisionByZeroError: Division by zero in /home2/siste870/public_html/sob2.0/animal/vender/_desfazer_venda.php:52
+Stack trace:
+#0 {main}
+  thrown in /home2/siste870/public_html/sob2.0/animal/vender/_desfazer_venda.php on line 52
+[10-Aug-2026 11:14:17 America/Fortaleza] PHP Fatal error:  Uncaught DivisionByZeroError: Division by zero in /home2/siste870/public_html/sob2.0/animal/vender/_desfazer_venda.php:52
+Stack trace:
+#0 {main}
+  thrown in /home2/siste870/public_html/sob2.0/animal/vender/_desfazer_venda.php on line 52
+[10-Aug-2026 11:42:51 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/animal/vender/lista_comprador.php on line 6
+[10-Aug-2026 11:45:00 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type bool in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[10-Aug-2026 11:45:00 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type null in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[20-Aug-2026 07:53:04 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type bool in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[20-Aug-2026 07:53:04 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type null in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[26-Aug-2026 10:11:05 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type bool in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[26-Aug-2026 10:11:05 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type null in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[26-Aug-2026 10:11:05 America/Fortaleza] PHP Fatal error:  Uncaught DivisionByZeroError: Division by zero in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php:84
+Stack trace:
+#0 {main}
+  thrown in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 84
+[01-Sep-2026 15:15:22 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type bool in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[01-Sep-2026 15:15:22 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type null in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[01-Sep-2026 15:15:22 America/Fortaleza] PHP Fatal error:  Uncaught DivisionByZeroError: Division by zero in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php:57
+Stack trace:
+#0 {main}
+  thrown in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 57
+[01-Sep-2026 18:26:56 America/Fortaleza] PHP Warning:  Undefined array key "banco" in /home2/siste870/public_html/sob2.0/_config.php on line 4
+[01-Sep-2026 18:26:56 America/Fortaleza] PHP Warning:  Undefined array key "login" in /home2/siste870/public_html/sob2.0/_config.php on line 5
+[01-Sep-2026 18:26:56 America/Fortaleza] PHP Fatal error:  Uncaught mysqli_sql_exception: Access denied for user 'siste870_sob'@'localhost' to database 'siste870_' in /home2/siste870/public_html/sob2.0/mysqli/_conexao.php:4
+Stack trace:
+#0 /home2/siste870/public_html/sob2.0/mysqli/_conexao.php(4): mysqli_connect('localhost', 'siste870_sob', Object(SensitiveParameterValue), 'siste870_')
+#1 /home2/siste870/public_html/sob2.0/mysqli/_database.php(17): DBConnect()
+#2 /home2/siste870/public_html/sob2.0/mysqli/_database.php(44): DBExecute('SELECT * FROM m...')
+#3 /home2/siste870/public_html/sob2.0/animal/vender/_vender.php(6): DBRead('mercado', ' WHERE nome = '...')
+#4 {main}
+  thrown in /home2/siste870/public_html/sob2.0/mysqli/_conexao.php on line 4
+[02-Sep-2026 13:40:16 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/animal/vender/lista_comprador.php on line 6
+[02-Sep-2026 13:44:05 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type bool in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[02-Sep-2026 13:44:05 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type null in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[02-Sep-2026 16:23:38 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/animal/vender/lista_comprador.php on line 6
+[02-Sep-2026 16:24:09 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type bool in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[02-Sep-2026 16:24:09 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type null in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[08-Sep-2026 16:26:38 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type bool in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[08-Sep-2026 16:26:38 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type null in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[08-Sep-2026 16:34:24 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type bool in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30
+[08-Sep-2026 16:34:24 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type null in /home2/siste870/public_html/sob2.0/animal/vender/_vender.php on line 30

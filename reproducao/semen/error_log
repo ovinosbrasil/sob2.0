@@ -1,0 +1,2 @@
+[04-Jul-2026 22:34:09 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type bool in /home2/siste870/public_html/sob2.0/reproducao/semen/_cadastrar.php on line 20
+[04-Jul-2026 22:34:09 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type null in /home2/siste870/public_html/sob2.0/reproducao/semen/_cadastrar.php on line 20

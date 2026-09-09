@@ -1,0 +1,74 @@
+[11-May-2026 16:28:40 America/Fortaleza] PHP Warning:  Undefined array key "banco" in /home2/siste870/public_html/sob2.0/_config.php on line 4
+[11-May-2026 16:28:40 America/Fortaleza] PHP Warning:  Undefined array key "login" in /home2/siste870/public_html/sob2.0/_config.php on line 5
+[11-May-2026 16:28:40 America/Fortaleza] PHP Warning:  Undefined array key "animal" in /home2/siste870/public_html/sob2.0/chip/animal/_pesquisar_animal.php on line 4
+[11-May-2026 16:28:40 America/Fortaleza] PHP Fatal error:  Uncaught mysqli_sql_exception: Access denied for user 'siste870_sob'@'localhost' to database 'siste870_' in /home2/siste870/public_html/sob2.0/mysqli/_conexao.php:4
+Stack trace:
+#0 /home2/siste870/public_html/sob2.0/mysqli/_conexao.php(4): mysqli_connect('localhost', 'siste870_sob', Object(SensitiveParameterValue), 'siste870_')
+#1 /home2/siste870/public_html/sob2.0/mysqli/_database.php(17): DBConnect()
+#2 /home2/siste870/public_html/sob2.0/mysqli/_database.php(44): DBExecute('SELECT * FROM a...')
+#3 /home2/siste870/public_html/sob2.0/chip/animal/_pesquisar_animal.php(5): DBRead('animais', ' WHERE chip = '...')
+#4 {main}
+  thrown in /home2/siste870/public_html/sob2.0/mysqli/_conexao.php on line 4
+[17-May-2026 09:40:13 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type bool in /home2/siste870/public_html/sob2.0/chip/animal/_pesquisar_animal.php on line 6
+[17-May-2026 09:40:13 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type null in /home2/siste870/public_html/sob2.0/chip/animal/_pesquisar_animal.php on line 6
+[17-May-2026 09:40:13 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type bool in /home2/siste870/public_html/sob2.0/chip/animal/_pesquisar_animal.php on line 9
+[17-May-2026 09:40:13 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type null in /home2/siste870/public_html/sob2.0/chip/animal/_pesquisar_animal.php on line 9
+[17-May-2026 09:40:34 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type bool in /home2/siste870/public_html/sob2.0/chip/animal/_pesquisar_animal.php on line 6
+[17-May-2026 09:40:34 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type null in /home2/siste870/public_html/sob2.0/chip/animal/_pesquisar_animal.php on line 6
+[17-May-2026 09:40:34 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type bool in /home2/siste870/public_html/sob2.0/chip/animal/_pesquisar_animal.php on line 9
+[17-May-2026 09:40:34 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type null in /home2/siste870/public_html/sob2.0/chip/animal/_pesquisar_animal.php on line 9
+[17-May-2026 09:44:17 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type bool in /home2/siste870/public_html/sob2.0/chip/animal/_pesquisar_animal.php on line 6
+[17-May-2026 09:44:17 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type null in /home2/siste870/public_html/sob2.0/chip/animal/_pesquisar_animal.php on line 6
+[17-May-2026 09:44:17 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type bool in /home2/siste870/public_html/sob2.0/chip/animal/_pesquisar_animal.php on line 9
+[17-May-2026 09:44:17 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type null in /home2/siste870/public_html/sob2.0/chip/animal/_pesquisar_animal.php on line 9
+[21-May-2026 15:30:17 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type bool in /home2/siste870/public_html/sob2.0/chip/animal/_pesquisar_animal.php on line 6
+[21-May-2026 15:30:17 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type null in /home2/siste870/public_html/sob2.0/chip/animal/_pesquisar_animal.php on line 6
+[21-May-2026 15:30:17 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type bool in /home2/siste870/public_html/sob2.0/chip/animal/_pesquisar_animal.php on line 9
+[21-May-2026 15:30:17 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type null in /home2/siste870/public_html/sob2.0/chip/animal/_pesquisar_animal.php on line 9
+[26-Jun-2026 09:18:25 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type bool in /home2/siste870/public_html/sob2.0/chip/animal/_pesquisar_animal.php on line 6
+[26-Jun-2026 09:18:25 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type null in /home2/siste870/public_html/sob2.0/chip/animal/_pesquisar_animal.php on line 6
+[26-Jun-2026 09:18:25 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type bool in /home2/siste870/public_html/sob2.0/chip/animal/_pesquisar_animal.php on line 9
+[26-Jun-2026 09:18:25 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type null in /home2/siste870/public_html/sob2.0/chip/animal/_pesquisar_animal.php on line 9
+[02-Jul-2026 10:43:00 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type bool in /home2/siste870/public_html/sob2.0/chip/animal/_pesquisar_animal.php on line 9
+[02-Jul-2026 10:43:00 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type null in /home2/siste870/public_html/sob2.0/chip/animal/_pesquisar_animal.php on line 9
+[06-Jul-2026 10:43:43 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type bool in /home2/siste870/public_html/sob2.0/chip/animal/_pesquisar_animal.php on line 6
+[06-Jul-2026 10:43:43 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type null in /home2/siste870/public_html/sob2.0/chip/animal/_pesquisar_animal.php on line 6
+[06-Jul-2026 10:43:43 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type bool in /home2/siste870/public_html/sob2.0/chip/animal/_pesquisar_animal.php on line 9
+[06-Jul-2026 10:43:43 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type null in /home2/siste870/public_html/sob2.0/chip/animal/_pesquisar_animal.php on line 9
+[14-Jul-2026 01:22:02 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/chip/animal/tabela_animais.php on line 16
+[14-Jul-2026 01:22:02 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/chip/animal/tabela_animais.php on line 16
+[14-Jul-2026 01:22:02 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/chip/animal/tabela_animais.php on line 16
+[14-Jul-2026 01:22:02 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/chip/animal/tabela_animais.php on line 16
+[14-Jul-2026 01:22:02 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/chip/animal/tabela_animais.php on line 16
+[21-Jul-2026 09:00:33 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type bool in /home2/siste870/public_html/sob2.0/chip/animal/_pesquisar_animal.php on line 6
+[21-Jul-2026 09:00:33 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type null in /home2/siste870/public_html/sob2.0/chip/animal/_pesquisar_animal.php on line 6
+[21-Jul-2026 09:00:33 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type bool in /home2/siste870/public_html/sob2.0/chip/animal/_pesquisar_animal.php on line 9
+[21-Jul-2026 09:00:33 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type null in /home2/siste870/public_html/sob2.0/chip/animal/_pesquisar_animal.php on line 9
+[25-Jul-2026 16:46:25 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type bool in /home2/siste870/public_html/sob2.0/chip/animal/_pesquisar_animal.php on line 9
+[25-Jul-2026 16:46:25 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type null in /home2/siste870/public_html/sob2.0/chip/animal/_pesquisar_animal.php on line 9
+[04-Aug-2026 09:50:50 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type bool in /home2/siste870/public_html/sob2.0/chip/animal/_pesquisar_animal.php on line 9
+[04-Aug-2026 09:50:50 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type null in /home2/siste870/public_html/sob2.0/chip/animal/_pesquisar_animal.php on line 9
+[04-Aug-2026 09:56:11 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type bool in /home2/siste870/public_html/sob2.0/chip/animal/_pesquisar_animal.php on line 9
+[04-Aug-2026 09:56:11 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type null in /home2/siste870/public_html/sob2.0/chip/animal/_pesquisar_animal.php on line 9
+[04-Aug-2026 10:09:13 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type bool in /home2/siste870/public_html/sob2.0/chip/animal/_pesquisar_animal.php on line 9
+[04-Aug-2026 10:09:13 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type null in /home2/siste870/public_html/sob2.0/chip/animal/_pesquisar_animal.php on line 9
+[04-Aug-2026 12:02:44 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type bool in /home2/siste870/public_html/sob2.0/chip/animal/_pesquisar_animal.php on line 9
+[04-Aug-2026 12:02:44 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type null in /home2/siste870/public_html/sob2.0/chip/animal/_pesquisar_animal.php on line 9
+[04-Aug-2026 12:04:21 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type bool in /home2/siste870/public_html/sob2.0/chip/animal/_pesquisar_animal.php on line 9
+[04-Aug-2026 12:04:21 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type null in /home2/siste870/public_html/sob2.0/chip/animal/_pesquisar_animal.php on line 9
+[10-Aug-2026 12:37:21 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type bool in /home2/siste870/public_html/sob2.0/chip/animal/_pesquisar_animal.php on line 6
+[10-Aug-2026 12:37:21 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type null in /home2/siste870/public_html/sob2.0/chip/animal/_pesquisar_animal.php on line 6
+[10-Aug-2026 12:37:21 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type bool in /home2/siste870/public_html/sob2.0/chip/animal/_pesquisar_animal.php on line 9
+[10-Aug-2026 12:37:21 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type null in /home2/siste870/public_html/sob2.0/chip/animal/_pesquisar_animal.php on line 9
+[10-Aug-2026 12:37:21 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type bool in /home2/siste870/public_html/sob2.0/chip/animal/_pesquisar_animal.php on line 6
+[10-Aug-2026 12:37:21 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type null in /home2/siste870/public_html/sob2.0/chip/animal/_pesquisar_animal.php on line 6
+[10-Aug-2026 12:37:21 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type bool in /home2/siste870/public_html/sob2.0/chip/animal/_pesquisar_animal.php on line 9
+[10-Aug-2026 12:37:21 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type null in /home2/siste870/public_html/sob2.0/chip/animal/_pesquisar_animal.php on line 9
+[10-Aug-2026 15:14:15 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type bool in /home2/siste870/public_html/sob2.0/chip/animal/_pesquisar_animal.php on line 6
+[10-Aug-2026 15:14:15 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type null in /home2/siste870/public_html/sob2.0/chip/animal/_pesquisar_animal.php on line 6
+[10-Aug-2026 15:14:15 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type bool in /home2/siste870/public_html/sob2.0/chip/animal/_pesquisar_animal.php on line 9
+[10-Aug-2026 15:14:15 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type null in /home2/siste870/public_html/sob2.0/chip/animal/_pesquisar_animal.php on line 9
+[27-Aug-2026 16:42:16 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type bool in /home2/siste870/public_html/sob2.0/chip/animal/_pesquisar_animal.php on line 6
+[27-Aug-2026 16:42:16 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type null in /home2/siste870/public_html/sob2.0/chip/animal/_pesquisar_animal.php on line 6
+[27-Aug-2026 16:42:16 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type bool in /home2/siste870/public_html/sob2.0/chip/animal/_pesquisar_animal.php on line 9
+[27-Aug-2026 16:42:16 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type null in /home2/siste870/public_html/sob2.0/chip/animal/_pesquisar_animal.php on line 9

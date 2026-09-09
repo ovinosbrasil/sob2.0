@@ -1,0 +1,9 @@
+[11-Jul-2026 14:40:46 America/Fortaleza] PHP Warning:  Undefined array key "data" in /home2/siste870/public_html/sob2.0/pesagem/_pesagem.php on line 4
+[11-Jul-2026 14:40:46 America/Fortaleza] PHP Warning:  Trying to access array offset on value of type null in /home2/siste870/public_html/sob2.0/funcoes_data/data.php on line 4
+[11-Jul-2026 14:40:46 America/Fortaleza] PHP Fatal error:  Uncaught Error: Cannot assign an empty string to a string offset in /home2/siste870/public_html/sob2.0/funcoes_data/data.php:4
+Stack trace:
+#0 /home2/siste870/public_html/sob2.0/pesagem/_pesagem.php(5): include()
+#1 {main}
+  thrown in /home2/siste870/public_html/sob2.0/funcoes_data/data.php on line 4
+[22-Aug-2026 15:33:02 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/pesagem/lista_animal_peso.php on line 10
+[22-Aug-2026 15:33:02 America/Fortaleza] PHP Warning:  foreach() argument must be of type array|object, bool given in /home2/siste870/public_html/sob2.0/pesagem/lista_animal_peso.php on line 10

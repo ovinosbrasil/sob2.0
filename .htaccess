@@ -1,0 +1,26 @@
+
+
+RewriteEngine On
+RewriteBase /
+RewriteRule ^index\.php$ - [L]
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule . /index.php [L]
+
+# BEGIN cPanel-generated php ini directives, do not edit
+# Manual editing of this file may result in unexpected behavior.
+# To make changes to this file, use the cPanel MultiPHP INI Editor (Home >> Software >> MultiPHP INI Editor)
+# For more information, read our documentation (https://go.cpanel.net/EA4ModifyINI)
+
+
+#<IfModule php7_module>
+#   php_value error_reporting E_ALL & ~E_NOTICE
+#</IfModule>
+#<IfModule lsapi_module>
+#   php_value error_reporting E_ALL & ~E_NOTICE
+#</IfModule>
+# END cPanel-generated php ini directives, do not edit
+
+#AddHandler application/x-httpd-php56 .php
+
+# AddHandler application/x-httpd-ea-php70___lsphp .php .php7 .phtml
