@@ -71,7 +71,7 @@ function ativar_excluir_vacina(id){
         <option></option>
         <?
         $vacina = DBRead('vacina', "ORDER BY nome asc");
-        foreach ($vacina as $vacinas) { ?>
+        foreach (($vacina ?: []) as $vacinas) { ?>
           <option value="<?=$vacinas['id']?>"><?=$vacinas['nome']?></option>
           <? } ?>
         <option style="color:green;" value="x">Cadastrar nova vacina</option>
@@ -102,7 +102,7 @@ function ativar_excluir_vacina(id){
     </tr>
     <?
     $vacina = DBRead('vacinas', "WHERE id_animal = '$id_animal' ORDER BY data asc");
-    foreach ($vacina as $vacina_) {
+    foreach (($vacina ?: []) as $vacina_) {
       $y++;
       $id_vacina = $vacina_['id_vacina'];
       $nome_vacina = DBRead('vacina', "WHERE id = '$id_vacina'");

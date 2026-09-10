@@ -210,7 +210,6 @@ foreach ($media1 as $media1_) {
   $qtd++;
 }
 $media1_ = number_format($total/$qtd,2,".","");
-echo $media1_;
 
 
 $total=$qtd=0;
@@ -220,7 +219,6 @@ foreach ($media2 as $media2_) {
   $qtd++;
 }
 $media2_ = $total ? number_format($total/$qtd,2,".","") : 0;
-echo $media2_;
 
 ?>
 

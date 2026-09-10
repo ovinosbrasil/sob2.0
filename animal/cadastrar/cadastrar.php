@@ -297,7 +297,7 @@ function linkar_mae_te(nome){
                    <option></option>
                    <?
                    $raca = DBRead('raca', "ORDER BY nome asc");
-                   foreach ($raca as $raca_) { ?>
+                   foreach (($raca ?: []) as $raca_) { ?>
                      <option value="<?=$raca_['nome']?>"><?=$raca_['nome']?></option>
                    <? } ?>
                  </select>
@@ -410,7 +410,7 @@ function linkar_mae_te(nome){
                    <option></option>
                    <?
                    $raca = DBRead('raca', "ORDER BY nome asc");
-                   foreach ($raca as $raca_) { ?>
+                   foreach (($raca ?: []) as $raca_) { ?>
                      <option value="<?=$raca_['nome']?>"><?=$raca_['nome']?></option>
                    <? } ?>
                  </select>
@@ -428,7 +428,11 @@ function linkar_mae_te(nome){
 <!-- FIM REBANHO -->
 
 <? if($tipo == 3){
-$nome_mae = $_POST['mae'];
+$nome_mae = trim($_POST['mae'] ?? '');
+$dataNascimentoInformada = trim($_POST['data_de_nascimento'] ?? '');
+$dataNascimentoValidada = DateTime::createFromFormat('!d/m/Y', $dataNascimentoInformada);
+$dataNascimentoValida = $dataNascimentoValidada && $dataNascimentoValidada->format('d/m/Y') === $dataNascimentoInformada;
+
 ?>
 <!--NASCIMENTO -->
   <form role="form" action="geral.php?pg=cadastrar_animal&tipo=3" method="post">
@@ -439,7 +443,7 @@ $nome_mae = $_POST['mae'];
             <!-- general form elements -->
               <div class="form-group">
                 <label for="exampleInputPassword1">Selecionar matriz:</label>
-                <input type="text" class="form-control" id="mae" name="mae" onKeyUp="pesquisar_mae(this.value)" value="<?=$mae?>">
+                <input type="text" class="form-control" id="mae" name="mae" onKeyUp="pesquisar_mae(this.value)" value="<?=htmlspecialchars($nome_mae, ENT_QUOTES, 'UTF-8')?>">
                 <div id="lista_mae" style="border-style:solid; border-width:thin; height:auto; border-color: #bab1b4; position:absolute; z-index:99999; background:#fff; width:250%; display:none; margin-top:1%;">
                 </div>
               </div>
@@ -453,7 +457,7 @@ $nome_mae = $_POST['mae'];
                   <div class="input-group-addon">
                     <i class="fa fa-calendar"></i>
                   </div>
-                  <input type="text" class="form-control pull-right" id="data_nascimento" name="data_de_nascimento" value="<?=$_POST['data_de_nascimento']?>">
+                  <input type="text" class="form-control pull-right" id="data_nascimento" name="data_de_nascimento" value="<?=htmlspecialchars($dataNascimentoInformada, ENT_QUOTES, 'UTF-8')?>">
                 </div>
               </div>
           </div>
@@ -484,7 +488,7 @@ $nome_mae = $_POST['mae'];
             </tr>
             <?
             $nasc = DBRead('animais', "WHERE entrada = 0 ORDER BY id desc LIMIT 15");
-            foreach ($nasc as $nasc_) {
+            foreach (($nasc ?: []) as $nasc_) {
 
               $data = $nasc_['data_de_nascimento'];
               $data_atual = $data;
@@ -527,8 +531,9 @@ $nome_mae = $_POST['mae'];
             </tr>
           <? } ?>
             </table>
+          <? }elseif (!$dataNascimentoValida){ ?>
+            <p role="alert">Informe uma data de nascimento válida no formato dia/mês/ano para consultar os lotes da matriz.</p>
           <? }else{ ?>
-
 
           Lotes de reprodução da matriz
           <table class="table table-bordered" id="tabela_padrao">
@@ -550,7 +555,7 @@ $nome_mae = $_POST['mae'];
 
 
             $monta = DBRead('monta_controle', "WHERE id_animal = '$id_mae'");
-            foreach ($monta as $monta_){
+            foreach (($monta ?: []) as $monta_){
               $id_monta_controle = $monta_['id'];
               $id_monta = $monta_['id_monta'];
               $lote = DBRead('monta', "WHERE id = '$id_monta'");
@@ -624,19 +629,7 @@ $nome_mae = $_POST['mae'];
             	$data[9] = $nextdate[3];
             	$data_previsao2 = $data;
 
-              $data_atual = $_POST['data_de_nascimento'];
-              $data = '0';
-              $data['0'] = $data_atual['6'];
-              $data['1'] = $data_atual['7'];
-              $data['2'] = $data_atual['8'];
-              $data['3'] = $data_atual['9'];
-              $data['4'] = "-";
-              $data['5'] = $data_atual['3'];
-              $data['6'] = $data_atual['4'];
-              $data['7'] = "-";
-              $data['8'] = $data_atual['0'];
-              $data['9'] = $data_atual['1'];
-              $data_parto_ = $data;
+              $data_parto_ = $dataNascimentoValidada->format('Y-m-d');
 
               $data_atual = $data_previsao1;
               $data = '0';
@@ -666,7 +659,7 @@ $nome_mae = $_POST['mae'];
               $data['9'] = $data_atual['1'];
               $data_previsao2_ = $data;
 
-              if($data_parto_ >= '01-01-1990'){
+              if($data_parto_ >= '1990-01-01'){
                 if(($data_parto_ >= $data_previsao1_) && ($data_parto_ <= $data_previsao2_)){
             ?>
               <? if($monta_['status_nascimento']){ ?> <tr style="color:green; text-align:center;"> <? } ?>
@@ -715,7 +708,7 @@ $nome_mae = $_POST['mae'];
       <? } }
           //INSEMINAÇÃO
           $inseminacao = DBRead('inseminacao_controle', "WHERE id_femea = '$id_mae'");
-          foreach ($inseminacao as $inseminacao_) {
+          foreach (($inseminacao ?: []) as $inseminacao_) {
             $id_inseminacao = $inseminacao_['id_lote'];
             $id_inseminacao_controle = $inseminacao_['id'];
             $lote = DBRead('inseminacao', "WHERE id = '$id_inseminacao'");
@@ -775,19 +768,7 @@ $nome_mae = $_POST['mae'];
             $data[9] = $nextdate[3];
             $data_previsao2 = $data;
 
-            $data_atual = $_POST['data_de_nascimento'];
-            $data = '0';
-            $data['0'] = $data_atual['6'];
-            $data['1'] = $data_atual['7'];
-            $data['2'] = $data_atual['8'];
-            $data['3'] = $data_atual['9'];
-            $data['4'] = "-";
-            $data['5'] = $data_atual['3'];
-            $data['6'] = $data_atual['4'];
-            $data['7'] = "-";
-            $data['8'] = $data_atual['0'];
-            $data['9'] = $data_atual['1'];
-            $data_parto_ = $data;
+            $data_parto_ = $dataNascimentoValidada->format('Y-m-d');
 
             $data_atual = $data_previsao1;
             $data = '0';
@@ -817,7 +798,7 @@ $nome_mae = $_POST['mae'];
             $data['9'] = $data_atual['1'];
             $data_previsao2_ = $data;
 
-            if($data_parto_ >= '01-01-1990'){
+            if($data_parto_ >= '1990-01-01'){
               if(($data_parto_ >= $data_previsao1_) && ($data_parto_ <= $data_previsao2_)){
 
           ?>
@@ -867,7 +848,7 @@ $nome_mae = $_POST['mae'];
 
           //TE
           $te = DBRead('transplante', "WHERE id_mae = '$id_mae'");
-          foreach ($te as $te_){
+          foreach (($te ?: []) as $te_){
             $id_te = $te_['id'];
             $id_macho = $te_['id_pai'];
             if($te_['terceiro_pai']){
@@ -925,19 +906,7 @@ $nome_mae = $_POST['mae'];
             $data[9] = $nextdate[3];
             $data_previsao2 = $data;
 
-            $data_atual = $_POST['data_de_nascimento'];
-            $data = '0';
-            $data['0'] = $data_atual['6'];
-            $data['1'] = $data_atual['7'];
-            $data['2'] = $data_atual['8'];
-            $data['3'] = $data_atual['9'];
-            $data['4'] = "-";
-            $data['5'] = $data_atual['3'];
-            $data['6'] = $data_atual['4'];
-            $data['7'] = "-";
-            $data['8'] = $data_atual['0'];
-            $data['9'] = $data_atual['1'];
-            $data_parto_ = $data;
+            $data_parto_ = $dataNascimentoValidada->format('Y-m-d');
 
             $data_atual = $data_previsao1;
             $data = '0';
@@ -967,11 +936,11 @@ $nome_mae = $_POST['mae'];
             $data['9'] = $data_atual['1'];
             $data_previsao2_ = $data;
 
-            if($data_parto_ >= '01-01-1990'){
+            if($data_parto_ >= '1990-01-01'){
               if(($data_parto_ >= $data_previsao1_) && ($data_parto_ <= $data_previsao2_)){
 
             $lote = DBRead('transplante_controle', "WHERE id_lote = '$id_te'");
-            foreach ($lote as $lote_){
+            foreach (($lote ?: []) as $lote_){
           ?>
           <? if($lote_['status_nascimento']){ ?> <tr style="color:green; text-align:center;"> <? } ?>
           <? if(!$lote_['status_nascimento']){ ?> <tr> <? } ?>
@@ -992,7 +961,7 @@ $nome_mae = $_POST['mae'];
           </tr>
         <? } } }else{
           $lote = DBRead('transplante_controle', "WHERE id_lote = '$id_te'");
-          foreach ($lote as $lote_){
+          foreach (($lote ?: []) as $lote_){
 
           ?>
           <? if($lote_['status_nascimento']){ ?> <tr style="color:green; text-align:center;"> <? } ?>
@@ -1074,7 +1043,7 @@ $nome_mae = $_POST['mae'];
                    <option></option>
                    <?
                    $raca = DBRead('raca', "ORDER BY nome asc");
-                   foreach ($raca as $raca_) { ?>
+                   foreach (($raca ?: []) as $raca_) { ?>
                      <option value="<?=$raca_['nome']?>"><?=$raca_['nome']?></option>
                    <? } ?>
                  </select>

@@ -1,13 +1,15 @@
+<?php
+require __DIR__ . "/../_config.php";
+?>
 <div id="titulo_geral" style="background-color:#00a65a; height:35px; color:#fff; padding-top:0.5%;">
   <div style="padding-left:1%; font-weight:bold; font-size:16px;">Animais do rebanho</div>
 </div>
 
 <?
-include "../_config.php";
-$nome = $_GET['nome'];
+$nome = DBEscape($_GET['nome'] ?? '');
 
 $animal = DBRead('animais',"WHERE nome LIKE '%$nome%' AND sexo = 'Fêmea' ORDER BY nome asc LIMIT 7");
-foreach ($animal as $animais) {
+foreach (($animal ?: []) as $animais) {
   $data = $animais['data_de_nascimento'];
   $data_atual = $data;
   $data = '0';
@@ -40,7 +42,7 @@ foreach ($animal as $animais) {
 
 <?
 $animal = DBRead('terceiros',"WHERE nome LIKE '%$nome%' AND sexo = 'Fêmea' ORDER BY nome asc LIMIT 3");
-foreach ($animal as $animais) {
+foreach (($animal ?: []) as $animais) {
   $data = '';
   if ($animais['data_de_nascimento'] != '') {
     $data = $animais['data_de_nascimento'];

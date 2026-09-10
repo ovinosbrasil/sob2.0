@@ -71,7 +71,7 @@ function ativar_excluir_doenca(id){
         <option></option>
         <?
         $doenca = DBRead('doenca', "ORDER BY nome asc");
-        foreach ($doenca as $doencas) { ?>
+        foreach (($doenca ?: []) as $doencas) { ?>
           <option value="<?=$doencas['id']?>"><?=$doencas['nome']?></option>
           <? } ?>
         <option style="color:green;" value="x">Cadastrar nova doença</option>
@@ -102,7 +102,7 @@ function ativar_excluir_doenca(id){
     </tr>
     <?
     $doenca = DBRead('doencas', "WHERE id_animal = '$id_animal' ORDER BY data asc");
-    foreach ($doenca as $doenca_) {
+    foreach (($doenca ?: []) as $doenca_) {
       $x++;
       $id_doenca = $doenca_['id_doenca'];
       $nome_doenca = DBRead('doenca', "WHERE id = '$id_doenca'");

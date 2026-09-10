@@ -255,5 +255,5 @@ foreach ($te as $te_) {
     <? if($te_controle_['status_nascimento'] == 1){ ?> <span style="color:#093;">Nasceu</span> <? }else{ ?> <span style="color:#F00;">Não Nasceu</span> <? } ?></td>
 </tr>
 <? } } ?>
-</table>
 <? } ?>
+</table>

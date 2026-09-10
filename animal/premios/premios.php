@@ -110,7 +110,7 @@ function ativar_excluir_premio(id){
        <option value=""></option>
        <?
        $exposicao = DBRead('julgamento', "ORDER BY data asc");
-       foreach ($exposicao as $exposicao_) { ?>
+       foreach (($exposicao ?: []) as $exposicao_) { ?>
         <option value="<?=$exposicao_['id']?>"><?=$exposicao_['nome']?> - <?=$exposicao_['cidade']?></option>.
       <? } ?>
       </select>
@@ -130,7 +130,7 @@ function ativar_excluir_premio(id){
     </tr>
     <?
     $premio = DBRead('premio', "WHERE id_animal = '$id_animal'");
-    foreach ($premio as $premio_) {
+    foreach (($premio ?: []) as $premio_) {
       $z++;
       $id_exposicao = $premio_['id_julgamento'];
       $exposicao = DBRead('julgamento', "WHERE id = '$id_exposicao'");

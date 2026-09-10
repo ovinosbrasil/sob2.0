@@ -208,7 +208,7 @@ $vendidos = count($vendidos);
       </div>
     </form>
         <?
-        $alerta = DBRead('alerta', "ORDER BY data asc");
+        $alerta = DBRead('alerta', "ORDER BY data asc") ?: [];
         foreach ($alerta as $alerta_) {
           $id_alerta = $alerta_['id'];
           $data_atual = $alerta_['data'];

@@ -319,7 +319,7 @@ $data_expira2 = $data;
 <!-- AdminLTE App -->
 <script src="dist/js/adminlte.min.js"></script>
 <!-- AdminLTE dashboard demo (This is only for demo purposes) -->
-<script src="dist/js/pages/dashboard.js"></script>
+<!-- Os gráficos da aplicação são inicializados abaixo. -->
 <!-- AdminLTE for demo purposes -->
 <script src="dist/js/demo.js"></script>
 
@@ -455,13 +455,30 @@ if(($pg == 'perfil') || ($pg == 'comprador') || ($pg == 'compradores')){
 <script type="text/javascript">
 $(function () {
     "use strict";
+    // Abas ocultas não têm largura disponível para o Morris.
+    var animalCharts = [];
+    function registerAnimalChart(options) {
+      animalCharts.push({options: options, chart: null});
+    }
+    function renderAnimalCharts() {
+      animalCharts.forEach(function (entry) {
+        var element = document.getElementById(entry.options.element);
+        if (!element || !$(element).is(':visible') || element.clientWidth < 150) return;
+        if (entry.chart) {
+          entry.chart.redraw();
+        } else {
+          entry.chart = new Morris.Bar(entry.options);
+        }
+      });
+    }
     //BAR CHART
-    var bar = new Morris.Bar({
+    if (document.getElementById('bar-chart')) {
+    registerAnimalChart({
       element: 'bar-chart',
-      resize: true,
+      resize: false,
       data: [
-        {y: '1ª Avaliação', a: <?=$ava1_?>, b: <?=$media1_?>},
-        {y: '2ª Avaliação', a: <?=$ava2_?>, b: <?=$media2_?>}
+        {y: '1ª Avaliação', a: <?=json_encode(isset($ava1_) && is_numeric($ava1_) ? (float) $ava1_ : null)?>, b: <?=json_encode(isset($media1_) && is_numeric($media1_) ? (float) $media1_ : null)?>},
+        {y: '2ª Avaliação', a: <?=json_encode(isset($ava2_) && is_numeric($ava2_) ? (float) $ava2_ : null)?>, b: <?=json_encode(isset($media2_) && is_numeric($media2_) ? (float) $media2_ : null)?>}
       ],
       barColors: ['#00a65a', '#78aac1'],
       xkey: 'y',
@@ -470,13 +487,15 @@ $(function () {
       hideHover: 'auto'
     });
 
-    var bar = new Morris.Bar({
+    }
+    if (document.getElementById('bar-chart2')) {
+    registerAnimalChart({
       element: 'bar-chart2',
-      resize: true,
+      resize: false,
       data: [
-        {y: 'Média dos machos', a: <?=number_format($macho_media,7,".","")?>, b: <?=number_format($media_macho,7,".","")?>},
-        {y: 'Média das fêmeas', a: <?=number_format($femea_media,7,".","")?>, b: <?=number_format($media_femea,7,".","")?>},
-        {y: 'Média geral', a: <?=number_format($total,7,".","")?>, b: <?=number_format($valor,7,".","")?>},
+        {y: 'Média dos machos', a: <?=json_encode(isset($macho_media) && is_numeric($macho_media) ? round((float) $macho_media, 7) : null)?>, b: <?=json_encode(isset($media_macho) && is_numeric($media_macho) ? round((float) $media_macho, 7) : null)?>},
+        {y: 'Média das fêmeas', a: <?=json_encode(isset($femea_media) && is_numeric($femea_media) ? round((float) $femea_media, 7) : null)?>, b: <?=json_encode(isset($media_femea) && is_numeric($media_femea) ? round((float) $media_femea, 7) : null)?>},
+        {y: 'Média geral', a: <?=json_encode(isset($total) && is_numeric($total) ? round((float) $total, 7) : null)?>, b: <?=json_encode(isset($valor) && is_numeric($valor) ? round((float) $valor, 7) : null)?>},
       ],
       barColors: ['#00a65a', '#78aac1'],
       xkey: 'y',
@@ -484,6 +503,10 @@ $(function () {
       labels: ['Animal', 'Rebanho'],
       hideHover: 'auto'
     });
+    }
+    $('a[data-toggle="tab"]').on('shown.bs.tab', renderAnimalCharts);
+    $(window).on('resize', renderAnimalCharts);
+    renderAnimalCharts();
 });
 </script>
 <? } ?>

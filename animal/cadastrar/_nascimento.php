@@ -1,13 +1,14 @@
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<?
+<?php
 function geraTimestamp($data) {
   $partes = explode('/', $data);
   return mktime(0, 0, 0, $partes[1], $partes[0], $partes[2]);
 }
 
 
-include "../../_config.php";
-$nome = $_POST['nome_animal'];
+require __DIR__ . "/../../_config.php";
+header("Content-Type: text/html; charset=UTF-8");
+$receptora = '';
+$nome = DBEscape($_POST['nome_animal']);
 $sql = DBRead('animais', "WHERE nome = '$nome'");
 if($sql[0]['id'] > 0){
           echo "<script type=\"text/javascript\"> alert(\"Nome do animal já existe, tente novamente.\"); </script>
@@ -85,18 +86,18 @@ $dados = array(
   'entrada'   => 0,
   'peso_inicial'    => str_replace("," , "" , $_POST['peso']),
   'tipo_reproducao'   => $tipo_reproducao,
-  'receptora' => $receptora
+  'receptora' => $receptora,
+  'link_fbb' => '', 'fbb_img' => '', 'peso2' => 0,
+  'data2' => null, 'data3' => null,
+  'parcelas' => 0, 'tipo_venda' => '', 'tipo' => 0,
+  'confirmacao' => 0, 'prolapso' => '', 'criador' => '',
+  'status' => 0, 'chip' => ''
 );
 
-DBCreate('animais', $dados);
-$nome_animal = $_POST['nome_animal'];
-$id_animal = DBRead('animais', "WHERE nome = '$nome_animal'");
-$id_animal = $id_animal[0]['id'];
-
+$id_animal = DBCreate('animais', $dados, true);
 
 //ANIMAL MORTO
 if($_POST['status']){
-  echo $id_animal;
   $dados = array(
   	'data_de_saida'	=> $data_de_nascimento,
   	'causa_da_perda'	=> 'Nascimento',
@@ -108,7 +109,7 @@ if($_POST['status']){
 
 //CRIAS RANKING REPRODUTOR
 $crias = DBRead('animais', "WHERE pai = '$id_pai' AND terceiro_pai = '0'");
-$qtd_crias = count($crias);
+$qtd_crias = count($crias ?: []);
 $dados = array(
   'qtd_crias' => $qtd_crias,
   'id_macho'  => $id_pai
@@ -116,15 +117,15 @@ $dados = array(
 if($qtd_crias > 1){
   DBUpdate('reprodutor', $dados, "id_macho = '$id_pai'");
 }else{
-  DBCreate('reprodutor', $dados);
+  DBCreate('reprodutor', array_merge(['qtd_avaliadas' => 0, 'tipo2' => 0, 'tipo3' => 0, 'tipo4' => 0, 'tipo5' => 0, 'qtd_vendas' => 0, 'qtd_mortes' => 0, 'venda_macho' => 0, 'venda_femea' => 0, 'venda_geral' => 0, 'nota' => 0, 'pesagem' => 0, 'cabeca' => 0, 'pescoco' => 0, 'quarto_anterior' => 0, 'barril' => 0, 'quarto_posterior' => 0, 'comprimento' => 0, 'orgao' => 0, 'gordura' => 0, 'cobertura' => 0, 'cor' => 0, 'conformacao' => 0, 'gmd' => 0], $dados));
 }
 //FIM CRIAS RANKING REPRODUTOR
 
 
 //RANKING MORTALIDADE REPRODUTOR
 $morte = DBRead('animais', "WHERE pai = '$id_pai' AND status = '1' AND causa_da_perda = 'Nascimento'");
-$qtd_mortes = count($morte);
-$qtd_mortes = ($qtd_mortes*100)/$qtd_crias;
+$qtd_mortes = count($morte ?: []);
+$qtd_mortes = $qtd_crias ? ($qtd_mortes*100)/$qtd_crias : 0;
 $dados = array(
   'qtd_mortes' => $qtd_mortes
 );
@@ -134,7 +135,7 @@ DBUpdate('reprodutor', $dados, "id_macho = '$id_pai'");
 
 //CRIAS RANKING MATRIZ
 $crias = DBRead('animais', "WHERE mae = '$id_mae' AND terceiro_mae = '0'");
-$qtd_crias = count($crias);
+$qtd_crias = count($crias ?: []);
 $dados = array(
   'qtd_crias' => $qtd_crias,
   'id_femea'  => $id_mae
@@ -142,16 +143,17 @@ $dados = array(
 if($qtd_crias > 1){
   DBUpdate('matriz', $dados, "id_femea = '$id_mae'");
 }else{
-  DBCreate('matriz', $dados);
+  DBCreate('matriz', array_merge(['qtd_avaliadas' => 0, 'tipo2' => 0, 'tipo3' => 0, 'tipo4' => 0, 'tipo5' => 0, 'qtd_vendas' => 0, 'qtd_mortes' => 0, 'venda_macho' => 0, 'venda_femea' => 0, 'venda_geral' => 0, 'nota' => 0, 'pesagem' => 0, 'cabeca' => 0, 'pescoco' => 0, 'quarto_anterior' => 0, 'barril' => 0, 'quarto_posterior' => 0, 'comprimento' => 0, 'orgao' => 0, 'gordura' => 0, 'cobertura' => 0, 'cor' => 0, 'conformacao' => 0, 'peso_apartacao' => 0, 'intervalo' => 0, 'prolificidade' => 0, 'qtd_partos' => 0], $dados));
 }
 //FIM CRIAS RANKING MATRIZ
 
 
 //RANKING INTERVALO MATRIZ
 $cria = DBRead('animais', "WHERE mae = '$id_mae' AND tipo_reproducao != 'Embrionagem' AND terceiro_mae = '0' AND data_de_nascimento > '2011-01-01' ORDER BY data_de_nascimento asc");
-$total=$qtd=$dias_total=$qtd_=$qtd_partos=0;
-$qtd_crias = count($cria);
-foreach ($cria as $cria_){
+$total=$qtd=$dias_total=$qtd_=$qtd_partos=$qtd_crias_prolificidade=$qtd_partos_prolificidade=0;
+$data_anterior = null;
+$qtd_crias = count($cria ?: []);
+foreach (($cria ?: []) as $cria_){
 $data_nova = $cria_['data_de_nascimento'];
     if($qtd != 0){
         $data = $cria_['data_de_nascimento'];
@@ -238,8 +240,8 @@ $data_nova = $cria_['data_de_nascimento'];
 $data_anterior = $cria_['data_de_nascimento'];
 $qtd++;
 }
-$prolificidade = $qtd_crias_prolificidade/$qtd_partos_prolificidade;
-$media = $dias_total/$qtd_;
+$prolificidade = $qtd_partos_prolificidade ? $qtd_crias_prolificidade/$qtd_partos_prolificidade : 0;
+$media = $qtd_ ? $dias_total/$qtd_ : 0;
 $dados = array(
     'intervalo' => $media,
     'prolificidade' => $prolificidade
@@ -259,7 +261,7 @@ if($tipo == 1){
   $monta = DBRead('monta_controle', "WHERE id = '$id_lote'");
   $id_monta = $monta[0]['id_monta'];
   $dados = DBRead('monta_controle', "WHERE id_monta = '$id_monta'");
-  $qtd = count($dados);
+  $qtd = count($dados ?: []);
   if($_POST['status'] == 0){
     $vivos++;
   }else{
@@ -285,7 +287,7 @@ if($tipo == 2){
   $mortos = $lote_reproducao[0]['mortes'];
   $dados = DBRead('inseminacao_controle', "WHERE id_lote = '$id_ia'");
   $nascimento = DBRead('inseminacao_controle', "WHERE id_lote = '$id_ia' AND status_nascimento = '1'");
-  $qtd = count($dados);
+  $qtd = count($dados ?: []);
   if($_POST['status'] == 0){
     $vivos++;
   }else{
@@ -311,7 +313,7 @@ if($tipo == 3){
   $mortos = $lote_reproducao[0]['mortes'];
   $dados = DBRead('transplante_controle', "WHERE id_lote = '$id_te'");
   $nascimento = DBRead('transplante_controle', "WHERE id_lote = '$id_te' AND status_nascimento = '1'");
-  $qtd = count($dados);
+  $qtd = count($dados ?: []);
   if($_POST['status'] == 0){
     $vivos++;
   }else{
