@@ -175,7 +175,10 @@ function vender(id_animal){
             </tr>
             <?
             $julgamento = DBRead('animais_evento', "WHERE id_julgamento = '$id_evento' ORDER BY id_animal desc");
-            foreach ($julgamento as $julgamento_){
+            if (!$julgamento) {
+              echo '<tr><td colspan="8" class="text-center">Nenhum animal cadastrado nesta exposição.</td></tr>';
+            }
+            foreach (($julgamento ?: array()) as $julgamento_){
               $x++;
               $id_animal = $julgamento_['id_animal'];
               $animal = DBRead('animais', "WHERE id = '$id_animal'");

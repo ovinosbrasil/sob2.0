@@ -1,6 +1,6 @@
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<?
-include "../_config.php";
+<?php
+include __DIR__ . "/../_config.php";
+echo '<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />';
 $id_animal = $_GET['id_animal'];
 $id_evento = $_GET['id_evento'];
 
@@ -12,6 +12,8 @@ if($teste[0]['id']>0){
   $dados = array(
     'id_animal'	=> $id_animal,
     'id_julgamento'	=> $id_evento,
+    'leilao' => 0,
+    'julgamento' => 0,
   );
   DBcreate('animais_evento', $dados);
   echo "<META HTTP-EQUIV=REFRESH CONTENT='0; URL=../geral.php?pg=exposicao&id_exposicao=$id_evento'>";

@@ -1,6 +1,6 @@
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<?
-include "../_config.php";
+<?php
+include __DIR__ . "/../_config.php";
+echo '<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />';
 
 $data = $_POST['data'];
 include "../funcoes_data/data.php";

@@ -17,6 +17,8 @@ $data['9'] = $data_atual['3'];
 $data_evento = $data;
 ?>
 
+<?php include __DIR__ . "/../funcoes_data/categorias.php"; ?>
+
 
 <script type="text/javascript">
 function excluir_julgamento(id_animal){
@@ -144,8 +146,9 @@ function fechar_lista_animal_exposicao(){
               <th>Categoria</th>
               <th style="width:3%;">Excluir</th>
             </tr>
-            <?
+            <?php
             $julgamento = DBRead('julgamento_controle', "WHERE id_julgamento = '$id_evento' ORDER BY categoria asc");
+            if (!empty($julgamento) && is_array($julgamento)) {
             foreach ($julgamento as $julgamento_){
               $id_animal = $julgamento_['id_animal'];
               $animal = DBRead('animais', "WHERE id = '$id_animal'");
@@ -202,10 +205,15 @@ function fechar_lista_animal_exposicao(){
               <td><?=$mae[0]['nome']?></td>
               <td><?=$data_nascimento?></td>
               <td><?=$idade_anos?>A <?=$idade_meses?>M</td>
-              <td><?=$julgamento_['categoria']?></td>
+              <?php
+                $idade_calc = calcularIdadeMesesDias($animal[0]['data_de_nascimento'], $evento[0]['data']);
+                $categoria_calc = $idade_calc ? determinarCategoriaPorIdade($idade_calc['meses'], $idade_calc['dias']) : $julgamento_['categoria'];
+              ?>
+              <td><?= $categoria_calc ?></td>
               <td><button type="button" class="btn btn-danger" style="padding:0%; padding-left:5%; padding-right:5%; height:20px;" onclick="excluir_julgamento(<?=$animal[0]['id']?>)">X</button></td>
               </tr>
-            <? } } ?>
+            <?php } } }
+            ?>
             </table>
         </div>
         <!-- /.box-body -->
@@ -230,9 +238,10 @@ function fechar_lista_animal_exposicao(){
               <th>Categoria</th>
               <th style="width:3%;">Excluir</th>
             </tr>
-            <?
+            <?php
             $x=0;
             $julgamento = DBRead('julgamento_controle', "WHERE id_julgamento = '$id_evento' ORDER BY categoria asc");
+            if (!empty($julgamento) && is_array($julgamento)) {
             foreach ($julgamento as $julgamento_){
               $id_animal = $julgamento_['id_animal'];
               $animal = DBRead('animais', "WHERE id = '$id_animal'");
@@ -289,10 +298,15 @@ function fechar_lista_animal_exposicao(){
               <td><?=$mae[0]['nome']?></td>
               <td><?=$data_nascimento?></td>
               <td><?=$idade_anos?>A <?=$idade_meses?>M</td>
-              <td><?=$julgamento_['categoria']?></td>
+              <?php
+                $idade_calc = calcularIdadeMesesDias($animal[0]['data_de_nascimento'], $evento[0]['data']);
+                $categoria_calc = $idade_calc ? determinarCategoriaPorIdade($idade_calc['meses'], $idade_calc['dias']) : $julgamento_['categoria'];
+              ?>
+              <td><?= $categoria_calc ?></td>
               <td><button type="button" class="btn btn-danger" style="padding:0%; padding-left:5%; padding-right:5%; height:20px;" onclick="excluir_julgamento(<?=$animal[0]['id']?>)">X</button></td>
               </tr>
-            <? } } ?>
+            <?php } } }
+            ?>
             </table>
         </div>
         <!-- /.box-body -->
@@ -305,9 +319,9 @@ function fechar_lista_animal_exposicao(){
         <!-- /.box-header -->
         <div class="box-body">
           <h3 style="margin-top:0%;">Progênie de pai</h3>
-          <?
+          <?php
           $progenie = DBRead('progene',"WHERE id_lote = '$id_evento' AND qtd > '1' AND sexo = 'M'");
-          if($progenie[0]['id'] > 0){
+          if (!empty($progenie) && isset($progenie[0]['id']) && $progenie[0]['id'] > 0) {
            foreach ($progenie as $progenie_){
              $id_animal = $progenie_['id_animal'];
              $pai = DBRead('animais', "WHERE id = '$id_animal'");
@@ -324,6 +338,7 @@ function fechar_lista_animal_exposicao(){
                 </tr>
                 <?
                 $crias = DBRead('julgamento_controle', "WHERE id_julgamento = '$id_evento' AND pai = '$id_animal'");
+                if (!empty($crias) && is_array($crias)) {
                 foreach ($crias as $crias_) {
                   $id_cria = $crias_['id_animal'];
                   $cria = DBRead('animais', "WHERE id = '$id_cria'");
@@ -340,7 +355,7 @@ function fechar_lista_animal_exposicao(){
                   <td><?=$cria[0]['sexo']?></td>
                   <td><?=$cria[0]['tipo']?></td>
                 </tr>
-              <? } ?>
+                <?php } } ?>
                 </table>
           <? } } ?>
         </div>
@@ -354,9 +369,9 @@ function fechar_lista_animal_exposicao(){
         <!-- /.box-header -->
         <div class="box-body">
           <h3 style="margin-top:0%;">Progênie de mãe</h3>
-          <?
+          <?php
           $progenie = DBRead('progene',"WHERE id_lote = '$id_evento' AND qtd > '1' AND sexo = 'F'");
-          if($progenie[0]['id'] > 0){
+          if (!empty($progenie) && isset($progenie[0]['id']) && $progenie[0]['id'] > 0) {
            foreach ($progenie as $progenie_){
              $id_animal = $progenie_['id_animal'];
              $mae = DBRead('animais', "WHERE id = '$id_animal'");
@@ -373,6 +388,7 @@ function fechar_lista_animal_exposicao(){
                 </tr>
                 <?
                 $crias = DBRead('julgamento_controle', "WHERE id_julgamento = '$id_evento' AND mae = '$id_animal'");
+                if (!empty($crias) && is_array($crias)) {
                 foreach ($crias as $crias_) {
                   $id_cria = $crias_['id_animal'];
                   $cria = DBRead('animais', "WHERE id = '$id_cria'");
@@ -389,7 +405,7 @@ function fechar_lista_animal_exposicao(){
                   <td><?=$cria[0]['sexo']?></td>
                   <td><?=$cria[0]['tipo']?></td>
                 </tr>
-              <? } ?>
+                <?php } } ?>
                 </table>
           <? } } ?>
         </div>

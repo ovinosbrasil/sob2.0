@@ -1,11 +1,14 @@
+<?php
+include __DIR__ . "/../_config.php";
+$nome = isset($_GET['nome']) ? $_GET['nome'] : '';
+$evento = DBRead('julgamento', "WHERE nome LIKE '%$nome%' ORDER BY nome asc LIMIT 10");
+?>
+
 <div id="titulo_geral" style="background-color:#00a65a; height:35px; color:#fff; padding-top:0.5%;">
   <div style="padding-left:1%; font-weight:bold; font-size:16px;">Pesquisa de eventos</div>
 </div>
-<?
-include "../_config.php";
-$nome = $_GET['nome'];
 
-$evento = DBRead('julgamento',"WHERE nome LIKE '%$nome%' ORDER BY nome asc LIMIT 10");
+<?php
 foreach ($evento as $evento_) {
   $data = $evento_['data'];
   $data_atual = $data;
@@ -20,14 +23,13 @@ foreach ($evento as $evento_) {
   $data['7'] = $data_atual['1'];
   $data['8'] = $data_atual['2'];
   $data['9'] = $data_atual['3'];
-
   ?>
-  <a href="javascript:linkar_evento('<?=$evento_['id']?>');" style="color:#2d2c2c;">
+  <a href="javascript:linkar_evento('<?= $evento_['id'] ?>');" style="color:#2d2c2c;">
      <div id="nome" style="cursor:pointer; padding:0.8%; padding-left:1%;">
-       <span style="font-weight:bold;"> <?=$evento_['nome']?></span> - Data: <?=$data?> - Local: <?=$evento_['cidade']?>
+       <span style="font-weight:bold;"> <?= $evento_['nome'] ?></span> - Data: <?= $data ?> - Local: <?= $evento_['cidade'] ?>
      </div>
-</a>
-<? } ?>
+  </a>
+<?php } ?>
 
 <a href="javascript:fechar_lista_evento();" style="color:#2d2c2c;">
   <div id="nome" style="cursor:pointer; padding:0.8%; padding-left:1%; font-size:15px;"> <span style="color:red;"> Fechar Pesquisa </span></div>
