@@ -168,6 +168,7 @@ function vender(id_animal){
               <th>Animal</th>
               <th>Tipo</th>
               <th>Sexo</th>
+              <th>Crias</th>
               <th>Pista de julgamento</th>
               <th>Leilão</th>
               <th>Venda</th>
@@ -176,12 +177,18 @@ function vender(id_animal){
             <?
             $julgamento = DBRead('animais_evento', "WHERE id_julgamento = '$id_evento' ORDER BY id_animal desc");
             if (!$julgamento) {
-              echo '<tr><td colspan="8" class="text-center">Nenhum animal cadastrado nesta exposição.</td></tr>';
+              echo '<tr><td colspan="9" class="text-center">Nenhum animal cadastrado nesta exposição.</td></tr>';
             }
             foreach (($julgamento ?: array()) as $julgamento_){
               $x++;
               $id_animal = $julgamento_['id_animal'];
               $animal = DBRead('animais', "WHERE id = '$id_animal'");
+              $quantidade_crias = 0;
+              if ($animal && in_array($animal[0]['sexo'], array('Macho', 'Fêmea'), true)) {
+                $parentesco = $animal[0]['sexo'] == 'Macho' ? 'pai' : 'mae';
+                $crias = DBRead('animais', "WHERE $parentesco = '$id_animal' AND terceiro_$parentesco = '0'", 'COUNT(*) AS quantidade');
+                $quantidade_crias = (int)$crias[0]['quantidade'];
+              }
               $venda = DBRead('vendas', "WHERE id_animal = '$id_animal'")
             ?>
             <tr>
@@ -189,6 +196,7 @@ function vender(id_animal){
               <td onclick="abrir_animal(<?=$animal[0]['id']?>)" style="cursor:pointer;" ><?=$animal[0]['nome']?></td>
               <td><?=$animal[0]['tipo']?></td>
               <td><?=$animal[0]['sexo']?></td>
+              <td<?= $animal && $animal[0]['sexo'] === 'Fêmea' && $quantidade_crias === 0 ? ' style="color: #d00000;"' : '' ?>><?=$quantidade_crias?></td>
               <td>
                 <? if($julgamento_['julgamento']){?>
                   <button type="button" class="btn btn-success" style="padding:0%; padding-left:5%; padding-right:5%; height:20px;">Sim</button>

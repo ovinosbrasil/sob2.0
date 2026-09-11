@@ -143,11 +143,12 @@ function fechar_lista_animal_exposicao(){
               <th>Mãe</th>
               <th>Nascimento</th>
               <th>Idade</th>
-              <th>Categoria</th>
+              <th>Cat.</th>
+              <th title="Circunferência escrotal mínima exigida">CE</th>
               <th style="width:3%;">Excluir</th>
             </tr>
             <?php
-            $julgamento = DBRead('julgamento_controle', "WHERE id_julgamento = '$id_evento' ORDER BY categoria asc");
+            $julgamento = DBRead('julgamento_controle jc INNER JOIN animais a ON a.id = jc.id_animal', "WHERE jc.id_julgamento = '$id_evento' ORDER BY a.data_de_nascimento DESC, a.id ASC", 'jc.*');
             if (!empty($julgamento) && is_array($julgamento)) {
             foreach ($julgamento as $julgamento_){
               $id_animal = $julgamento_['id_animal'];
@@ -208,8 +209,23 @@ function fechar_lista_animal_exposicao(){
               <?php
                 $idade_calc = calcularIdadeMesesDias($animal[0]['data_de_nascimento'], $evento[0]['data']);
                 $categoria_calc = $idade_calc ? determinarCategoriaPorIdade($idade_calc['meses'], $idade_calc['dias']) : $julgamento_['categoria'];
+                $ce_minima = null;
+                if ($idade_calc && $idade_calc['meses'] >= 4) {
+                  $meses_ce = $idade_calc['meses'];
+                  $dias_ce = $idade_calc['dias'];
+                  if ($meses_ce < 6 || ($meses_ce == 6 && $dias_ce == 0)) {
+                    $ce_minima = 24;
+                  } elseif ($meses_ce < 8 || ($meses_ce == 8 && $dias_ce == 0)) {
+                    $ce_minima = 26;
+                  } elseif ($meses_ce < 10 || ($meses_ce == 10 && $dias_ce == 0)) {
+                    $ce_minima = 28;
+                  } else {
+                    $ce_minima = 30;
+                  }
+                }
               ?>
               <td><?= $categoria_calc ?></td>
+              <td><?= $ce_minima !== null ? $ce_minima . ' cm' : '—' ?></td>
               <td><button type="button" class="btn btn-danger" style="padding:0%; padding-left:5%; padding-right:5%; height:20px;" onclick="excluir_julgamento(<?=$animal[0]['id']?>)">X</button></td>
               </tr>
             <?php } } }
@@ -235,18 +251,47 @@ function fechar_lista_animal_exposicao(){
               <th>Mãe</th>
               <th>Nascimento</th>
               <th>Idade</th>
-              <th>Categoria</th>
+              <th>Cat.</th>
+              <th>Status</th>
               <th style="width:3%;">Excluir</th>
             </tr>
             <?php
             $x=0;
-            $julgamento = DBRead('julgamento_controle', "WHERE id_julgamento = '$id_evento' ORDER BY categoria asc");
+            $hoje_status = (new DateTimeImmutable('today', new DateTimeZone('America/Bahia')))->format('Y-m-d');
+            $julgamento = DBRead('julgamento_controle jc INNER JOIN animais a ON a.id = jc.id_animal', "WHERE jc.id_julgamento = '$id_evento' ORDER BY a.data_de_nascimento DESC, a.id ASC", 'jc.*');
             if (!empty($julgamento) && is_array($julgamento)) {
             foreach ($julgamento as $julgamento_){
               $id_animal = $julgamento_['id_animal'];
               $animal = DBRead('animais', "WHERE id = '$id_animal'");
               if($animal[0]['sexo'] == "Fêmea"){
                 $x++;
+                $crias_cadastradas = DBRead('animais', "WHERE mae = '$id_animal' AND terceiro_mae = '0'", 'COUNT(*) AS quantidade');
+                $sem_crias = (int)$crias_cadastradas[0]['quantidade'] === 0;
+                $status_femea = $sem_crias ? 'Sem Cria' : 'Com cria';
+                $cor_status = $sem_crias ? '#d00000' : 'green';
+                $idade_status = calcularIdadeMesesDias($animal[0]['data_de_nascimento'], $evento[0]['data']);
+                if ($idade_status && $idade_status['meses'] < 14) {
+                  $status_femea = 'Aprovada';
+                  $cor_status = 'green';
+                }
+                $validar_prenhez = $idade_status
+                  && ($idade_status['meses'] > 14 || ($idade_status['meses'] == 14 && $idade_status['dias'] > 0))
+                  && $idade_status['meses'] < 18;
+                if ($sem_crias && $validar_prenhez) {
+                  // O limite da previsão de parto inclui o último dia dos 160 dias.
+                  $prenhez = DBRead('monta_controle mc INNER JOIN monta m ON m.id = mc.id_monta',
+                    "WHERE mc.id_animal = '$id_animal' AND mc.terceiro = '0' AND mc.ultrassom = '1'
+                    AND m.data_inicio <= '$hoje_status'
+                    AND DATE_ADD(m.data_fim, INTERVAL 160 DAY) >= '$hoje_status' LIMIT 1", 'mc.id');
+                  if (!$prenhez) {
+                    $prenhez = DBRead('inseminacao_controle ic INNER JOIN inseminacao i ON i.id = ic.id_lote',
+                      "WHERE ic.id_femea = '$id_animal' AND ic.terceiro = '0' AND ic.ultrassom = '1'
+                      AND i.data <= '$hoje_status'
+                      AND DATE_ADD(i.data, INTERVAL 160 DAY) >= '$hoje_status' LIMIT 1", 'ic.id');
+                  }
+                  $status_femea = $prenhez ? 'Prenhez' : 'Prenhez';
+                  $cor_status = $prenhez ? 'green' : '#d00000';
+                }
                 $id_pai = $animal[0]['pai'];
                 if($animal[0]['terceiro_pai']){
                   $pai = DBRead('terceiros', "WHERE id = '$id_pai'");
@@ -303,6 +348,7 @@ function fechar_lista_animal_exposicao(){
                 $categoria_calc = $idade_calc ? determinarCategoriaPorIdade($idade_calc['meses'], $idade_calc['dias']) : $julgamento_['categoria'];
               ?>
               <td><?= $categoria_calc ?></td>
+              <td><span style="color: <?= $cor_status ?>;"><?= $status_femea ?></span></td>
               <td><button type="button" class="btn btn-danger" style="padding:0%; padding-left:5%; padding-right:5%; height:20px;" onclick="excluir_julgamento(<?=$animal[0]['id']?>)">X</button></td>
               </tr>
             <?php } } }
