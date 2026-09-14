@@ -1,17 +1,20 @@
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<?
-include "../../_config.php";
+<?php
+require __DIR__ . "/../../_config.php";
+header('Content-Type: text/html; charset=UTF-8');
 $id_lote = $_GET['id_lote'];
 $receptora = $_POST['receptora'];
 $teste = DBRead('transplante_controle', "WHERE receptora = '$receptora' AND id_lote = '$id_lote'");
-if($teste[0]['id'] > 0){
+if(!empty($teste[0]['id'])){
   echo "<script type=\"text/javascript\"> alert(\"Receptora já cadastrada.Tente novamente\"); </script>
   <script language='javascript'>history.back()</script>";
 }else{
 
 $dados = array(
 	'receptora'	=> $_POST['receptora'],
-	'id_lote'	=> $id_lote
+	'id_lote'	=> $id_lote,
+	'ultrassom' => 0,
+	'status_nascimento' => 0,
+	'n_embrioes' => ''
 );
 
 DBcreate('transplante_controle', $dados);
@@ -22,13 +25,13 @@ $ultrassom = DBRead('transplante_controle', "WHERE id_lote = '$id_lote' AND ultr
 $nascimento = DBRead('transplante_controle', "WHERE id_lote = '$id_lote' AND status_nascimento = '1'");
 $dados = DBRead('transplante_controle', "WHERE id_lote = '$id_lote'");
 $qtd = count($dados);
-  if($ultrassom[0]['id'] > 0){
+  if(!empty($ultrassom[0]['id'])){
     $ultrassom = count($ultrassom);
     $ultrassom = ($ultrassom*100)/$qtd;
   }else{
     $ultrassom = 0;
   }
-  if($nascimento[0]['id'] > 0){
+  if(!empty($nascimento[0]['id'])){
     $nascimento = count($nascimento);
     $nascimento = ($nascimento*100)/$qtd;
   }else{

@@ -1,6 +1,6 @@
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<?
-include "../../_config.php";
+<?php
+require __DIR__ . "/../../_config.php";
+header('Content-Type: text/html; charset=UTF-8');
 
 $id_lote = $_GET['id_lote'];
 $status = $_GET['status'];
@@ -17,14 +17,14 @@ $qtd=$ultrassom=$nascimento=0;
 $ultrassom = DBRead('transplante_controle', "WHERE id_lote = '$id_lote' AND ultrassom = '1'");
 $nascimento = DBRead('transplante_controle', "WHERE id_lote = '$id_lote' AND status_nascimento = '1'");
 $dados = DBRead('transplante_controle', "WHERE id_lote = '$id_lote'");
-$qtd = count($dados);
-  if($ultrassom[0]['id'] > 0){
+$qtd = count($dados ?: []);
+  if($qtd > 0 && !empty($ultrassom[0]['id'])){
     $ultrassom = count($ultrassom);
     $ultrassom = ($ultrassom*100)/$qtd;
   }else{
     $ultrassom = 0;
   }
-  if($nascimento[0]['id'] > 0){
+  if($qtd > 0 && !empty($nascimento[0]['id'])){
     $nascimento = count($nascimento);
     $nascimento = ($nascimento*100)/$qtd;
   }else{

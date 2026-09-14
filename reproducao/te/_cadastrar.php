@@ -1,6 +1,7 @@
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<?
-include "../../_config.php";
+<?php
+require __DIR__ . "/../../_config.php";
+header('Content-Type: text/html; charset=UTF-8');
+require __DIR__ . "/_validar_macho_complementar.php";
 
 $data = $_POST['data_inicial'];
 include "../../funcoes_data/data.php";
@@ -44,22 +45,34 @@ if($verifica_femea_terceiro[0]['id'] > 0){ $id_femea = $verifica_femea_terceiro[
 $dados = array(
 	'codigo'	=> $_POST['lote'],
 	'data'	=> $data_inicial,
+  'pai' => $macho,
+  'mae' => $femea,
   'terceiro_pai' => $terceiro_macho,
   'id_pai' => $id_macho,
+  'id_pai_2' => $id_pai_2,
+  'terceiro_pai_2' => $terceiro_pai_2,
   'terceiro_mae' => $terceiro_mae,
   'id_mae' => $id_femea,
-  'qtd'   => $_POST['embrioes']
+  'qtd'   => $_POST['embrioes'],
+  'usados' => 0,
+  'congelados' => 0,
+  'data_coleta' => null,
+  'raca' => '',
+  'tipo_semen' => ''
 );
 
-DBcreate('transplante', $dados);
-$lote = DBRead('transplante', "WHERE codigo = '$lote'");
-$id_lote = $lote[0]['id'];
+$id_lote = DBcreate('transplante', $dados, true);
 
 
 //RANKING TE
 $dados = array(
 	'id_lote'	=> $id_lote,
-  'tipo'    => 2
+  'tipo'    => 2,
+  'ultrassom' => 0,
+  'femeas' => 0,
+  'crias' => 0,
+  'mortes' => 0,
+  'vivos' => 0
 );
 DBcreate('lotes_reproducao', $dados);
 //RANKING TE FIM

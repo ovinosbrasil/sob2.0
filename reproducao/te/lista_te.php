@@ -177,6 +177,7 @@ $mae = $_GET['mae'];
               <tr>
                 <th>Lote</th>
                 <th>Macho</th>
+                <th>Macho complementar</th>
                 <th>Fêmea</th>
                 <th>Data</th>
                 <th>Previsão</th>
@@ -185,6 +186,11 @@ $mae = $_GET['mae'];
               <?
                 $lote = DBRead('transplante', "ORDER BY data desc LIMIT 15");
                 foreach ($lote as $lote_){
+                  $id_pai_2 = (int)($lote_['id_pai_2'] ?? 0);
+                  $macho_complementar = $id_pai_2 > 0
+                    ? DBRead(empty($lote_['terceiro_pai_2']) ? 'animais' : 'terceiros', "WHERE id = '$id_pai_2'")
+                    : [];
+
                   $id_macho = $lote_['id_pai'];
                   if($lote_['terceiro_pai']){
                     $macho = DBRead('terceiros', "WHERE id = '$id_macho'");
@@ -250,6 +256,7 @@ $mae = $_GET['mae'];
                 <tr>
                     <td onclick="te_lote(<?=$lote_['id']?>)" style="cursor:pointer;" ><?=$lote_['codigo']?></td>
                     <td onclick="te_lote(<?=$lote_['id']?>)" style="cursor:pointer;" ><?=$macho[0]['nome']?></td>
+                    <td onclick="te_lote(<?=$lote_['id']?>)" style="cursor:pointer;" ><?=htmlspecialchars($macho_complementar[0]['nome'] ?? '-', ENT_QUOTES, 'UTF-8')?></td>
                     <td onclick="te_lote(<?=$lote_['id']?>)" style="cursor:pointer;" ><?=$femea[0]['nome']?></td>
                     <td onclick="te_lote(<?=$lote_['id']?>)" style="cursor:pointer;" >Inicial: <?=$data_te?></td>
                     <td onclick="te_lote(<?=$lote_['id']?>)" style="cursor:pointer;" ><?=$data_previsao1?> até <?=$data_previsao2?></td>
@@ -267,6 +274,7 @@ $mae = $_GET['mae'];
                 <tr>
                   <th>Lote</th>
                   <th>Macho</th>
+                  <th>Macho complementar</th>
                   <th>Fêmea</th>
                   <th>Data</th>
                   <th>Previsão</th>
@@ -286,6 +294,11 @@ $mae = $_GET['mae'];
 
 
                   foreach ($lote as $lote_){
+                    $id_pai_2 = (int)($lote_['id_pai_2'] ?? 0);
+                    $macho_complementar = $id_pai_2 > 0
+                      ? DBRead(empty($lote_['terceiro_pai_2']) ? 'animais' : 'terceiros', "WHERE id = '$id_pai_2'")
+                      : [];
+
                   $id_femea = $lote_['id_mae'];
                   if($lote_['terceiro_mae']){
                     $femea = DBRead('terceiros', "WHERE id = '$id_femea'");
@@ -344,6 +357,7 @@ $mae = $_GET['mae'];
                   <tr>
                       <td onclick="te_lote(<?=$lote_['id']?>)" style="cursor:pointer;" ><?=$lote_['codigo']?></td>
                       <td onclick="te_lote(<?=$lote_['id']?>)" style="cursor:pointer;" ><?=$pai_[0]['nome']?></td>
+                      <td onclick="te_lote(<?=$lote_['id']?>)" style="cursor:pointer;" ><?=htmlspecialchars($macho_complementar[0]['nome'] ?? '-', ENT_QUOTES, 'UTF-8')?></td>
                       <td onclick="te_lote(<?=$lote_['id']?>)" style="cursor:pointer;" ><?=$femea[0]['nome']?></td>
                       <td onclick="te_lote(<?=$lote_['id']?>)" style="cursor:pointer;" >Inicial: <?=$data_te?></td>
                       <td onclick="te_lote(<?=$lote_['id']?>)" style="cursor:pointer;" ><?=$data_previsao1?> até <?=$data_previsao2?></td>
@@ -361,6 +375,7 @@ $mae = $_GET['mae'];
                   <tr>
                     <th>Lote</th>
                     <th>Macho</th>
+                    <th>Macho complementar</th>
                     <th>Fêmea</th>
                     <th>Data</th>
                     <th>Previsão</th>
@@ -377,6 +392,11 @@ $mae = $_GET['mae'];
                       $lote = DBRead('transplante', "WHERE id_mae = '$id_mae' AND terceiro_mae = '1' ORDER BY id desc");
                     }
                     foreach ($lote as $lote_){
+                      $id_pai_2 = (int)($lote_['id_pai_2'] ?? 0);
+                      $macho_complementar = $id_pai_2 > 0
+                        ? DBRead(empty($lote_['terceiro_pai_2']) ? 'animais' : 'terceiros', "WHERE id = '$id_pai_2'")
+                        : [];
+
                     $id_macho = $lote_['id_pai'];
                     if($lote_['terceiro_pai']){
                       $macho = DBRead('terceiros', "WHERE id = '$id_macho'");
@@ -434,6 +454,7 @@ $mae = $_GET['mae'];
                     <tr>
                         <td onclick="te_lote(<?=$lote_['id']?>)" style="cursor:pointer;" ><?=$lote_['codigo']?></td>
                         <td onclick="te_lote(<?=$lote_['id']?>)" style="cursor:pointer;" ><?=$macho[0]['nome']?></td>
+                        <td onclick="te_lote(<?=$lote_['id']?>)" style="cursor:pointer;" ><?=htmlspecialchars($macho_complementar[0]['nome'] ?? '-', ENT_QUOTES, 'UTF-8')?></td>
                         <td onclick="te_lote(<?=$lote_['id']?>)" style="cursor:pointer;" ><?=$mae_[0]['nome']?></td>
                         <td onclick="te_lote(<?=$lote_['id']?>)" style="cursor:pointer;" >Inicial: <?=$data_te?></td>
                         <td onclick="te_lote(<?=$lote_['id']?>)" style="cursor:pointer;" ><?=$data_previsao1?> até <?=$data_previsao2?></td>

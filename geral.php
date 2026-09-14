@@ -310,6 +310,29 @@ $data_expira2 = $data;
 <script src="bower_components/bootstrap-daterangepicker/daterangepicker.js"></script>
 <!-- datepicker -->
 <script src="bower_components/bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/jquery.maskedinput/1.4.1/jquery.maskedinput.min.js"></script>
+<script>
+  $(function () {
+    var camposData = 'input[type="text"][name="data"], input[type="text"][name^="data_"], input[type="text"][id^="datepicker"]';
+
+    function prepararCampoData() {
+      var campo = $(this);
+      if (this.readOnly || this.disabled || campo.data('mascaraData')) return;
+      campo.data('mascaraData', true)
+        .attr('placeholder', 'dd/mm/aaaa')
+        .mask('99/99/9999', {placeholder: 'dd/mm/aaaa'})
+        .datepicker({
+          autoclose: true,
+          format: 'dd/mm/yyyy',
+          forceParse: false
+        });
+    }
+
+    $(camposData).each(prepararCampoData);
+    // Inclui campos carregados depois, como a edição de lançamentos financeiros.
+    $(document).on('focusin', camposData, prepararCampoData);
+  });
+</script>
 <!-- Bootstrap WYSIHTML5 -->
 <script src="plugins/bootstrap-wysihtml5/bootstrap3-wysihtml5.all.min.js"></script>
 <!-- Slimscroll -->
@@ -329,7 +352,7 @@ $data_expira2 = $data;
 if(($pg == 'perfil') || ($pg == 'comprador') || ($pg == 'compradores')){
 ?>
 <!--mascara-->
-<script src="//cdnjs.cloudflare.com/ajax/libs/jquery.maskedinput/1.4.1/jquery.maskedinput.min.js"></script>
+
 <script>
   $(function () {
     //Initialize Select2 Elements
@@ -412,39 +435,12 @@ if(($pg == 'perfil') || ($pg == 'comprador') || ($pg == 'compradores')){
 <!-- fullCalendar -->
 <link rel="stylesheet" href="bower_components/fullcalendar/dist/fullcalendar.min.css">
 <link rel="stylesheet" href="bower_components/fullcalendar/dist/fullcalendar.print.min.css" media="print">
-<script src="//cdnjs.cloudflare.com/ajax/libs/jquery.maskedinput/1.4.1/jquery.maskedinput.min.js"></script>
+
 <!-- datepicker -->
-<script src="bower_components/bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js"></script>
+
 <script src="bower_components/jprice.js"></script>
 <script type="text/javascript">
   $(function () {
-    $('#datepicker').datepicker({
-          autoclose: true
-        })
-    $('#datepicker2').datepicker({
-          autoclose: true
-        })
-    $('#datepicker3').datepicker({
-          autoclose: true
-        })
-    $('#data_apartacao').datepicker({
-          autoclose: true
-      })
-    $('#data_adulto').datepicker({
-          autoclose: true
-    })
-    $('#data_venda').datepicker({
-          autoclose: true
-    })
-    $('#data_saida').datepicker({
-          autoclose: true
-    })
-    $('#data_doenca').datepicker({
-          autoclose: true
-    })
-    $('#data_vacina').datepicker({
-          autoclose: true
-    })
     $('#peso_inicial').priceFormat();
     $('#peso_apartacao').priceFormat();
     $('#peso_adulto').priceFormat();
@@ -516,18 +512,12 @@ $(function () {
   <!-- fullCalendar -->
   <link rel="stylesheet" href="bower_components/fullcalendar/dist/fullcalendar.min.css">
   <link rel="stylesheet" href="bower_components/fullcalendar/dist/fullcalendar.print.min.css" media="print">
-  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery.maskedinput/1.4.1/jquery.maskedinput.min.js"></script>
+
   <!-- datepicker -->
-  <script src="bower_components/bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js"></script>
+
   <script src="bower_components/jprice.js"></script>
   <script>
     $(function () {
-      $('#data_nascimento').datepicker({
-            autoclose: true
-          })
-      $('#data_entrada').datepicker({
-            autoclose: true
-          })
       $('#valor').priceFormat();
       $('#peso').priceFormat();
     })
@@ -539,23 +529,10 @@ $(function () {
 <!-- fullCalendar -->
 <link rel="stylesheet" href="bower_components/fullcalendar/dist/fullcalendar.min.css">
 <link rel="stylesheet" href="bower_components/fullcalendar/dist/fullcalendar.print.min.css" media="print">
-<script src="//cdnjs.cloudflare.com/ajax/libs/jquery.maskedinput/1.4.1/jquery.maskedinput.min.js"></script>
+
 <!-- datepicker -->
-<script src="bower_components/bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js"></script>
+
 <script src="bower_components/jprice.js"></script>
-<script>
-  $(function () {
-    $('#data_inicial').datepicker({
-          autoclose: true
-        })
-    $('#data_final').datepicker({
-          autoclose: true
-        })
-    $('#data').datepicker({
-        autoclose: true
-      })
-  })
-</script>
 <? } ?>
 
 
@@ -564,15 +541,6 @@ $(function () {
 $(function () {
   $('#valor_faturamento').priceFormat();
   $('#valor_debito').priceFormat();
-  $('#data_faturamento').datepicker({
-      autoclose: true
-  })
-  $('#data_debito').datepicker({
-      autoclose: true
-  })
-  $('#data').datepicker({
-      autoclose: true
-    })
   $('#valor').priceFormat();
 })
 

@@ -68,6 +68,8 @@ if($tipo == 3){
     $transplante_controle = DBRead('transplante_controle', "WHERE id = '$id_lote'");
     $id_transplante = $transplante_controle[0]['id_lote'];
     $transplante = DBRead('transplante', "WHERE id = '$id_transplante'");
+    require_once __DIR__ . '/_pais_te.php';
+    $pais_te = paisDoLoteTe($transplante[0] ?? []);
     $id_pai = $transplante[0]['id_pai'];
     $id_mae = $transplante[0]['id_mae'];
     $receptora = $transplante_controle[0]['receptora'];
@@ -216,7 +218,15 @@ function ativar_nascimento(){
              <div class="box-body">
                <div class="form-group">
                  <label for="exampleInputPassword1">Pai<span style="color:#F00;">*</span></label>
+                 <? if($tipo == 3){ ?>
+                 <select class="form-control select" id="pai" name="pai" required>
+                   <? foreach($pais_te as $chave_pai => $opcao_pai){ ?>
+                   <option value="<?=htmlspecialchars($chave_pai, ENT_QUOTES, 'UTF-8')?>"><?=htmlspecialchars($opcao_pai['nome'], ENT_QUOTES, 'UTF-8')?></option>
+                   <? } ?>
+                 </select>
+                 <? }else{ ?>
                  <input type="text" class="form-control" id="pai" name="pai" value="<?=$pai[0]['nome']?>" readonly="readonly">
+                 <? } ?>
                  <div id="lista_pai" style="border-style:solid; border-width:thin; height:auto; border-color: #bab1b4; position:absolute; z-index:99999; background:#fff; width:90%; display:none; margin-top:1%;">
                  </div>
                </div>

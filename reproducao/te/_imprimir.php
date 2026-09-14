@@ -1,3 +1,6 @@
+<?php
+require __DIR__ . "/../../_config.php";
+?>
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
@@ -40,8 +43,7 @@ line-height: 1.0em;
 
 </head>
 
-<?
-include "../../_config.php";
+<?php
 
 $user = DBRead('admin');
 $id_lote = $_GET['id_lote'];
@@ -52,6 +54,11 @@ if(!$lote[0]['terceiro_pai']){
 }else{
   $macho = DBRead('terceiros', "WHERE id = '$id_macho'");
 }
+
+$id_macho_complementar = (int)($lote[0]['id_pai_2'] ?? 0);
+$macho_complementar = $id_macho_complementar > 0
+  ? DBRead(empty($lote[0]['terceiro_pai_2']) ? 'animais' : 'terceiros', "WHERE id = '$id_macho_complementar'")
+  : [];
 
 $id_mae = $lote[0]['id_mae'];
 if(!$lote[0]['terceiro_mae']){
@@ -75,20 +82,8 @@ $data['8'] = $data_atual['2'];
 $data['9'] = $data_atual['3'];
 $data_inicial = $data;
 
-$data = $lote[0]['data_coleta'];
-$data_atual = $data;
-$data = '0';
-$data['0'] = $data_atual['8'];
-$data['1'] = $data_atual['9'];
-$data['2'] = "/";
-$data['3'] = $data_atual['5'];
-$data['4'] = $data_atual['6'];
-$data['5'] = "/";
-$data['6'] = $data_atual['0'];
-$data['7'] = $data_atual['1'];
-$data['8'] = $data_atual['2'];
-$data['9'] = $data_atual['3'];
-$data_coleta = $data;
+$data_coleta = !empty($lote[0]['data_coleta']) && $lote[0]['data_coleta'] !== '0000-00-00'
+  ? date('d/m/Y', strtotime($lote[0]['data_coleta'])) : '';
 
 
 ?>
@@ -136,7 +131,7 @@ $data_coleta = $data;
 
           <table class="table table-bordered" id="tabela_padrao" border="1" style="width:95%; margin-top:1%; float:left;  font-size:12px;">
             <tr>
-              <th rowspan="2">Identificação</span></th>
+              <th rowspan="<?=!empty($macho_complementar[0]) ? 3 : 2?>">Identificação</th>
               <th colspan="2" style="text-align:left;">Doadora: <span style="font-weight:100;"><?=$femea[0]['nome']?></span></th>
               <th>FBB:<span style="font-weight:100;"><?=$femea[0]['fbb']?></span></th>
             </tr>
@@ -144,6 +139,12 @@ $data_coleta = $data;
               <th colspan="2" style="text-align:left;">Doador: <span style="font-weight:100;"><?=$macho[0]['nome']?></span></th>
               <th>FBB:<span style="font-weight:100;"><?=$macho[0]['fbb']?></span></th>
             </tr>
+            <? if(!empty($macho_complementar[0])){ ?>
+            <tr>
+              <th colspan="2" style="text-align:left;">Doador: <span style="font-weight:100;"><?=htmlspecialchars($macho_complementar[0]['nome'] ?? '', ENT_QUOTES, 'UTF-8')?></span></th>
+              <th>FBB:<span style="font-weight:100;"><?=htmlspecialchars($macho_complementar[0]['fbb'] ?? '', ENT_QUOTES, 'UTF-8')?></span></th>
+            </tr>
+            <? } ?>
           </table>
 
           <table class="table table-bordered" id="tabela_padrao" border="1" style="width:95%; margin-top:1%; float:left;  font-size:12px;">

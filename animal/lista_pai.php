@@ -1,5 +1,8 @@
 <?php
 require __DIR__ . "/../_config.php";
+$complementar = ($_GET['campo'] ?? '') === 'pai_2';
+$selecionar = $complementar ? 'linkar_pai_2' : 'linkar_pai';
+$fechar = $complementar ? 'fechar_lista_pai_2' : 'fechar_lista_pai';
 ?>
 <div id="titulo_geral" style="background-color:#00a65a; height:35px; color:#fff; padding-top:0.5%;">
   <div style="padding-left:1%; font-weight:bold; font-size:16px;">Animais do rebanho</div>
@@ -25,7 +28,7 @@ foreach (($animal ?: []) as $animais) {
   $data['9'] = $data_atual['3'];
 
   ?>
-  <a href="javascript:linkar_pai('<?=$animais['nome']?>');" style="color:#2d2c2c;">
+  <a href="#" onclick="<?=$selecionar?>(<?=htmlspecialchars(json_encode($animais['nome']), ENT_QUOTES, 'UTF-8')?>, <?=(int)$animais['id']?>, 0); return false;" style="color:#2d2c2c;">
 <div id="nome" style="cursor:pointer; padding:0.8%; padding-left:1%;"> <span style="font-weight:bold;"> <?=$animais['nome']?></span> - Nascimento: <?=$data?>
   <? if($animais['status'] == 0){ ?> <span style="color:#37abc0;">(Rebanho) <? } ?>
   <? if($animais['status'] == 1){ ?> <span style="color:red;">(Morto) <? } ?>
@@ -62,10 +65,10 @@ foreach (($animal ?: []) as $animais) {
   
 
   ?>
-  <a href="javascript:linkar_pai('<?=$animais['nome']?>');" style="color:#2d2c2c;">
+  <a href="#" onclick="<?=$selecionar?>(<?=htmlspecialchars(json_encode($animais['nome']), ENT_QUOTES, 'UTF-8')?>, <?=(int)$animais['id']?>, 1); return false;" style="color:#2d2c2c;">
 <div id="nome" style="cursor:pointer; padding:0.8%; padding-left:1%;"> <span style="font-weight:bold;"> <?=$animais['nome']?></span> - Nascimento: <?=$data?></div> </a>
 <? } ?>
 
-  <a href="javascript:fechar_lista_pai();" style="color:#2d2c2c;">
+  <a href="javascript:<?=$fechar?>();" style="color:#2d2c2c;">
     <div id="nome" style="cursor:pointer; padding:0.8%; padding-left:1%;"> <span style="color:red;"> Fechar Pesquisa </span></div>
   </a>

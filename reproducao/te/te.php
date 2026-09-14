@@ -118,6 +118,10 @@ if(!$te[0]['terceiro_pai']){
 }else{
   $macho = DBRead('terceiros', "WHERE id = '$id_macho'");
 }
+$id_pai_2 = (int)($te[0]['id_pai_2'] ?? 0);
+$macho_complementar = $id_pai_2 > 0
+  ? DBRead(empty($te[0]['terceiro_pai_2']) ? 'animais' : 'terceiros', "WHERE id = '$id_pai_2'")
+  : [];
 $id_femea = $te[0]['id_mae'];
 if(!$te[0]['terceiro_mae']){
   $femea = DBRead('animais', "WHERE id = '$id_femea'");
@@ -139,20 +143,8 @@ $data['8'] = $data_atual['2'];
 $data['9'] = $data_atual['3'];
 $data_te = $data;
 
-$data = $te[0]['data_coleta'];
-$data_atual = $data;
-$data = '0';
-$data['0'] = $data_atual['8'];
-$data['1'] = $data_atual['9'];
-$data['2'] = "/";
-$data['3'] = $data_atual['5'];
-$data['4'] = $data_atual['6'];
-$data['5'] = "/";
-$data['6'] = $data_atual['0'];
-$data['7'] = $data_atual['1'];
-$data['8'] = $data_atual['2'];
-$data['9'] = $data_atual['3'];
-$data_coleta = $data;
+$data_coleta = !empty($te[0]['data_coleta']) && $te[0]['data_coleta'] !== '0000-00-00'
+  ? date('d/m/Y', strtotime($te[0]['data_coleta'])) : '';
 ?>
 
 
@@ -200,6 +192,14 @@ $data_coleta = $data;
             </div>
 
             <div class="form-group">
+              <label for="macho_complementar">Macho complementar</label>
+              <input type="text" class="form-control" id="macho_complementar" name="macho_complementar" autocomplete="off" oninput="pesquisar_pai_2(this.value)" value="<?=htmlspecialchars($macho_complementar[0]['nome'] ?? '', ENT_QUOTES, 'UTF-8')?>">
+              <input type="hidden" id="id_pai_2" name="id_pai_2" value="<?=(int)($te[0]['id_pai_2'] ?? 0)?>">
+              <input type="hidden" id="terceiro_pai_2" name="terceiro_pai_2" value="<?=(int)($te[0]['terceiro_pai_2'] ?? 0)?>">
+              <div id="lista_pai_2" style="border:1px solid #bab1b4; position:absolute; z-index:99999; background:#fff; width:150%; display:none; margin-top:1%;"></div>
+            </div>
+
+            <div class="form-group">
               <label for="exampleInputPassword1">Fêmea<span style="color:#F00;">*</span>
                 <a href="geral.php?pg=cadastrar_animal&tipo=2" target="_blank"><span style="font-size:11px; color:green;">Novo</span></a></label>
               <input type="text" class="form-control" id="mae" name="femea" onKeyUp="pesquisar_mae(this.value)" value="<?=$femea[0]['nome']?>">
@@ -214,7 +214,7 @@ $data_coleta = $data;
                 <option></option>
                 <?
                 $raca = DBRead('raca', "ORDER BY nome asc");
-                foreach ($raca as $raca_) { ?>
+                foreach (($raca ?: []) as $raca_) { ?>
                   <option value="<?=$raca_['nome']?>"><?=$raca_['nome']?></option>
                 <? } ?>
               </select>
@@ -299,7 +299,8 @@ $data_coleta = $data;
             </tr>
             <?
             $transplante_controle = DBRead('transplante_controle', "WHERE id_lote = '$id_lote'");
-            foreach ($transplante_controle as $transplante_controle_){
+            $x = 0;
+            foreach (($transplante_controle ?: []) as $transplante_controle_){
               $id_transplante_controle = $transplante_controle_['id'];
               $x++;
             ?>
@@ -353,3 +354,5 @@ $data_coleta = $data;
   </div>
 </section>
   <!-- /.content -->
+
+<script src="reproducao/te/macho_complementar.js"></script>

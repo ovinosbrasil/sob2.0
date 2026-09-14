@@ -15,15 +15,30 @@ if($sql[0]['id'] > 0){
 			    <script language='javascript'>history.back()</script>";
 }else{
 $pai = $_POST['pai'];
+if ((int)($_GET['tipo'] ?? 0) === 3) {
+  require_once __DIR__ . '/_pais_te.php';
+  $id_controle_te = (int)($_GET['id_lote'] ?? 0);
+  $controle_te = DBRead('transplante_controle', "WHERE id = '$id_controle_te'");
+  $id_transplante_te = (int)($controle_te[0]['id_lote'] ?? 0);
+  $lote_te = DBRead('transplante', "WHERE id = '$id_transplante_te'");
+  $pais_te = paisDoLoteTe($lote_te[0] ?? []);
+  if (!isset($pais_te[$pai])) {
+    echo '<script>alert("Selecione um pai cadastrado no lote de TE."); history.back();</script>';
+    exit;
+  }
+  $id_pai = $pais_te[$pai]['id'];
+  $terceiro_pai = $pais_te[$pai]['terceiro'];
+} else {
 $verifica_pai = DBRead('animais', "WHERE nome = '$pai' AND sexo = 'Macho'");
 $verifica_pai_terceiro = DBRead('terceiros', "WHERE nome = '$pai' AND sexo = 'Macho'");
+if($verifica_pai[0]['id'] > 0){ $id_pai = $verifica_pai[0]['id']; $terceiro_pai = 0;}
+if($verifica_pai_terceiro[0]['id'] > 0){ $id_pai = $verifica_pai_terceiro[0]['id']; $terceiro_pai = 1;}
+}
 
 $mae = $_POST['mae'];
 $verifica_mae = DBRead('animais', "WHERE nome = '$mae' AND sexo = 'Fêmea'");
 $verifica_mae_terceiro = DBRead('terceiros', "WHERE nome = '$mae' AND sexo = 'Fêmea'");
 
-if($verifica_pai[0]['id'] > 0){ $id_pai = $verifica_pai[0]['id']; $terceiro_pai = 0;}
-if($verifica_pai_terceiro[0]['id'] > 0){ $id_pai = $verifica_pai_terceiro[0]['id']; $terceiro_pai = 1;}
 if($verifica_mae[0]['id'] > 0){ $id_mae = $verifica_mae[0]['id']; $terceiro_mae = 0;}
 if($verifica_mae_terceiro[0]['id'] > 0){ $id_mae = $verifica_mae_terceiro[0]['id']; $terceiro_mae = 1;}
 

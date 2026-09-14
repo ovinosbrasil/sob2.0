@@ -1,13 +1,17 @@
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<?
-include "../../_config.php";
+<?php
+require __DIR__ . "/../../_config.php";
+header('Content-Type: text/html; charset=UTF-8');
+require __DIR__ . "/_validar_macho_complementar.php";
 $id_lote = $_GET['id_lote'];
 $data = $_POST['data_inicial'];
 include "../../funcoes_data/data.php";
 $data_inicial = $data;
-$data = $_POST['data_coleta'];
-include "../../funcoes_data/data.php";
-$data_coleta = $data;
+$data_coleta = null;
+if (!empty($_POST['data_coleta'])) {
+  $data = $_POST['data_coleta'];
+  include "../../funcoes_data/data.php";
+  $data_coleta = $data;
+}
 
 
 $lote = $_POST['lote'];
@@ -48,7 +52,11 @@ $dados = array(
 	'codigo'	=> $_POST['lote'],
 	'data'	=> $data_inicial,
   'terceiro_pai' => $terceiro_macho,
+  'pai' => DBEscape($macho),
+  'mae' => DBEscape($femea),
   'id_pai' => $id_macho,
+  'id_pai_2' => $id_pai_2,
+  'terceiro_pai_2' => $terceiro_pai_2,
   'terceiro_mae' => $terceiro_mae,
   'id_mae' => $id_femea,
   'qtd'   => $_POST['embrioes'],
