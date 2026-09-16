@@ -17,6 +17,8 @@ $senha = $_POST['senha'];
 $sql = DBRead('user', "WHERE login = '$login'");
 	if($sql){
 		if($sql[0]['senha'] == $senha){
+			$acesso = (new DateTime('now', new DateTimeZone('America/Sao_Paulo')))->format('Y-m-d H:i:s');
+			DBUpdate('user', array('acesso' => $acesso), 'id = ' . (int) $sql[0]['id']);
 	 		$_SESSION['banco'] = $sql[0]['cookie'];
 			$_SESSION['login'] = $sql[0]['login'];
 			$_SESSION['data_expira'] = $sql[0]['log_fim'];

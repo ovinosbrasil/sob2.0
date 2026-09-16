@@ -1,5 +1,5 @@
-<?
-include "../../_config.php";
+<?php
+require __DIR__ . "/../../_config.php";
 
 $id_animal = $_GET['id_animal'];
 $comprador = $_POST['comprador'];
@@ -27,7 +27,7 @@ $dados = array(
 );
 
 $teste = DBRead('vendas', "WHERE id_animal = '$id_animal'");
-if($teste[0]['id'] > 0){
+if(!empty($teste[0]['id'])){
     DBUpdate('vendas', $dados, "id_animal = '$id_animal'");
 		DBDelete('controle_financeiro', "id_animal = '$id_animal'");
 }else{
@@ -48,14 +48,14 @@ $qtd_macho=$qtd_femea=$total_macho=$total_femea=$valor_total=0;
 foreach ($vendas as $vendas_) {
   $id_cria = $vendas_['id'];
   $valor = DBRead('vendas', "WHERE id_animal = '$id_cria' AND data > '2011-01-01'");
-	if($valor[0]['id'] > 0){
+	if(!empty($valor[0]['id'])){
   if($vendas_['sexo'] == 'Macho'){ $total_macho = $total_macho+$valor[0]['preco_de_venda']; $qtd_macho++;}
   if($vendas_['sexo'] == 'Fêmea'){ $total_femea = $total_femea+$valor[0]['preco_de_venda']; $qtd_femea++;}
     $valor_total = $valor_total+$valor[0]['preco_de_venda'];
   }}
-  $media_macho = $total_macho/$qtd_macho;
-  $media_femea = $total_femea/$qtd_femea;
-  $media_total = $valor_total/($qtd_macho+$qtd_femea);
+  $media_macho = $qtd_macho ? $total_macho/$qtd_macho : 0;
+  $media_femea = $qtd_femea ? $total_femea/$qtd_femea : 0;
+  $media_total = ($qtd_macho+$qtd_femea) ? $valor_total/($qtd_macho+$qtd_femea) : 0;
   $qtd_total = $qtd_macho+$qtd_femea;
   $dados = array(
     'qtd_vendas'	=> $qtd_total,
@@ -76,14 +76,14 @@ $qtd_macho=$qtd_femea=$total_macho=$total_femea=$valor_total=0;
 foreach ($vendas as $vendas_) {
   $id_cria = $vendas_['id'];
   $valor = DBRead('vendas', "WHERE id_animal = '$id_cria' AND data > '2011-01-01'");
-	if($valor[0]['id'] > 0){
+	if(!empty($valor[0]['id'])){
   if($vendas_['sexo'] == 'Macho'){ $total_macho = $total_macho+$valor[0]['preco_de_venda']; $qtd_macho++;}
   if($vendas_['sexo'] == 'Fêmea'){ $total_femea = $total_femea+$valor[0]['preco_de_venda']; $qtd_femea++;}
     $valor_total = $valor_total+$valor[0]['preco_de_venda'];
   }}
-  $media_macho = $total_macho/$qtd_macho;
-  $media_femea = $total_femea/$qtd_femea;
-  $media_total = $valor_total/($qtd_macho+$qtd_femea);
+  $media_macho = $qtd_macho ? $total_macho/$qtd_macho : 0;
+  $media_femea = $qtd_femea ? $total_femea/$qtd_femea : 0;
+  $media_total = ($qtd_macho+$qtd_femea) ? $valor_total/($qtd_macho+$qtd_femea) : 0;
   $qtd_total = $qtd_macho+$qtd_femea;
   $dados = array(
     'qtd_vendas'	=> $qtd_total,
@@ -105,7 +105,15 @@ while($parcelas > 0){
 	'data'				=> $data,
 	'valor'		=> $valor,
 	'id_animal'		=> $id_animal,
-  'forma_de_pagamento'    => $forma
+  'forma_de_pagamento' => $forma,
+  'categoria' => '',
+  'id_tipo' => 0,
+  'obs' => $observacoes,
+  'status' => 0,
+  'tipo' => 0,
+  'id_comprador' => $id_comprador,
+  'id_embriao' => 0,
+  'id_semen' => 0
 );
 
 DBCreate('controle_financeiro', $dados);
