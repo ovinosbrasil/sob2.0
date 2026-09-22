@@ -35,6 +35,9 @@ switch ($_GET['pg']){
 		case 'lista_terceiros';
 		include "animal/lista_terceiros.php";
 		break;
+		case 'lista_receptoras';
+		include "animal/lista_receptoras.php";
+		break;
 		//FIM ANIMAL
 
 		//MONTA

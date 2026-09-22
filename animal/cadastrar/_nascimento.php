@@ -77,12 +77,8 @@ if($tipo == 2){
 }
 
 if($tipo == 3){
-  $dados = array(
-  	'status_nascimento'	=> 1
-  );
-  DBUpdate('transplante_controle', $dados, "id = '$id_lote'");
   $tipo_reproducao = "Embrionagem";
-  $receptora = $_GET['receptora'];
+  $receptora = $controle_te[0]['receptora'] ?? '';
 }
 
 
@@ -109,7 +105,20 @@ $dados = array(
   'status' => 0, 'chip' => ''
 );
 
-$id_animal = DBCreate('animais', $dados, true);
+if ($tipo == 3) {
+  require_once __DIR__ . '/_registrar_nascimento_te.php';
+  try {
+    $id_animal = registrarNascimentoTe($dados, $id_controle_te);
+  } catch (Exception $e) {
+    error_log('Falha no cadastro de nascimento TE: ' . $e->getMessage());
+    $mensagem = $e instanceof DomainException ? $e->getMessage()
+      : 'Não foi possível cadastrar o nascimento. Código técnico: ' . (int) $e->getCode() . '. Consulte o log PHP para identificar a causa.';
+    echo '<script>alert(' . json_encode($mensagem, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) . '); history.back();</script>';
+    exit;
+  }
+} else {
+  $id_animal = DBCreate('animais', $dados, true);
+}
 
 //ANIMAL MORTO
 if($_POST['status']){

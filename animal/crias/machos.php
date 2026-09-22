@@ -14,9 +14,9 @@ function atualizar_tabela(x){
 
 <?
 $cria = DBRead('animais', "WHERE pai = '$id_animal' AND terceiro_pai = '0' ORDER BY data_de_nascimento asc");
-if($cria[0]['id'] > 0){
+if(!empty($cria[0]['id'])){
 
-$t = $_GET['t'];
+$t = $_GET['t'] ?? '';
 if(!$t){
 ?>
 <div id="lista_crias">
@@ -40,7 +40,7 @@ if(!$t){
 
     <?
     $x=0;
-    $filtro = $_GET['filtro'];
+    $filtro = (int) ($_GET['filtro'] ?? 0);
     if($filtro == 0){ $cria = DBRead('animais', "WHERE pai = '$id_animal' AND terceiro_pai = '0' ORDER BY data_de_nascimento asc"); }
     if($filtro == 1){ $cria = DBRead('animais', "WHERE pai = '$id_animal' AND terceiro_pai = '0' ORDER BY tipo desc"); }
     if($filtro == 2){ $cria = DBRead('animais', "WHERE pai = '$id_animal' AND terceiro_pai = '0' ORDER BY status asc"); }
@@ -50,42 +50,23 @@ if(!$t){
       $x++;
       $id_cria = $crias['id'];
       $cria_ = DBRead('animais', "WHERE id = '$id_cria'");
-      $data = $cria_[0]['data_de_nascimento'];
-      $data_atual = $data;
-      $data = '0';
-      $data['0'] = $data_atual['8'];
-      $data['1'] = $data_atual['9'];
-      $data['2'] = "/";
-      $data['3'] = $data_atual['5'];
-      $data['4'] = $data_atual['6'];
-      $data['5'] = "/";
-      $data['6'] = $data_atual['0'];
-      $data['7'] = $data_atual['1'];
-      $data['8'] = $data_atual['2'];
-      $data['9'] = $data_atual['3'];
-      $data_nascimento = $data;
+      // Datas opcionais não permitem calcular peso aos 90 dias ou GMD.
+      $datasPesagem = array();
+      foreach (array('data_de_nascimento', 'data2') as $campoData) {
+        $valorData = $cria_[0][$campoData] ?? '';
+        $dataPesagem = is_string($valorData) && preg_match('/^\d{4}-\d{2}-\d{2}$/', $valorData)
+          ? DateTimeImmutable::createFromFormat('!Y-m-d', $valorData) : false;
+        $datasPesagem[$campoData] = $dataPesagem && $dataPesagem->format('Y-m-d') === $valorData
+          && substr($valorData, 0, 4) !== '0000' ? $dataPesagem : null;
+      }
+      $dias_apartacao = null;
+      if ($datasPesagem['data_de_nascimento'] && $datasPesagem['data2']
+          && $datasPesagem['data2'] > $datasPesagem['data_de_nascimento']) {
+        $dias_apartacao = (int) $datasPesagem['data_de_nascimento']->diff($datasPesagem['data2'])->days;
+      }
+      $pesoApartacao = $cria_[0]['peso2'] ?? null;
+      $podeCalcularApartacao = $dias_apartacao > 0 && is_numeric($pesoApartacao) && $pesoApartacao > 0;
 
-
-      //GMD
-      $data = $cria_[0]['data2'];
-      $data_atual = $data;
-      $data = '0';
-      $data['0'] = $data_atual['8'];
-      $data['1'] = $data_atual['9'];
-      $data['2'] = "/";
-      $data['3'] = $data_atual['5'];
-      $data['4'] = $data_atual['6'];
-      $data['5'] = "/";
-      $data['6'] = $data_atual['0'];
-      $data['7'] = $data_atual['1'];
-      $data['8'] = $data_atual['2'];
-      $data['9'] = $data_atual['3'];
-      $data_apartacao = $data;
-      $time_inicial = geraTimestamp($data_nascimento);
-      $time_final = geraTimestamp($data_apartacao);
-      $diferenca = $time_final - $time_inicial;
-      $dias_apartacao = (int)floor( $diferenca / (60 * 60 * 24));
-      //FIM GMD
 
     ?>
     <?
@@ -99,8 +80,8 @@ if(!$t){
     <td><?=$x?></td>
     <td style="cursor:pointer;" onclick="abrir_animal(<?=$cria_[0]['id']?>)"><?=$cria_[0]['nome']?></td>
     <td><?=$cria_[0]['sexo']?></td>
-    <td><?=number_format(($cria_[0]['peso2']/$dias_apartacao)*90, 2, ',', '.'), " kg";?></td>
-    <td><?=number_format(($cria_[0]['peso2']/$dias_apartacao)*1000, 2, ',', '.'), " g";?></td>
+    <td><?= $podeCalcularApartacao ? number_format(($pesoApartacao / $dias_apartacao) * 90, 2, ',', '.') . ' kg' : 'N/A' ?></td>
+    <td><?= $podeCalcularApartacao ? number_format(($pesoApartacao / $dias_apartacao) * 1000, 2, ',', '.') . ' g' : 'N/A' ?></td>
     <td><?=number_format(($cria_[0]['peso3']), 2, ',', '.'), " kg";?></td>
     <td><?=$cria_[0]['tipo']?></td>
     <td>

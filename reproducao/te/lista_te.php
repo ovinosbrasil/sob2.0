@@ -25,7 +25,7 @@ function fechar_lista_pai(){
 }
 
 function linkar_pai_te(nome){
-  window.location.href = "geral.php?pg=lista_te&pai="+nome;
+  window.location.href = "geral.php?pg=lista_te&pai="+encodeURIComponent(nome);
 }
 
 function pesquisar_mae_te(nome){
@@ -50,7 +50,7 @@ function fechar_lista_mae(){
 }
 
 function linkar_mae_te(nome){
-  window.location.href = "geral.php?pg=lista_te&mae="+nome;
+  window.location.href = "geral.php?pg=lista_te&mae="+encodeURIComponent(nome);
 }
 
 function excluir_lote_te(id_lote){
@@ -90,8 +90,23 @@ function addDayIntoDate($date,$days) {
      return strftime("%Y%m%d", $nextdate);
 }
 
-$pai = $_GET['pai'];
-$mae = $_GET['mae'];
+$pai = isset($_GET['pai']) && is_string($_GET['pai']) ? $_GET['pai'] : '';
+$mae = isset($_GET['mae']) && is_string($_GET['mae']) ? $_GET['mae'] : '';
+$paginaTe = max(1, (int) filter_input(INPUT_GET, 'pag', FILTER_VALIDATE_INT));
+$porPaginaTe = 15;
+$totalLotesTe = 0;
+$totalPaginasTe = 1;
+$carregarLotesTe = function ($condicao = '', $ordem = 'data DESC, id DESC') use (&$paginaTe, &$totalLotesTe, &$totalPaginasTe, $porPaginaTe) {
+    $contagem = DBRead('transplante', $condicao, 'COUNT(*) AS total');
+    $totalLotesTe = (int) $contagem[0]['total'];
+    $totalPaginasTe = max(1, (int) ceil($totalLotesTe / $porPaginaTe));
+    $paginaTe = min($paginaTe, $totalPaginasTe);
+    $offsetTe = ($paginaTe - 1) * $porPaginaTe;
+    return DBRead('transplante', "$condicao ORDER BY $ordem LIMIT $offsetTe, $porPaginaTe") ?: array();
+};
+$urlPaginaTe = function ($pagina) use ($pai, $mae) {
+    return htmlspecialchars('geral.php?' . http_build_query(array('pg' => 'lista_te', 'pai' => $pai, 'mae' => $mae, 'pag' => $pagina)), ENT_QUOTES, 'UTF-8');
+};
 ?>
 
 
@@ -119,7 +134,7 @@ $mae = $_GET['mae'];
                   <option value=""></option>
                   <?
                   $lote = DBRead('transplante', "ORDER BY id desc");
-                  foreach ($lote as $lote_) {
+                  foreach (($lote ?: array()) as $lote_) {
                     $id_macho = $lote_['id_pai'];
                     if($lote_['terceiro_pai']){
                       $macho = DBRead('terceiros', "WHERE id = '$id_macho'");
@@ -142,14 +157,14 @@ $mae = $_GET['mae'];
 
             <div class="form-group">
                 <label for="exampleInputPassword1">Mãe</label>
-                <input type="text" class="form-control" id="mae" name="mae" value="<?=$mae?>" onKeyUp="pesquisar_mae_te(this.value)">
+                <input type="text" class="form-control" id="mae" name="mae" value="<?=htmlspecialchars($mae, ENT_QUOTES, 'UTF-8')?>" onKeyUp="pesquisar_mae_te(this.value)">
                 <div id="lista_mae" style="border-style:solid; border-width:thin; height:auto; border-color: #bab1b4; position:absolute; z-index:99999; background:#fff; width:150%; display:none; margin-top:1%;">
             </div>
           </div>
 
             <div class="form-group">
                 <label for="exampleInputPassword1">Pai</label>
-                <input type="text" class="form-control" id="pai" name="pai" value="<?=$pai?>" onKeyUp="pesquisar_pai_te(this.value)">
+                <input type="text" class="form-control" id="pai" name="pai" value="<?=htmlspecialchars($pai, ENT_QUOTES, 'UTF-8')?>" onKeyUp="pesquisar_pai_te(this.value)">
                 <div id="lista_pai" style="border-style:solid; border-width:thin; height:auto; border-color: #bab1b4; position:absolute; z-index:99999; background:#fff; width:150%; display:none; margin-top:1%;">
             </div>
           </div>
@@ -184,8 +199,8 @@ $mae = $_GET['mae'];
                 <th>Excluir</th>
               </tr>
               <?
-                $lote = DBRead('transplante', "ORDER BY data desc LIMIT 15");
-                foreach ($lote as $lote_){
+                $lote = $carregarLotesTe();
+                foreach (($lote ?: array()) as $lote_){
                   $id_pai_2 = (int)($lote_['id_pai_2'] ?? 0);
                   $macho_complementar = $id_pai_2 > 0
                     ? DBRead(empty($lote_['terceiro_pai_2']) ? 'animais' : 'terceiros', "WHERE id = '$id_pai_2'")
@@ -237,7 +252,7 @@ $mae = $_GET['mae'];
                 $data[9] = $nextdate[3];
                 $data_previsao1 = $data;
 
-                $data = explode("/", $data);
+                $data = explode("/", $data_te);
                 list($dia, $mes, $ano) = $data;
                 $data = "$ano$mes$dia";
                 $nextdate = addDayIntoDate($data,161);
@@ -281,19 +296,19 @@ $mae = $_GET['mae'];
                   <th>Excluir</th>
                 </tr>
                 <?
-                  $pai_ = DBRead('animais', "WHERE nome = '$pai'");
-                  if($pai_[0]['id'] > 0){
-                    $id_macho = $pai_[0]['id'];
-                    $lote = DBRead('transplante', "WHERE id_pai = '$id_macho' AND terceiro_pai = '0' ORDER BY data desc");
+                  $pai_ = DBRead('animais', "WHERE nome = '" . DBEscape($pai) . "'");
+                  if(!empty($pai_[0]['id'])){
+                    $id_macho = (int)($pai_[0]['id'] ?? 0);
+                    $lote = $carregarLotesTe("WHERE id_pai = '$id_macho' AND terceiro_pai = '0'");
                   }else{
-                    $pai_ = DBRead('terceiros', "WHERE nome = '$pai'");
-                    $id_macho = $pai_[0]['id'];
-                    $lote = DBRead('transplante', "WHERE id_pai = '$id_macho' AND terceiro_pai = '1' ORDER BY data desc");
+                    $pai_ = DBRead('terceiros', "WHERE nome = '" . DBEscape($pai) . "'");
+                    $id_macho = (int)($pai_[0]['id'] ?? 0);
+                    $lote = $carregarLotesTe("WHERE id_pai = '$id_macho' AND terceiro_pai = '1'");
                   }
 
 
 
-                  foreach ($lote as $lote_){
+                  foreach (($lote ?: array()) as $lote_){
                     $id_pai_2 = (int)($lote_['id_pai_2'] ?? 0);
                     $macho_complementar = $id_pai_2 > 0
                       ? DBRead(empty($lote_['terceiro_pai_2']) ? 'animais' : 'terceiros', "WHERE id = '$id_pai_2'")
@@ -338,7 +353,7 @@ $mae = $_GET['mae'];
                   $data[9] = $nextdate[3];
                   $data_previsao1 = $data;
 
-                  $data = explode("/", $data);
+                  $data = explode("/", $data_te);
                   list($dia, $mes, $ano) = $data;
                   $data = "$ano$mes$dia";
                   $nextdate = addDayIntoDate($data,161);
@@ -369,7 +384,7 @@ $mae = $_GET['mae'];
 
 
                 //BUSCA MAE
-                if($mae){
+                if($mae && !$pai){
                 ?>
                 <table class="table table-bordered" id="tabela_padrao">
                   <tr>
@@ -382,16 +397,16 @@ $mae = $_GET['mae'];
                     <th>Excluir</th>
                   </tr>
                   <?
-                    $mae_ = DBRead('animais', "WHERE nome = '$mae'");
-                    if($mae_[0]['id'] > 0){
-                      $id_mae = $mae_[0]['id'];
-                      $lote = DBRead('transplante', "WHERE id_mae = '$id_mae' AND terceiro_mae = '0' ORDER BY id desc");
+                    $mae_ = DBRead('animais', "WHERE nome = '" . DBEscape($mae) . "'");
+                    if(!empty($mae_[0]['id'])){
+                      $id_mae = (int)($mae_[0]['id'] ?? 0);
+                      $lote = $carregarLotesTe("WHERE id_mae = '$id_mae' AND terceiro_mae = '0'", 'id DESC');
                     }else{
-                      $mae_ = DBRead('terceiros', "WHERE nome = '$mae'");
-                      $id_mae = $mae_[0]['id'];
-                      $lote = DBRead('transplante', "WHERE id_mae = '$id_mae' AND terceiro_mae = '1' ORDER BY id desc");
+                      $mae_ = DBRead('terceiros', "WHERE nome = '" . DBEscape($mae) . "'");
+                      $id_mae = (int)($mae_[0]['id'] ?? 0);
+                      $lote = $carregarLotesTe("WHERE id_mae = '$id_mae' AND terceiro_mae = '1'", 'id DESC');
                     }
-                    foreach ($lote as $lote_){
+                    foreach (($lote ?: array()) as $lote_){
                       $id_pai_2 = (int)($lote_['id_pai_2'] ?? 0);
                       $macho_complementar = $id_pai_2 > 0
                         ? DBRead(empty($lote_['terceiro_pai_2']) ? 'animais' : 'terceiros', "WHERE id = '$id_pai_2'")
@@ -463,6 +478,29 @@ $mae = $_GET['mae'];
                     <? } ?>
                     </table>
                   <? } ?>
+            <?php if ($totalLotesTe === 0): ?>
+              <p>Nenhum lote encontrado.</p>
+            <?php endif; ?>
+            <div class="box-footer clearfix">
+              <span><?= $totalLotesTe ?> lote(s) — Página <?= $paginaTe ?> de <?= $totalPaginasTe ?></span>
+              <?php if ($totalPaginasTe > 1): ?>
+                <nav class="pull-right" aria-label="Paginação dos lotes de transplante">
+                  <ul class="pagination pagination-sm no-margin">
+                    <?php if ($paginaTe > 1): ?>
+                      <li><a href="<?= $urlPaginaTe(1) ?>" aria-label="Primeira página">&laquo;</a></li>
+                      <li><a href="<?= $urlPaginaTe($paginaTe - 1) ?>">Anterior</a></li>
+                    <?php endif; ?>
+                    <?php for ($numeroTe = max(1, $paginaTe - 2); $numeroTe <= min($totalPaginasTe, $paginaTe + 2); $numeroTe++): ?>
+                      <li<?= $numeroTe === $paginaTe ? ' class="active"' : '' ?>><a href="<?= $urlPaginaTe($numeroTe) ?>"<?= $numeroTe === $paginaTe ? ' aria-current="page"' : '' ?>><?= $numeroTe ?></a></li>
+                    <?php endfor; ?>
+                    <?php if ($paginaTe < $totalPaginasTe): ?>
+                      <li><a href="<?= $urlPaginaTe($paginaTe + 1) ?>">Próxima</a></li>
+                      <li><a href="<?= $urlPaginaTe($totalPaginasTe) ?>" aria-label="Última página">&raquo;</a></li>
+                    <?php endif; ?>
+                  </ul>
+                </nav>
+              <?php endif; ?>
+            </div>
           </div>
           <!-- /.box-body -->
         </div>

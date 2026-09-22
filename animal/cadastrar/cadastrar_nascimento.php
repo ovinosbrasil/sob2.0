@@ -1,25 +1,20 @@
-<?
-$qtd = $_GET['x'];
-$id_lote = $_GET['id_lote'];
-$tipo = $_GET['tipo'];
-$y = $_GET['y'];
-if(!$y){
-  $data = $_GET['data_de_nascimento'];
-  $y=1;
-}else{
-  $data = $_GET['data'];
-  $data_atual = $data;
-  $data = '0';
-  $data['0'] = $data_atual['8'];
-  $data['1'] = $data_atual['9'];
-  $data['2'] = "/";
-  $data['3'] = $data_atual['5'];
-  $data['4'] = $data_atual['6'];
-  $data['5'] = "/";
-  $data['6'] = $data_atual['0'];
-  $data['7'] = $data_atual['1'];
-  $data['8'] = $data_atual['2'];
-  $data['9'] = $data_atual['3'];
+<?php
+$qtd = max(1, (int) ($_GET['x'] ?? 1));
+$id_lote = (int) ($_GET['id_lote'] ?? 0);
+$tipo = (int) ($_GET['tipo'] ?? 0);
+$y = max(1, (int) ($_GET['y'] ?? 1));
+$receptora = '';
+$data = '';
+$dataRecebida = $_GET['data'] ?? $_GET['data_de_nascimento'] ?? '';
+if (is_string($dataRecebida) && $dataRecebida !== '') {
+  foreach (array('Y-m-d', 'd/m/Y') as $formatoData) {
+    $dataNascimento = DateTimeImmutable::createFromFormat('!' . $formatoData, $dataRecebida);
+    if ($dataNascimento && $dataNascimento->format($formatoData) === $dataRecebida
+        && $dataNascimento->format('Y') !== '0000') {
+      $data = $dataNascimento->format('d/m/Y');
+      break;
+    }
+  }
 }
 
 //MONTA
@@ -199,14 +194,14 @@ function ativar_nascimento(){
                    <div class="input-group-addon">
                      <i class="fa fa-calendar"></i>
                    </div>
-                   <? if($y > 1){?> <input type="text" class="form-control pull-right" id="data_nascimento" name="data_de_nascimento" value="<?=$data?>" readonly="readonly"> <? }else{ ?> <input type="text" class="form-control pull-right" id="data_nascimento" name="data_de_nascimento"
+                   <? if($y > 1 && $data !== ''){?> <input type="text" class="form-control pull-right" id="data_nascimento" name="data_de_nascimento" value="<?=$data?>" readonly="readonly"> <? }else{ ?> <input type="text" class="form-control pull-right" id="data_nascimento" name="data_de_nascimento"
                     value="<?=$data?>"><? }?>
                  </div>
                </div>
 
                <div class="form-group">
                  <label for="exampleInputPassword1">Observações</label>
-                 <textarea  class="form-control" name="observacoes" id="observacoes" cols="45" rows="5" style="height:105px; width:100%;"><?=$animal[0]['observacoes']?></textarea>
+                 <textarea  class="form-control" name="observacoes" id="observacoes" cols="45" rows="5" style="height:105px; width:100%;"></textarea>
                </div>
 
              </div>

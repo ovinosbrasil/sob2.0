@@ -150,7 +150,7 @@ $data_expira2 = $data;
           <a href="geral.php"><i class="fa fa-home"></i> <span>Home</span></a>
         </li>
 
-        <? if(($pg == 'cadastrar_animal') || ($pg == 'cadastrar_nascimento') || ($pg == 'lista_terceiros') || ($pg == 'lista_rebanho')){ ?> <li class="active treeview"> <? }else{ ?> <li class="treeview"><? } ?>
+        <? if(($pg == 'cadastrar_animal') || ($pg == 'cadastrar_nascimento') || ($pg == 'lista_terceiros') || ($pg == 'lista_rebanho') || ($pg == 'lista_receptoras')){ ?> <li class="active treeview"> <? }else{ ?> <li class="treeview"><? } ?>
           <a href="#">
             <i class="fa fa-github-alt"></i>
             <span>Animais</span>
@@ -162,6 +162,7 @@ $data_expira2 = $data;
             <li><a href="geral.php?pg=cadastrar_animal"><i class="fa fa-plus"></i>Cadastrar</a></li>
             <li><a href="geral.php?pg=lista_rebanho"><i class="fa fa-github-alt"></i>Rebanho</a></li>
             <li><a href="geral.php?pg=lista_terceiros"><i class="fa fa-user"></i>Terceiros</a></li>
+            <li<?= $pg == 'lista_receptoras' ? ' class="active"' : '' ?>><a href="geral.php?pg=lista_receptoras"><i class="fa fa-flask"></i>Receptoras</a></li>
           </ul>
         </li>
 

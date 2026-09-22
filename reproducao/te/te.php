@@ -1,4 +1,11 @@
-<? $id_lote = $_GET['id_lote']; ?>
+<?php
+$id_lote = (int) ($_GET['id_lote'] ?? 0);
+if (empty($_SESSION['receptora_csrf'])) {
+    $_SESSION['receptora_csrf'] = bin2hex(random_bytes(32));
+}
+$teReceptoraFlash = $_SESSION['te_receptora_flash'] ?? null;
+unset($_SESSION['te_receptora_flash']);
+?>
 <script type="text/javascript">
 function validar_te(){
   saida = 0;
@@ -272,22 +279,32 @@ $data_coleta = !empty($te[0]['data_coleta']) && $te[0]['data_coleta'] !== '0000-
       <div class="box box-success">
         <!-- /.box-header -->
         <div class="box-body">
+          <?php if ($teReceptoraFlash !== null): ?>
+            <div class="alert <?= $teReceptoraFlash['erro'] ? 'alert-danger' : 'alert-success' ?>" role="alert"><?= htmlspecialchars($teReceptoraFlash['erro'] ?: 'Receptora adicionada com sucesso.', ENT_QUOTES, 'UTF-8') ?></div>
+          <?php endif; ?>
           <form method="post" action="reproducao/te/_cadastrar_femea.php?id_lote=<?=$id_lote?>" onsubmit="return ativar_femea()">
+          <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['receptora_csrf'], ENT_QUOTES, 'UTF-8') ?>">
           <div class="col-md-3">
             <div class="form-group">
-                <label for="exampleInputPassword1">Adicionar fêmea<span style="color:#F00;">*</span></label>
-                <input type="text" class="form-control" id="receptora" name="receptora"/>
+                <label for="receptora">Adicionar Receptora<span style="color:#F00;">*</span></label>
+                <input type="text" class="form-control" id="receptora" name="receptora" list="sugestoes_receptoras" autocomplete="off" maxlength="50" required value="<?= htmlspecialchars($teReceptoraFlash['nome'] ?? '', ENT_QUOTES, 'UTF-8') ?>" aria-describedby="ajuda_receptora"/>
+                <datalist id="sugestoes_receptoras"></datalist>
+                <small id="ajuda_receptora" class="help-block">Busque pelo nome. Se não existir, clique em Cadastrar para criar e adicionar ao lote.</small>
                 </div>
             </div>
 
           <div class="col-md-3">
             <div class="form-group">
-              <button type="submit" class="btn btn-success" style="width:100%; margin-top:8%;">Adicionar receptora</button>
+              <button type="submit" class="btn btn-success" style="width:100%; margin-top:8%;">Cadastrar</button>
             </div>
           </div>
         </form>
 
 
+          <?php
+          require_once __DIR__ . '/_kg_apartacao.php';
+          $apartacaoLote = kgApartacaoDoLote($id_lote);
+          ?>
           <table class="table table-bordered" id="tabela_padrao">
             <tr>
               <th style="width:5%;">Nº</th>
@@ -295,6 +312,7 @@ $data_coleta = !empty($te[0]['data_coleta']) && $te[0]['data_coleta'] !== '0000-
               <th style="width:15%;">Nº de embriões</th>
               <th style="width:20%;">Ultrassom</th>
               <th style="width:20%;">Nascimento</th>
+              <th style="width:12%;">kg/apartação</th>
               <th style="width:3%;">Excluir</th>
             </tr>
             <?
@@ -307,7 +325,7 @@ $data_coleta = !empty($te[0]['data_coleta']) && $te[0]['data_coleta'] !== '0000-
             <tr>
               <td><?=$x?></td>
               <td><?=$transplante_controle_['receptora']?></td>
-              <td><input type="text" class="form-control" id="receptora" name="receptora" value="<?=$transplante_controle_['n_embrioes']?>" onblur="atualizar_numero(this.value,'<?=$id_transplante_controle?>')"/></td>
+              <td><input type="text" class="form-control" name="n_embrioes" value="<?=$transplante_controle_['n_embrioes']?>" onblur="atualizar_numero(this.value,'<?=$id_transplante_controle?>')"/></td>
               <td>
 
               <? if($transplante_controle_['ultrassom'] == 1){ ?>
@@ -341,10 +359,28 @@ $data_coleta = !empty($te[0]['data_coleta']) && $te[0]['data_coleta'] !== '0000-
                <option value="2">Parto duplo</option>
                <option value="3">Parto triplo</option>
              </select></td>
+              <?php
+              $kgApartacao = $apartacaoLote['somas'][(int) ($transplante_controle_['id_receptora'] ?? 0)] ?? null;
+              $corApartacao = '#777';
+              if ($kgApartacao !== null && $apartacaoLote['media'] !== null) {
+                  if ($kgApartacao > $apartacaoLote['media']) {
+                      $corApartacao = '#008d4c';
+                  } elseif ($kgApartacao < $apartacaoLote['media']) {
+                      $corApartacao = '#dd4b39';
+                  }
+              }
+              ?>
+              <td style="color: <?= $corApartacao ?>; white-space: nowrap;" title="Soma de peso2 dos animais da receptora nascidos entre 146 e 161 dias após a data do lote. Comparação com a média das receptoras com pesagem nesse período.">
+                <?= $kgApartacao !== null ? number_format($kgApartacao, 2, ',', '.') . ' kg' : 'N/A' ?>
+              </td>
               <td><button type="button" class="btn btn-danger" style="padding:0%; padding-left:5%; padding-right:5%; height:20px;" onclick="excluir_femea(<?=$id_transplante_controle?>)">X</button></td>
               </tr>
             <? } ?>
             </table>
+            <p class="text-muted text-right" title="Média dos totais por receptora com peso de apartação informado na janela prevista do lote.">
+              <strong>Média de kg/apartação do lote:</strong>
+              <?= $apartacaoLote['media'] !== null ? number_format($apartacaoLote['media'], 2, ',', '.') . ' kg' : 'N/A' ?>
+            </p>
         </div>
         <!-- /.box-body -->
       </div>
@@ -356,3 +392,40 @@ $data_coleta = !empty($te[0]['data_coleta']) && $te[0]['data_coleta'] !== '0000-
   <!-- /.content -->
 
 <script src="reproducao/te/macho_complementar.js"></script>
+
+<script>
+(function () {
+  var campo = document.getElementById('receptora');
+  var lista = document.getElementById('sugestoes_receptoras');
+  var ajuda = document.getElementById('ajuda_receptora');
+  var textoAjuda = ajuda.textContent;
+  var timer;
+  var pedido = 0;
+  campo.addEventListener('input', function () {
+    clearTimeout(timer);
+    var atual = ++pedido;
+    lista.innerHTML = '';
+    ajuda.textContent = textoAjuda;
+    var termo = campo.value.trim();
+    if (!termo) return;
+    timer = setTimeout(function () {
+      fetch('reproducao/te/_buscar_receptoras.php?q=' + encodeURIComponent(termo), {credentials: 'same-origin'})
+        .then(function (resposta) {
+          if (!resposta.ok) throw new Error('Busca indisponível');
+          return resposta.json();
+        })
+        .then(function (nomes) {
+          if (atual !== pedido) return;
+          nomes.forEach(function (nome) {
+            var opcao = document.createElement('option');
+            opcao.value = nome;
+            lista.appendChild(opcao);
+          });
+        })
+        .catch(function () {
+          if (atual === pedido) ajuda.textContent = 'Busca indisponível. Tente digitar o nome novamente.';
+        });
+    }, 250);
+  });
+})();
+</script>
