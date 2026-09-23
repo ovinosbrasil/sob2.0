@@ -27,9 +27,10 @@ DELETE
 
 	//Gravar registros
 	function DBCreate($table, array $data, $insertId = false){
-		$data = DBEscape($data);
 		$fields = implode(',', array_keys($data));
-		$values = "'".implode("', '", $data)."'";
+		$values = implode(', ', array_map(function ($value) {
+			return $value === null ? 'NULL' : "'" . DBEscape($value) . "'";
+		}, array_values($data)));
 
 		$query = "INSERT INTO {$table} ({$fields}) values ({$values})";
 		return DBExecute($query, $insertId);
@@ -56,7 +57,7 @@ DELETE
 	//Alterar Registros
 	function DBUpdate($table, array $data, $where = null, $insertId = false){
 		foreach($data as $key => $value){
-			$fields[] = "{$key} = '{$value}'";
+			$fields[] = $value === null ? "{$key} = NULL" : "{$key} = '{$value}'";
 		}
 		$fields = implode(', ', $fields);
 		$where = ($where) ? " WHERE {$where}": null;
