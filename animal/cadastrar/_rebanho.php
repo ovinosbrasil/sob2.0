@@ -1,11 +1,42 @@
+<?php
+require_once __DIR__ . "/../../_config.php";
+?>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<?
+<?php
 function geraTimestamp($data) {
   $partes = explode('/', $data);
   return mktime(0, 0, 0, $partes[1], $partes[0], $partes[2]);
 }
 
-include "../../_config.php";
+// Campo opcional vazio vira NULL; datas preenchidas precisam ser válidas.
+function normalizarDataRebanho($valor) {
+  if (!is_string($valor)) {
+    return false;
+  }
+  $valor = trim($valor);
+  if ($valor === '') {
+    return null;
+  }
+  foreach (array('d/m/Y', 'Y-m-d') as $formato) {
+    $dataValidada = DateTimeImmutable::createFromFormat('!' . $formato, $valor);
+    if ($dataValidada && $dataValidada->format($formato) === $valor
+        && (int)$dataValidada->format('Y') >= 1000) {
+      return $dataValidada->format('Y-m-d');
+    }
+  }
+  return false;
+}
+
+$data_de_nascimento = normalizarDataRebanho($_POST['data_de_nascimento'] ?? '');
+$data_de_entrada = normalizarDataRebanho($_POST['data_de_entrada'] ?? '');
+if ($data_de_nascimento === null || $data_de_nascimento === false) {
+  echo '<script>alert("Informe uma data de nascimento válida (dia/mês/ano)."); history.back();</script>';
+  exit;
+}
+if ($data_de_entrada === false) {
+  echo '<script>alert("Informe uma data de entrada válida (dia/mês/ano) ou deixe o campo vazio."); history.back();</script>';
+  exit;
+}
 
 $nome = $_POST['nome_animal'];
 
@@ -37,15 +68,6 @@ if(!$id_mae > 0){
   <script language='javascript'>history.back()</script>";
 }else{
 
-$data = $_POST['data_de_nascimento'];
-include "../../funcoes_data/data.php";
-$data_de_nascimento = $data;
-
-$data = $_POST['data_de_entrada'];
-include "../../funcoes_data/data.php";
-$data_de_entrada = $data;
-
-
 $dados = array(
 	'nome'	=> str_replace("'", '"',$_POST['nome_animal']),
 	'tatuagem'	=> str_replace("'", '"',$_POST['tatuagem']),
@@ -60,7 +82,11 @@ $dados = array(
   'terceiro_pai'    =>  $terceiro_pai,
   'terceiro_mae'    =>  $terceiro_mae,
   'entrada'   => 2,
-  'tipo_reproducao' => ''
+  'tipo_reproducao' => '',
+  'link_fbb' => '', 'fbb_img' => '', 'peso2' => 0,
+  'parcelas' => 0, 'tipo_venda' => '', 'tipo' => 0,
+  'confirmacao' => 0, 'prolapso' => '', 'criador' => '',
+  'status' => 0, 'receptora' => '', 'chip' => ''
 );
 
 DBCreate('animais', $dados);
@@ -77,7 +103,7 @@ $dados = array(
 if($qtd_crias > 1){
   DBUpdate('reprodutor', $dados, "id_macho = '$id_pai'");
 }else{
-  DBCreate('reprodutor', $dados);
+  DBCreate('reprodutor', array_merge(['qtd_avaliadas' => 0, 'tipo2' => 0, 'tipo3' => 0, 'tipo4' => 0, 'tipo5' => 0, 'qtd_vendas' => 0, 'qtd_mortes' => 0, 'venda_macho' => 0, 'venda_femea' => 0, 'venda_geral' => 0, 'nota' => 0, 'pesagem' => 0, 'cabeca' => 0, 'pescoco' => 0, 'quarto_anterior' => 0, 'barril' => 0, 'quarto_posterior' => 0, 'comprimento' => 0, 'orgao' => 0, 'gordura' => 0, 'cobertura' => 0, 'cor' => 0, 'conformacao' => 0, 'gmd' => 0], $dados));
 }}
 //FIM CRIAS RANKING REPRODUTOR
 
@@ -92,7 +118,7 @@ $dados = array(
 if($qtd_crias > 1){
   DBUpdate('matriz', $dados, "id_femea = '$id_mae'");
 }else{
-  DBCreate('matriz', $dados);
+  DBCreate('matriz', array_merge(['qtd_avaliadas' => 0, 'tipo2' => 0, 'tipo3' => 0, 'tipo4' => 0, 'tipo5' => 0, 'qtd_vendas' => 0, 'qtd_mortes' => 0, 'venda_macho' => 0, 'venda_femea' => 0, 'venda_geral' => 0, 'nota' => 0, 'pesagem' => 0, 'cabeca' => 0, 'pescoco' => 0, 'quarto_anterior' => 0, 'barril' => 0, 'quarto_posterior' => 0, 'comprimento' => 0, 'orgao' => 0, 'gordura' => 0, 'cobertura' => 0, 'cor' => 0, 'conformacao' => 0, 'peso_apartacao' => 0, 'intervalo' => 0, 'prolificidade' => 0, 'qtd_partos' => 0], $dados));
 }}
 //FIM CRIAS RANKING MATRIZ
 
@@ -100,6 +126,8 @@ if(!$terceiro_mae){
 //RANKING INTERVALO MATRIZ
 $cria = DBRead('animais', "WHERE mae = '$id_mae' AND tipo_reproducao != 'Embrionagem' AND terceiro_mae = '0' AND data_de_nascimento > '2011-01-01' ORDER BY data_de_nascimento asc");
 $total=$qtd=$dias_total=$qtd_=$qtd_partos=0;
+$qtd_partos_prolificidade = $qtd_crias_prolificidade = 0;
+$data_anterior = null;
 $qtd_crias = count($cria);
 foreach ($cria as $cria_){
 $data_nova = $cria_['data_de_nascimento'];
@@ -188,8 +216,8 @@ $data_nova = $cria_['data_de_nascimento'];
 $data_anterior = $cria_['data_de_nascimento'];
 $qtd++;
 }
-$prolificidade = $qtd_crias_prolificidade/$qtd_partos_prolificidade;
-$media = $dias_total/$qtd_;
+$prolificidade = $qtd_partos_prolificidade ? $qtd_crias_prolificidade/$qtd_partos_prolificidade : 0;
+$media = $qtd_ ? $dias_total/$qtd_ : 0;
 $dados = array(
     'intervalo' => $media,
     'prolificidade' => $prolificidade

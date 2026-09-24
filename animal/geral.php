@@ -43,50 +43,29 @@ function abrir_avaliacao(x){
 </script>
 
 <?
-$data = $animal[0]['data_de_nascimento'];
-$data_atual = $data;
-$data = '0';
-$data['0'] = $data_atual['8'];
-$data['1'] = $data_atual['9'];
-$data['2'] = "/";
-$data['3'] = $data_atual['5'];
-$data['4'] = $data_atual['6'];
-$data['5'] = "/";
-$data['6'] = $data_atual['0'];
-$data['7'] = $data_atual['1'];
-$data['8'] = $data_atual['2'];
-$data['9'] = $data_atual['3'];
-$data_nascimento = $data;
+// Datas opcionais ou inválidas permanecem vazias no formulário.
+$formatarDataAnimal = static function ($valor) {
+  if (!is_string($valor) || $valor === '') {
+    return '';
+  }
+  $dataValidada = DateTimeImmutable::createFromFormat('!Y-m-d', $valor);
+  return $dataValidada && $dataValidada->format('Y-m-d') === $valor
+    && (int)$dataValidada->format('Y') >= 1000
+    ? $dataValidada->format('d/m/Y') : '';
+};
+$data_nascimento = $formatarDataAnimal($animal[0]['data_de_nascimento'] ?? null);
+$data_de_entrada = $formatarDataAnimal($animal[0]['data_de_entrada'] ?? null);
 
-$data = $animal[0]['data_de_entrada'];
-$data_atual = $data;
-$data = '0';
-$data['0'] = $data_atual['8'];
-$data['1'] = $data_atual['9'];
-$data['2'] = "/";
-$data['3'] = $data_atual['5'];
-$data['4'] = $data_atual['6'];
-$data['5'] = "/";
-$data['6'] = $data_atual['0'];
-$data['7'] = $data_atual['1'];
-$data['8'] = $data_atual['2'];
-$data['9'] = $data_atual['3'];
-$data_de_entrada = $data;
-
-
-$data = $data_nascimento;
-list($dia, $mes, $ano) = explode('/', $data);
-// Descobre que dia é hoje e retorna a unix timestamp
-$hoje = mktime(0, 0, 0, date('m'), date('d'), date('Y'));
-// Descobre a unix timestamp da data de nascimento do fulano
-$nascimento = mktime( 0, 0, 0, $mes, $dia, $ano);
-// Depois apenas fazemos o cálculo já citado :)
-$anos = floor((((($hoje - $nascimento) / 60) / 60) / 24));
-$idade_anos  = floor($anos /365);
-$idade_meses = (($anos /365) - $idade_anos) * 12;
-$idade_meses = (int)$idade_meses;
-$idade_meses = round($idade_meses);
-
+$idade = '';
+if ($data_nascimento !== '') {
+  list($dia, $mes, $ano) = explode('/', $data_nascimento);
+  $hoje = mktime(0, 0, 0, date('m'), date('d'), date('Y'));
+  $nascimento = mktime(0, 0, 0, $mes, $dia, $ano);
+  $anos = floor(($hoje - $nascimento) / (60 * 60 * 24));
+  $idade_anos = floor($anos / 365);
+  $idade_meses = (int)((($anos / 365) - $idade_anos) * 12);
+  $idade = $idade_anos . ' Anos ' . $idade_meses . ' Meses';
+}
 
 $id_pai = $animal[0]['pai'];
 if($animal[0]['terceiro_pai']){
@@ -160,7 +139,7 @@ if($animal[0]['terceiro_mae']){
 
     <div class="form-group">
       <label for="exampleInputPassword1">Idade</label>
-      <input type="text" class="form-control" id="idade" name="idade" value="<?=$idade_anos?> Anos <?=$idade_meses?> Meses" readonly="readonly">
+      <input type="text" class="form-control" id="idade" name="idade" value="<?=$idade?>" readonly="readonly">
     </div>
 
     <div class="form-group">

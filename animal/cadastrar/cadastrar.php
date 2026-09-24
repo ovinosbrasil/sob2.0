@@ -7,7 +7,7 @@ function addDayIntoDate($date,$days) {
      return strftime("%Y%m%d", $nextdate);
 }
 
-$tipo = $_GET['tipo']; ?>
+$tipo = $_GET['tipo'] ?? ''; ?>
 
 
 <script type="text/javascript">
@@ -214,7 +214,7 @@ function linkar_mae_te(nome){
 
                <div class="form-group">
                  <label for="exampleInputPassword1">FBB</label>
-                 <input type="text" class="form-control" id="fbb" name="fbb" value="<?=$animal[0]['fbb']?>">
+                 <input type="text" class="form-control" id="fbb" name="fbb" value="">
                </div>
 
                <div class="form-group">
@@ -255,7 +255,7 @@ function linkar_mae_te(nome){
 
                <div class="form-group">
                  <label for="exampleInputPassword1">Observações</label>
-                 <textarea  class="form-control" name="observacoes" id="observacoes" cols="45" rows="5" style="height:105px; width:100%;"><?=$animal[0]['observacoes']?></textarea>
+                 <textarea  class="form-control" name="observacoes" id="observacoes" cols="45" rows="5" style="height:105px; width:100%;"></textarea>
                </div>
 
              </div>
@@ -268,7 +268,7 @@ function linkar_mae_te(nome){
                <div class="form-group">
                  <label for="exampleInputPassword1">Pai<span style="color:#F00;">*</span>
                    <a href="geral.php?pg=cadastrar_animal&tipo=2" target="_blank"><span style="font-size:11px; color:green;">Novo</span> </a></label>
-                 <input type="text" class="form-control" id="pai" name="pai" value="<?=$pai[0]['nome']?>" onKeyUp="pesquisar_pai(this.value)">
+                 <input type="text" class="form-control" id="pai" name="pai" value="" onKeyUp="pesquisar_pai(this.value)">
                  <div id="lista_pai" style="border-style:solid; border-width:thin; height:auto; border-color: #bab1b4; position:absolute; z-index:99999; background:#fff; width:150%; display:none; margin-top:1%;">
                  </div>
                </div>
@@ -276,7 +276,7 @@ function linkar_mae_te(nome){
                <div class="form-group">
                  <label for="exampleInputPassword1">Mãe<span style="color:#F00;">*</span>
                    <a href="geral.php?pg=cadastrar_animal&tipo=2" target="_blank"> <span style="font-size:11px; color:green;">Novo</span></a></label>
-                 <input type="text" class="form-control" id="mae" name="mae" value="<?=$mae[0]['nome']?>" onKeyUp="pesquisar_mae(this.value)">
+                 <input type="text" class="form-control" id="mae" name="mae" value="" onKeyUp="pesquisar_mae(this.value)">
                  <div id="lista_mae" style="border-style:solid; border-width:thin; height:auto; border-color: #bab1b4; position:absolute; z-index:99999; background:#fff; width:150%; display:none; margin-top:1%;">
                  </div>
                </div>
@@ -336,7 +336,7 @@ function linkar_mae_te(nome){
 
                <div class="form-group">
                  <label for="exampleInputPassword1">FBB</label>
-                 <input type="text" class="form-control" id="fbb" name="fbb" value="<?=$animal[0]['fbb']?>">
+                 <input type="text" class="form-control" id="fbb" name="fbb" value="">
                </div>
 
                <div class="form-group">
@@ -377,7 +377,7 @@ function linkar_mae_te(nome){
 
                <div class="form-group">
                  <label for="exampleInputPassword1">Observações</label>
-                 <textarea  class="form-control" name="observacoes" id="observacoes" cols="45" rows="5" style="height:105px; width:100%;"><?=$animal[0]['observacoes']?></textarea>
+                 <textarea  class="form-control" name="observacoes" id="observacoes" cols="45" rows="5" style="height:105px; width:100%;"></textarea>
                </div>
 
              </div>
@@ -390,7 +390,7 @@ function linkar_mae_te(nome){
                <div class="form-group">
                  <label for="exampleInputPassword1">Pai<span style="color:#F00;">*</span>
                    <a href="geral.php?pg=cadastrar_animal&tipo=2" target="_blank"><span style="font-size:11px; color:green;">Novo</span></a></label>
-                 <input type="text" class="form-control" id="pai" name="pai" value="<?=$pai[0]['nome']?>" onKeyUp="pesquisar_pai(this.value)">
+                 <input type="text" class="form-control" id="pai" name="pai" value="" onKeyUp="pesquisar_pai(this.value)">
                  <div id="lista_pai" style="border-style:solid; border-width:thin; height:auto; border-color: #bab1b4; position:absolute; z-index:99999; background:#fff; width:150%; display:none; margin-top:1%;">
                  </div>
                </div>
@@ -398,7 +398,7 @@ function linkar_mae_te(nome){
                <div class="form-group">
                  <label for="exampleInputPassword1">Mãe<span style="color:#F00;">*</span>
                    <a href="geral.php?pg=cadastrar_animal&tipo=2" target="_blank"><span style="font-size:11px; color:green;">Novo</span></a></label>
-                 <input type="text" class="form-control" id="mae" name="mae" value="<?=$mae[0]['nome']?>" onKeyUp="pesquisar_mae(this.value)">
+                 <input type="text" class="form-control" id="mae" name="mae" value="" onKeyUp="pesquisar_mae(this.value)">
                  <div id="lista_mae" style="border-style:solid; border-width:thin; height:auto; border-color: #bab1b4; position:absolute; z-index:99999; background:#fff; width:150%; display:none; margin-top:1%;">
                  </div>
                </div>
@@ -1004,7 +1004,7 @@ $dataNascimentoValida = $dataNascimentoValidada && $dataNascimentoValidada->form
 
                <div class="form-group">
                  <label for="exampleInputPassword1">FBB</label>
-                 <input type="text" class="form-control" id="fbb" name="fbb" value="<?=$animal[0]['fbb']?>">
+                 <input type="text" class="form-control" id="fbb" name="fbb" value="">
                </div>
 
                <div class="form-group">
@@ -1026,13 +1026,13 @@ $dataNascimentoValida = $dataNascimentoValidada && $dataNascimentoValidada->form
              <div class="box-body">
                <div class="form-group">
                  <label for="exampleInputPassword1">Pai</label>
-                 <input type="text" class="form-control" id="pai" name="pai" value="<?=$pai[0]['nome']?>" onKeyUp="pesquisar_pai(this.value)">
+                 <input type="text" class="form-control" id="pai" name="pai" value="" onKeyUp="pesquisar_pai(this.value)">
                  </div>
 
 
                <div class="form-group">
                  <label for="exampleInputPassword1">Mãe</label>
-                 <input type="text" class="form-control" id="mae" name="mae" value="<?=$mae[0]['nome']?>" onKeyUp="pesquisar_mae(this.value)">
+                 <input type="text" class="form-control" id="mae" name="mae" value="" onKeyUp="pesquisar_mae(this.value)">
                 </div>
 
 

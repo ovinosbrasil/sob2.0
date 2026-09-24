@@ -19,8 +19,20 @@ function atualizar2(sexo){
 </script>
 
 <?
-$filtro = $_GET['filtro'];
-if(!$filtro){ $filtro = 'Todos';}
+$filtro = $_GET['filtro'] ?? 'Todos';
+if (!in_array($filtro, ['Todos', 'Rebanho', 'Sexo', 'Reprodutores', 'Matrizes'], true)) {
+  $filtro = 'Todos';
+}
+$sexo = $_GET['sexo'] ?? '';
+if (!in_array($sexo, ['', 'Macho', 'Fêmea'], true)) { $sexo = ''; }
+$tabelaContagem = $filtro === 'Reprodutores' ? 'reprodutor' : ($filtro === 'Matrizes' ? 'matriz' : 'animais');
+$condicaoContagem = $filtro === 'Rebanho' ? "WHERE status = '0'" : ($filtro === 'Sexo' ? "WHERE status = '0' AND sexo = '$sexo'" : '');
+$contagem = DBRead($tabelaContagem, $condicaoContagem, 'COUNT(*) AS total');
+$qtd_pag = (int)ceil((int)($contagem[0]['total'] ?? 0) / 40);
+$paginaInformada = filter_var($_GET['pag'] ?? 0, FILTER_VALIDATE_INT);
+$pagina = min(max(0, $paginaInformada === false ? 0 : $paginaInformada), max(0, $qtd_pag - 1));
+$loop = $pagina * 40;
+$urlPagina = 'geral.php?pg=lista_rebanho&amp;filtro=' . rawurlencode($filtro) . '&amp;sexo=' . rawurlencode($sexo);
 ?>
 
 
@@ -57,7 +69,7 @@ if(!$filtro){ $filtro = 'Todos';}
 
 
 
-<? if($filtro == 'Sexo'){ $sexo = $_GET['sexo']; ?>
+<? if($filtro == 'Sexo'){ ?>
   <div class="form-group">
       <label for="exampleInputPassword1">Sexo<span style="color:#F00;">*</span></label>
       <select class="form-control select" id="filtro" name="filtro" onchange="atualizar2(this.value)">
@@ -99,11 +111,11 @@ if($filtro == 'Todos'){ ?>
               <th>tipo</th>
             </tr>
             <?
-            $loop = $_GET['pag'];
-            $loop = $loop*40;
-            $fim = $loop+40;
             $x = $loop;
-            $animais = DBRead('animais', "ORDER BY id desc LIMIT $loop,40");
+            $animais = DBRead('animais', "ORDER BY id desc LIMIT $loop,40") ?: array();
+            if (!$animais) { ?>
+            <tr><td colspan="7" class="text-center">Nenhum animal encontrado para este filtro.</td></tr>
+            <?php }
             foreach ($animais as $animais_){
               $x++;
               $data_atual = $animais_['data_de_nascimento'];
@@ -149,23 +161,25 @@ if($filtro == 'Todos'){ ?>
             <? } ?>
             </table>
 
+            <?php if ($qtd_pag > 1) { ?>
             <div class="box-footer clearfix">
-            <ul class="pagination pagination-sm no-margin pull-right">
-              <? $pag = $_GET['pag']+1; ?>
-              <li><a href="geral.php?pg=lista_rebanho&pag=<?=$pag-2?>">&laquo;</a></li>
-
-              <?
-              $animal = DBRead('animais');
-              $qtd = count($animal);
-              $qtd_pag = $qtd/40;
-              $x = 0;
-              while($x < $qtd_pag){?>
-                <? if($x+1 == $pag){ ?><li><a href="#"><span style="color:red;"><?=$x+1?></span></a></li>
-              <? }else{ ?><li><a href="geral.php?pg=lista_rebanho&pag=<?=$x?>"><?=$x+1?></a></li><? } ?>
-              <? $x++;} ?>
-              <li><a href="geral.php?pg=lista_rebanho&pag=<?=$pag?>">&raquo;</a></li>
-            </ul>
-          </div>
+              <ul class="pagination pagination-sm no-margin pull-right">
+                <?php if ($pagina > 0) { ?>
+                <li><a href="<?=$urlPagina?>&amp;pag=<?=$pagina-1?>">&laquo;</a></li>
+                <?php } ?>
+                <?php for ($x = 0; $x < $qtd_pag; $x++) { ?>
+                  <?php if ($x === $pagina) { ?>
+                  <li class="active"><span><?=$x+1?></span></li>
+                  <?php } else { ?>
+                  <li><a href="<?=$urlPagina?>&amp;pag=<?=$x?>"><?=$x+1?></a></li>
+                  <?php } ?>
+                <?php } ?>
+                <?php if ($pagina < $qtd_pag - 1) { ?>
+                <li><a href="<?=$urlPagina?>&amp;pag=<?=$pagina+1?>">&raquo;</a></li>
+                <?php } ?>
+              </ul>
+            </div>
+            <?php } ?>
         </div>
         <!-- /.box-body -->
       </div>
@@ -192,11 +206,11 @@ if($filtro == 'Rebanho'){ ?>
               <th>tipo</th>
             </tr>
             <?
-            $loop = $_GET['pag'];
-            $loop = $loop*40;
-            $fim = $loop+40;
             $x = $loop;
-            $animais = DBRead('animais', "WHERE status = '0' ORDER BY id desc LIMIT $loop,40");
+            $animais = DBRead('animais', "WHERE status = '0' ORDER BY id desc LIMIT $loop,40") ?: array();
+            if (!$animais) { ?>
+            <tr><td colspan="7" class="text-center">Nenhum animal encontrado para este filtro.</td></tr>
+            <?php }
             foreach ($animais as $animais_){
               $x++;
               $data_atual = $animais_['data_de_nascimento'];
@@ -242,23 +256,25 @@ if($filtro == 'Rebanho'){ ?>
             <? } ?>
             </table>
 
+            <?php if ($qtd_pag > 1) { ?>
             <div class="box-footer clearfix">
-            <ul class="pagination pagination-sm no-margin pull-right">
-              <? $pag = $_GET['pag']+1; ?>
-              <li><a href="geral.php?pg=lista_rebanho&pag=<?=$pag-2?>&filtro=Rebanho">&laquo;</a></li>
-
-              <?
-              $animal = DBRead('animais', "WHERE status = 0");
-              $qtd = count($animal);
-              $qtd_pag = $qtd/40;
-              $x = 0;
-              while($x < $qtd_pag){?>
-                <? if($x+1 == $pag){ ?><li><a href="#"><span style="color:red;"><?=$x+1?></span></a></li>
-              <? }else{ ?><li><a href="geral.php?pg=lista_rebanho&pag=<?=$x?>&filtro=Rebanho"><?=$x+1?></a></li><? } ?>
-              <? $x++;} ?>
-              <li><a href="geral.php?pg=lista_rebanho&pag=<?=$pag?>&filtro=Rebanho">&raquo;</a></li>
-            </ul>
-          </div>
+              <ul class="pagination pagination-sm no-margin pull-right">
+                <?php if ($pagina > 0) { ?>
+                <li><a href="<?=$urlPagina?>&amp;pag=<?=$pagina-1?>">&laquo;</a></li>
+                <?php } ?>
+                <?php for ($x = 0; $x < $qtd_pag; $x++) { ?>
+                  <?php if ($x === $pagina) { ?>
+                  <li class="active"><span><?=$x+1?></span></li>
+                  <?php } else { ?>
+                  <li><a href="<?=$urlPagina?>&amp;pag=<?=$x?>"><?=$x+1?></a></li>
+                  <?php } ?>
+                <?php } ?>
+                <?php if ($pagina < $qtd_pag - 1) { ?>
+                <li><a href="<?=$urlPagina?>&amp;pag=<?=$pagina+1?>">&raquo;</a></li>
+                <?php } ?>
+              </ul>
+            </div>
+            <?php } ?>
         </div>
         <!-- /.box-body -->
       </div>
@@ -285,11 +301,11 @@ if($filtro == 'Sexo'){ ?>
               <th>tipo</th>
             </tr>
             <?
-            $loop = $_GET['pag'];
-            $loop = $loop*40;
-            $fim = $loop+40;
             $x = $loop;
-            $animais = DBRead('animais', "WHERE status = '0' AND sexo = '$sexo' ORDER BY id desc LIMIT $loop,40");
+            $animais = DBRead('animais', "WHERE status = '0' AND sexo = '$sexo' ORDER BY id desc LIMIT $loop,40") ?: array();
+            if (!$animais) { ?>
+            <tr><td colspan="7" class="text-center">Nenhum animal encontrado para este filtro.</td></tr>
+            <?php }
             foreach ($animais as $animais_){
               $x++;
               $data_atual = $animais_['data_de_nascimento'];
@@ -335,23 +351,25 @@ if($filtro == 'Sexo'){ ?>
             <? } ?>
             </table>
 
+            <?php if ($qtd_pag > 1) { ?>
             <div class="box-footer clearfix">
-            <ul class="pagination pagination-sm no-margin pull-right">
-              <? $pag = $_GET['pag']+1; ?>
-              <li><a href="geral.php?pg=lista_rebanho&pag=<?=$pag-2?>&filtro=Sexo&sexo=<?=$sexo?>">&laquo;</a></li>
-
-              <?
-              $animal = DBRead('animais', "WHERE status = '0' AND sexo = '$sexo'");
-              $qtd = count($animal);
-              $qtd_pag = $qtd/40;
-              $x = 0;
-              while($x < $qtd_pag){?>
-                <? if($x+1 == $pag){ ?><li><a href="#"><span style="color:red;"><?=$x+1?></span></a></li>
-              <? }else{ ?><li><a href="geral.php?pg=lista_rebanho&pag=<?=$x?>&filtro=Sexo&sexo=<?=$sexo?>"><?=$x+1?></a></li><? } ?>
-              <? $x++;} ?>
-              <li><a href="geral.php?pg=lista_rebanho&pag=<?=$pag?>&filtro=Sexo&sexo=<?=$sexo?>">&raquo;</a></li>
-            </ul>
-          </div>
+              <ul class="pagination pagination-sm no-margin pull-right">
+                <?php if ($pagina > 0) { ?>
+                <li><a href="<?=$urlPagina?>&amp;pag=<?=$pagina-1?>">&laquo;</a></li>
+                <?php } ?>
+                <?php for ($x = 0; $x < $qtd_pag; $x++) { ?>
+                  <?php if ($x === $pagina) { ?>
+                  <li class="active"><span><?=$x+1?></span></li>
+                  <?php } else { ?>
+                  <li><a href="<?=$urlPagina?>&amp;pag=<?=$x?>"><?=$x+1?></a></li>
+                  <?php } ?>
+                <?php } ?>
+                <?php if ($pagina < $qtd_pag - 1) { ?>
+                <li><a href="<?=$urlPagina?>&amp;pag=<?=$pagina+1?>">&raquo;</a></li>
+                <?php } ?>
+              </ul>
+            </div>
+            <?php } ?>
         </div>
         <!-- /.box-body -->
       </div>
@@ -378,11 +396,11 @@ if($filtro == 'Reprodutores'){?>
               <th>Crias</th>
             </tr>
             <?
-            $loop = $_GET['pag'];
-            $loop = $loop*40;
-            $fim = $loop+40;
             $x = $loop;
-            $reprodutor = DBRead('reprodutor', "ORDER BY id_macho desc LIMIT $loop,40");
+            $reprodutor = DBRead('reprodutor', "ORDER BY id_macho desc LIMIT $loop,40") ?: array();
+            if (!$reprodutor) { ?>
+            <tr><td colspan="7" class="text-center">Nenhum animal encontrado para este filtro.</td></tr>
+            <?php }
             foreach ($reprodutor as $reprodutor_){
             $id_animal = $reprodutor_['id_macho'];
             $animal = DBRead('animais',"WHERE id = '$id_animal'");
@@ -430,23 +448,25 @@ if($filtro == 'Reprodutores'){?>
             <? } ?>
             </table>
 
+            <?php if ($qtd_pag > 1) { ?>
             <div class="box-footer clearfix">
-            <ul class="pagination pagination-sm no-margin pull-right">
-              <? $pag = $_GET['pag']+1; ?>
-              <li><a href="geral.php?pg=lista_rebanho&pag=<?=$pag-2?>&filtro=Reprodutores">&laquo;</a></li>
-
-              <?
-              $reprodutor = DBRead('reprodutor');
-              $qtd = count($reprodutor);
-              $qtd_pag = $qtd/40;
-              $x = 0;
-              while($x < $qtd_pag){?>
-                <? if($x+1 == $pag){ ?><li><a href="#"><span style="color:red;"><?=$x+1?></span></a></li>
-              <? }else{ ?><li><a href="geral.php?pg=lista_rebanho&pag=<?=$x?>&filtro=Reprodutores"><?=$x+1?></a></li><? } ?>
-              <? $x++;} ?>
-              <li><a href="geral.php?pg=lista_rebanho&pag=<?=$pag?>&filtro=Reprodutores">&raquo;</a></li>
-            </ul>
-          </div>
+              <ul class="pagination pagination-sm no-margin pull-right">
+                <?php if ($pagina > 0) { ?>
+                <li><a href="<?=$urlPagina?>&amp;pag=<?=$pagina-1?>">&laquo;</a></li>
+                <?php } ?>
+                <?php for ($x = 0; $x < $qtd_pag; $x++) { ?>
+                  <?php if ($x === $pagina) { ?>
+                  <li class="active"><span><?=$x+1?></span></li>
+                  <?php } else { ?>
+                  <li><a href="<?=$urlPagina?>&amp;pag=<?=$x?>"><?=$x+1?></a></li>
+                  <?php } ?>
+                <?php } ?>
+                <?php if ($pagina < $qtd_pag - 1) { ?>
+                <li><a href="<?=$urlPagina?>&amp;pag=<?=$pagina+1?>">&raquo;</a></li>
+                <?php } ?>
+              </ul>
+            </div>
+            <?php } ?>
         </div>
         <!-- /.box-body -->
       </div>
@@ -472,11 +492,11 @@ if($filtro == 'Matrizes'){?>
               <th>Crias</th>
             </tr>
             <?
-            $loop = $_GET['pag'];
-            $loop = $loop*40;
-            $fim = $loop+40;
             $x = $loop;
-            $matriz = DBRead('matriz', "ORDER BY id_femea desc LIMIT $loop,40");
+            $matriz = DBRead('matriz', "ORDER BY id_femea desc LIMIT $loop,40") ?: array();
+            if (!$matriz) { ?>
+            <tr><td colspan="7" class="text-center">Nenhum animal encontrado para este filtro.</td></tr>
+            <?php }
             foreach ($matriz as $matriz_){
             $id_animal = $matriz_['id_femea'];
             $animal = DBRead('animais',"WHERE id = '$id_animal'");
@@ -524,23 +544,25 @@ if($filtro == 'Matrizes'){?>
             <? } ?>
             </table>
 
+            <?php if ($qtd_pag > 1) { ?>
             <div class="box-footer clearfix">
-            <ul class="pagination pagination-sm no-margin pull-right">
-              <? $pag = $_GET['pag']+1; ?>
-              <li><a href="geral.php?pg=lista_rebanho&pag=<?=$pag-2?>&filtro=Matrizes">&laquo;</a></li>
-
-              <?
-              $reprodutor = DBRead('matriz');
-              $qtd = count($reprodutor);
-              $qtd_pag = $qtd/40;
-              $x = 0;
-              while($x < $qtd_pag){?>
-                <? if($x+1 == $pag){ ?><li><a href="#"><span style="color:red;"><?=$x+1?></span></a></li>
-              <? }else{ ?><li><a href="geral.php?pg=lista_rebanho&pag=<?=$x?>&filtro=Matrizes"><?=$x+1?></a></li><? } ?>
-              <? $x++;} ?>
-              <li><a href="geral.php?pg=lista_rebanho&pag=<?=$pag?>&filtro=Matrizes">&raquo;</a></li>
-            </ul>
-          </div>
+              <ul class="pagination pagination-sm no-margin pull-right">
+                <?php if ($pagina > 0) { ?>
+                <li><a href="<?=$urlPagina?>&amp;pag=<?=$pagina-1?>">&laquo;</a></li>
+                <?php } ?>
+                <?php for ($x = 0; $x < $qtd_pag; $x++) { ?>
+                  <?php if ($x === $pagina) { ?>
+                  <li class="active"><span><?=$x+1?></span></li>
+                  <?php } else { ?>
+                  <li><a href="<?=$urlPagina?>&amp;pag=<?=$x?>"><?=$x+1?></a></li>
+                  <?php } ?>
+                <?php } ?>
+                <?php if ($pagina < $qtd_pag - 1) { ?>
+                <li><a href="<?=$urlPagina?>&amp;pag=<?=$pagina+1?>">&raquo;</a></li>
+                <?php } ?>
+              </ul>
+            </div>
+            <?php } ?>
         </div>
         <!-- /.box-body -->
       </div>

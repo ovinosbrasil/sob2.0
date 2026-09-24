@@ -1,3 +1,18 @@
+<?php
+$sexo = $_GET['sexo'] ?? '';
+if (!in_array($sexo, array('', 'Macho', 'Fêmea'), true)) {
+  $sexo = '';
+}
+$filtroSexo = $sexo === '' ? '' : "WHERE sexo = '$sexo'";
+$contagem = DBRead('terceiros', $filtroSexo, 'COUNT(*) AS total');
+$qtd = (int)($contagem[0]['total'] ?? 0);
+$qtd_pag = (int)ceil($qtd / 40);
+$paginaInformada = filter_var($_GET['pag'] ?? 0, FILTER_VALIDATE_INT);
+$pagina = min(max(0, $paginaInformada === false ? 0 : $paginaInformada), max(0, $qtd_pag - 1));
+$loop = $pagina * 40;
+$animais = $qtd > 0 ? (DBRead('terceiros', "$filtroSexo ORDER BY id desc LIMIT $loop,40") ?: array()) : array();
+$sexoUrl = rawurlencode($sexo);
+?>
 
 <script type="text/javascript">
 function atualizar(sexo){
@@ -54,11 +69,9 @@ function ativar_excluir_terceiro(id_animal){
             <div class="form-group">
                 <label for="exampleInputPassword1">Sexo<span style="color:#F00;">*</span></label>
                 <select class="form-control select" id="filtro" name="filtro" onchange="atualizar(this.value)">
-                  ?<? if($sexo != ''){ ?> <option value="<?=$sexo?>"><?=$sexo?></option><? } else{ ?>
-                  <option value="">Todos</option><? } ?>
-                  <option value=""></option>
-                  <option value="Macho">Macho</option>
-                  <option value="Fêmea">Fêmea</option>
+                  <option value="" <?=$sexo === '' ? 'selected' : ''?>>Todos</option>
+                  <option value="Macho" <?=$sexo === 'Macho' ? 'selected' : ''?>>Macho</option>
+                  <option value="Fêmea" <?=$sexo === 'Fêmea' ? 'selected' : ''?>>Fêmea</option>
 
                 </select>
             </div>
@@ -82,14 +95,10 @@ function ativar_excluir_terceiro(id_animal){
               <th>Excluir</th>
             </tr>
             <?
-            $loop = $_GET['pag'];
-            $loop = $loop*40;
-            $fim = $loop+40;
-            $sexo = $_GET['sexo'];
-
-            if($sexo == ''){ $animais = DBRead('terceiros', "ORDER BY id desc LIMIT $loop,40"); }else{
-            $animais = DBRead('terceiros', "WHERE sexo = '$sexo' ORDER BY id desc LIMIT $loop,40"); }
             $x = $loop;
+            if (!$animais) { ?>
+            <tr><td colspan="6" class="text-center">Nenhum animal de terceiros encontrado.</td></tr>
+            <?php }
             foreach ($animais as $animais_){
               $x++;
             ?>
@@ -104,24 +113,25 @@ function ativar_excluir_terceiro(id_animal){
             <? } ?>
             </table>
 
+            <?php if ($qtd_pag > 1) { ?>
             <div class="box-footer clearfix">
-            <ul class="pagination pagination-sm no-margin pull-right">
-              <? $pag = $_GET['pag']+1; ?>
-              <li><a href="geral.php?pg=lista_terceiros&pag=<?=$pag-2?>&sexo=<?=$sexo?>">&laquo;</a></li>
-
-              <?
-              if($sexo == ''){ $animais = DBRead('terceiros'); }else{
-              $animais = DBRead('terceiros', "WHERE sexo = '$sexo'"); }
-              $qtd = count($animais);
-              $qtd_pag = $qtd/40;
-              $x = 0;
-              while($x < $qtd_pag){?>
-                <? if($x+1 == $pag){ ?><li><a href="#"><span style="color:red;"><?=$x+1?></span></a></li>
-              <? }else{ ?><li><a href="geral.php?pg=lista_terceiros&pag=<?=$x?>&sexo=<?=$sexo?>"><?=$x+1?></a></li><? } ?>
-              <? $x++;} ?>
-              <li><a href="geral.php?pg=lista_terceiros&pag=<?=$pag?>&sexo=<?=$sexo?>">&raquo;</a></li>
-            </ul>
-          </div>
+              <ul class="pagination pagination-sm no-margin pull-right">
+                <?php if ($pagina > 0) { ?>
+                <li><a href="geral.php?pg=lista_terceiros&amp;pag=<?=$pagina-1?>&amp;sexo=<?=$sexoUrl?>">&laquo;</a></li>
+                <?php } ?>
+                <?php for ($x = 0; $x < $qtd_pag; $x++) { ?>
+                  <?php if ($x === $pagina) { ?>
+                  <li class="active"><span><?=$x+1?></span></li>
+                  <?php } else { ?>
+                  <li><a href="geral.php?pg=lista_terceiros&amp;pag=<?=$x?>&amp;sexo=<?=$sexoUrl?>"><?=$x+1?></a></li>
+                  <?php } ?>
+                <?php } ?>
+                <?php if ($pagina < $qtd_pag - 1) { ?>
+                <li><a href="geral.php?pg=lista_terceiros&amp;pag=<?=$pagina+1?>&amp;sexo=<?=$sexoUrl?>">&raquo;</a></li>
+                <?php } ?>
+              </ul>
+            </div>
+            <?php } ?>
         </div>
         <!-- /.box-body -->
       </div>
