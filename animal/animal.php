@@ -13,7 +13,7 @@ function addDayIntoDate($date,$days) {
 }
 
 $id_animal = $_GET['id_animal'];
-$aba = $_GET['aba'];
+$aba = $_GET['aba'] ?? '';
 $animal = DBRead('animais',"WHERE id = '$id_animal'");
 ?>
 <div id="transparencia">asd</div>

@@ -173,7 +173,7 @@ if(valor == 2){
 }
 </script>
 
-<? $avaliacao = $_GET['avaliacao']; ?>
+<? $avaliacao = $_GET['avaliacao'] ?? ''; ?>
 
 <div class="row">
 <div class="col-md-3">
@@ -200,25 +200,28 @@ if(!$avaliacao){
 $ava1 = DBRead('avaliacao', "WHERE id_animal = '$id_animal' AND avaliacao = 1");
 $ava2 = DBRead('avaliacao', "WHERE id_animal = '$id_animal' AND avaliacao = 2");
 
-if($ava1[0]['id'] < 0){ $ava1_ = 0; }else{ $ava1_ = $ava1[0]['tipo'];}
-if(!$ava2[0]['id']< 0 ){ $ava2_ = 0; }else{ $ava2_ = $ava2[0]['tipo'];}
+$avaliacaoVazia = array_fill_keys(['barril', 'cabeca', 'cobertura', 'comprimento', 'conformacao', 'cor', 'distribuicao', 'id', 'orgao', 'pescoco', 'quarto_anterior', 'quarto_posterior', 'tamanho', 'tipo'], null);
+$ava1 = [array_replace($avaliacaoVazia, $ava1[0] ?? [])];
+$ava2 = [array_replace($avaliacaoVazia, $ava2[0] ?? [])];
+$ava1_ = $ava1[0]['tipo'] ?? 0;
+$ava2_ = $ava2[0]['tipo'] ?? 0;
 
 $total=$qtd=0;
 $media1 = DBRead('avaliacao', "WHERE avaliacao = '1'");
-foreach ($media1 as $media1_) {
+foreach (($media1 ?: []) as $media1_) {
   $total = $total+$media1_['tipo'];
   $qtd++;
 }
-$media1_ = number_format($total/$qtd,2,".","");
+$media1_ = $qtd > 0 ? number_format($total/$qtd,2,".","") : 0;
 
 
 $total=$qtd=0;
 $media2 = DBRead('avaliacao', "WHERE avaliacao = '2'");
-foreach ($media2 as $media2_) {
+foreach (($media2 ?: []) as $media2_) {
   $total = $total+$media2_['tipo'];
   $qtd++;
 }
-$media2_ = $total ? number_format($total/$qtd,2,".","") : 0;
+$media2_ = $qtd > 0 ? number_format($total/$qtd,2,".","") : 0;
 
 ?>
 
