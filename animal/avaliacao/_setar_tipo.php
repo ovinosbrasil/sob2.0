@@ -1,7 +1,7 @@
 <?
 $avaliar = DBRead('avaliacao', "WHERE id_animal = '$id_animal' AND avaliacao = '$avaliacao'");
 foreach ($avaliar as $avaliar) {
-$soma = $avaliar['cabeca'] + $avaliar['pescoco'] + $avaliar['quarto_anterior'] + $avaliar['quarto_posterior'] + $avaliar['barril'] + $avaliar['comprimento'] + $avaliar['orgao'] + $avaliar['pesagem'];
+$soma = $avaliar['cabeca'] + $avaliar['pescoco'] + $avaliar['quarto_anterior'] + $avaliar['quarto_posterior'] + $avaliar['barril'] + $avaliar['comprimento'] + $avaliar['orgao'];
 
 if($soma == 35){ $conformacao = 5;}
 if($soma >= 28  & $soma < 35){ $conformacao = 4;}
@@ -60,7 +60,7 @@ if($avaliacao == 2){
 
 if($avaliacao == 1){
 	$teste = DBRead('avaliacao', "WHERE id_animal = '$id_animal' AND avaliacao = '2'");
-	if($teste[0]['id'] > 0){ }else{
+	if(($teste[0]['id'] ?? 0) > 0){ }else{
 		$dados = array(
 		'tipo'	=> $tipo
 		);

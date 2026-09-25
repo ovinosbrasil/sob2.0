@@ -1,6 +1,6 @@
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<?
-include "../../_config.php";
+<?php
+require_once __DIR__ . "/../../_config.php";
+header("Content-Type: text/html; charset=UTF-8");
 
 $data = $_POST['data'];
 include "../../funcoes_data/data.php";
@@ -10,20 +10,28 @@ $macho = $_POST['macho'];
 $verifica_macho = DBRead('animais', "WHERE nome = '$macho' AND sexo = 'Macho'");
 $verifica_macho_terceiro = DBRead('terceiros', "WHERE nome = '$macho' AND sexo = 'Macho'");
 
+$id_macho_rebanho = (int)($verifica_macho[0]['id'] ?? 0);
+$id_macho_terceiro = (int)($verifica_macho_terceiro[0]['id'] ?? 0);
+
 //TESTE MACHO
-if(($verifica_macho[0]['id'] <= 0) && ($verifica_macho_terceiro[0]['id'] <= 0)){
+if(($id_macho_rebanho <= 0) && ($id_macho_terceiro <= 0)){
   echo "<script type=\"text/javascript\"> alert(\"Macho não existe. Tente novamente\"); </script>
   <script language='javascript'>history.back()</script>";
 }else{
 
-if($verifica_macho[0]['id'] > 0){ $id_macho = $verifica_macho[0]['id']; $terceiro_macho = 0; }
-if($verifica_macho_terceiro[0]['id'] > 0){ $id_macho = $verifica_macho_terceiro[0]['id']; $terceiro_macho = 1; }
+if($id_macho_rebanho > 0){ $id_macho = $verifica_macho[0]['id']; $terceiro_macho = 0; }
+if($id_macho_terceiro > 0){ $id_macho = $verifica_macho_terceiro[0]['id']; $terceiro_macho = 1; }
 
 $dados = array(
 	'data'	=> $data,
 	'id_animal'	=> $id_macho,
   'terceiro'  => $terceiro_macho,
   'qtd'  => $_POST['qtd'],
+  // Campos legados obrigatórios no banco, não presentes no formulário.
+  'vigor' => '',
+  'partida' => '',
+  'motilidade' => '',
+  'congelado' => '',
   'botijao' => $_POST['botijao'],
   'palheta' => $_POST['palheta'],
   'qualidade' => $_POST['qualidade']

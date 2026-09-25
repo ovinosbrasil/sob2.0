@@ -28,42 +28,25 @@ function ativar_excluir_venda(id_venda){
 </script>
 <?
 
-$data_inicial = $_POST['data_inicial']; if(!$data_inicial){ $data_inicial = $_GET['data_inicial']; } if(!$data_inicial){ $data_inicial = date('01/m/Y'); }
-$data_final = $_POST['data_final']; if(!$data_final){ $data_final = $_GET['data_final']; } if(!$data_final){ $data_final = date('31/m/Y'); }
-$id_cliente = $_POST['cliente_filtro'];
-$status = $_POST['status_filtro'];
-$tipo = $_POST['tipo_filtro'];
-
-$data = $data_inicial;
-$data_atual = $data;
-$data = '0';
-$data['0'] = $data_atual['6'];
-$data['1'] = $data_atual['7'];
-$data['2'] = $data_atual['8'];
-$data['3'] = $data_atual['9'];
-$data['4'] = "-";
-$data['5'] = $data_atual['3'];
-$data['6'] = $data_atual['4'];
-$data['7'] = "-";
-$data['8'] = $data_atual['0'];
-$data['9'] = $data_atual['1'];
-$data_inicial_ = $data;
-
-
-$data = $data_final;
-$data_atual = $data;
-$data = '0';
-$data['0'] = $data_atual['6'];
-$data['1'] = $data_atual['7'];
-$data['2'] = $data_atual['8'];
-$data['3'] = $data_atual['9'];
-$data['4'] = "-";
-$data['5'] = $data_atual['3'];
-$data['6'] = $data_atual['4'];
-$data['7'] = "-";
-$data['8'] = $data_atual['0'];
-$data['9'] = $data_atual['1'];
-$data_final_ = $data;
+$data_inicial = $_POST['data_inicial'] ?? $_GET['data_inicial'] ?? date('01/m/Y');
+$data_final = $_POST['data_final'] ?? $_GET['data_final'] ?? date('t/m/Y');
+$validarData = function ($valor) {
+  if (!is_string($valor) || !preg_match('/^([0-9]{2})\/([0-9]{2})\/([0-9]{4})$/', $valor, $partes)
+      || !checkdate((int)$partes[2], (int)$partes[1], (int)$partes[3])) {
+    return false;
+  }
+  return $partes[3] . '-' . $partes[2] . '-' . $partes[1];
+};
+$data_inicial_ = $validarData($data_inicial);
+$data_final_ = $validarData($data_final);
+$erroPeriodo = '';
+if (!$data_inicial_ || !$data_final_) {
+  $erroPeriodo = 'Informe datas válidas no formato dd/mm/aaaa.';
+} elseif ($data_inicial_ > $data_final_) {
+  $erroPeriodo = 'A data inicial deve ser anterior ou igual à data final.';
+}
+$data_inicial = is_string($data_inicial) ? $data_inicial : '';
+$data_final = is_string($data_final) ? $data_final : '';
 ?>
 
 
@@ -92,7 +75,7 @@ $data_final_ = $data;
                   <div class="input-group-addon">
                     <i class="fa fa-calendar"></i>
                   </div>
-                  <input type="text" class="form-control pull-right" id="data_inicial" name="data_inicial" value="<?=$data_inicial?>">
+                  <input type="text" class="form-control pull-right" id="data_inicial" name="data_inicial" value="<?=htmlspecialchars($data_inicial, ENT_QUOTES, 'UTF-8')?>">
                 </div>
             </div>
 
@@ -102,7 +85,7 @@ $data_final_ = $data;
                   <div class="input-group-addon">
                     <i class="fa fa-calendar"></i>
                   </div>
-                  <input type="text" class="form-control pull-right" id="data_final" name="data_final" value="<?=$data_final?>">
+                  <input type="text" class="form-control pull-right" id="data_final" name="data_final" value="<?=htmlspecialchars($data_final, ENT_QUOTES, 'UTF-8')?>">
                 </div>
             </div>
 
@@ -121,6 +104,9 @@ $data_final_ = $data;
       <div class="box box-success">
         <!-- /.box-header -->
         <div class="box-body">
+          <?php if ($erroPeriodo) { ?>
+          <div class="alert alert-warning" role="alert"><?=$erroPeriodo?></div>
+          <?php } ?>
           <table class="table table-bordered" id="tabela_padrao">
             <tr>
               <th>Data</th>
@@ -132,7 +118,10 @@ $data_final_ = $data;
               <th style="width:15%;">Funções</th>
             </tr>
             <?
-            $venda = DBRead('venda_semen', "WHERE data >= '$data_inicial_' and data <= '$data_final_'  ORDER BY data asc ");
+            $venda = $erroPeriodo ? array() : (DBRead('venda_semen', "WHERE data >= '$data_inicial_' AND data <= '$data_final_' ORDER BY data ASC, id ASC") ?: array());
+            if (!$venda && !$erroPeriodo) { ?>
+              <tr><td colspan="7" class="text-center">Nenhuma venda encontrada no período.</td></tr>
+            <?php }
             foreach($venda as $venda_){
               $id_embriao = $venda_['id_semen'];
               $embriao = DBRead('semen', "WHERE id = $id_embriao");

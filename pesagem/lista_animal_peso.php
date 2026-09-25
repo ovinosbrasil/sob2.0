@@ -1,31 +1,25 @@
+<?php
+require_once __DIR__ . '/../_config.php';
+$nome = DBEscape(isset($_GET['nome']) && is_string($_GET['nome']) ? $_GET['nome'] : '');
+?>
 <div id="titulo_geral" style="background-color:#00a65a; height:35px; color:#fff; padding-top:0.5%;">
   <div style="padding-left:1%; font-weight:bold; font-size:16px;">Pesquisa de Animais</div>
 </div>
 <?
-ini_set('display_errors', 0);
-include "../_config.php";
-$nome = $_GET['nome'];
+
 
 $animal = DBRead('animais',"WHERE nome LIKE '%$nome%' ORDER BY nome asc LIMIT 10");
-foreach ($animal as $animais) {
-  $data = $animais['data_de_nascimento'];
-  $data_atual = $data;
-  $data = '0';
-  $data['0'] = $data_atual['8'];
-  $data['1'] = $data_atual['9'];
-  $data['2'] = "/";
-  $data['3'] = $data_atual['5'];
-  $data['4'] = $data_atual['6'];
-  $data['5'] = "/";
-  $data['6'] = $data_atual['0'];
-  $data['7'] = $data_atual['1'];
-  $data['8'] = $data_atual['2'];
-  $data['9'] = $data_atual['3'];
-
+if (!$animal) { ?><div style="padding:8px;">Nenhum animal encontrado.</div><?php }
+foreach (($animal ?: array()) as $animais) {
+  $data = 'Não informada';
+  if (preg_match('/^([0-9]{4})-([0-9]{2})-([0-9]{2})$/', $animais['data_de_nascimento'] ?? '', $partes)
+      && checkdate((int)$partes[2], (int)$partes[3], (int)$partes[1])) {
+    $data = $partes[3] . '/' . $partes[2] . '/' . $partes[1];
+  }
   ?>
   <a href="javascript:linkar_animal_peso('<?=$animais['id']?>');" style="color:#2d2c2c;">
      <div id="nome" style="cursor:pointer; padding:0.8%; padding-left:1%;">
-       <span style="font-weight:bold;"> <?=$animais['nome']?></span> - Nascimento: <?=$data?>
+       <span style="font-weight:bold;"> <?=htmlspecialchars($animais['nome'], ENT_QUOTES, 'UTF-8')?></span> - Nascimento: <?=$data?>
        <? if($animais['status'] == 0){ ?> <span style="color:#37abc0;">(Rebanho) <? } ?>
        <? if($animais['status'] == 1){ ?> <span style="color:red;">(Morto) <? } ?>
        <? if($animais['status'] == 2){ ?> <span style="color:green;">(Vendido) <? } ?>

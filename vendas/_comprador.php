@@ -1,12 +1,12 @@
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<?
-include "../_config.php";
+<?php
+require_once __DIR__ . "/../_config.php";
+header("Content-Type: text/html; charset=UTF-8");
 
-$nome = $_POST['nome'];
+$nome = DBEscape($_POST['nome']);
 $comprador = DBRead('mercado', "WHERE nome = '$nome'");
 
 // TESTE EVENTO
-if($comprador[0]['id'] > 0){
+if(($comprador[0]['id'] ?? 0) > 0){
   echo "<script type=\"text/javascript\"> alert(\"Comprador já existe.Tente novamente\"); </script>
   <script language='javascript'>history.back()</script>";
 }else{
@@ -14,6 +14,7 @@ if($comprador[0]['id'] > 0){
 $dados = array(
 	'nome'	=> $_POST['nome'],
 	'celular1'	=> $_POST['celular'],
+  'telefone2' => '',
   'email'	=> $_POST['email'],
   'cpf'  => $_POST['cpf'],
   'cod_criador'  => $_POST['cod'],

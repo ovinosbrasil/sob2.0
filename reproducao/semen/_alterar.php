@@ -1,6 +1,6 @@
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<?
-include "../../_config.php";
+<?php
+require_once __DIR__ . "/../../_config.php";
+header("Content-Type: text/html; charset=UTF-8");
 
 $dados = array(
 	'qtd'	=> $_POST['qtd']

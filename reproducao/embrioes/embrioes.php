@@ -1,3 +1,15 @@
+<?php
+$porPagina = 20;
+$contagem = DBRead('embriao', 'WHERE qtd > 0', 'COUNT(*) AS total');
+$totalEmbrioes = (int)($contagem[0]['total'] ?? 0);
+$totalPaginas = max(1, (int)ceil($totalEmbrioes / $porPagina));
+$paginaInformada = filter_var($_GET['pag'] ?? 0, FILTER_VALIDATE_INT);
+$pagina = min(max(0, $paginaInformada === false ? 0 : $paginaInformada), $totalPaginas - 1);
+$offset = $pagina * $porPagina;
+$embriao = $totalEmbrioes > 0
+  ? (DBRead('embriao', "WHERE qtd > 0 ORDER BY data DESC, id DESC LIMIT $offset,$porPagina") ?: array())
+  : array();
+?>
 <script type="text/javascript">
 function validar(){
   saida = 0;
@@ -28,7 +40,7 @@ function validar(){
 function pesquisar_pai_monta(nome){
 if(window.XMLHttpRequest) { PP = new XMLHttpRequest();} else if(window.ActiveXObject) { PP = new ActiveXObject("Microsoft.XMLHTTP"); }
 // Arquivo PHP juntamente com o valor digitado no campo (método GET)
-var url = "reproducao/monta/lista_pai.php?nome="+nome;
+var url = "reproducao/monta/lista_pai.php?nome="+encodeURIComponent(nome);
 // Chamada do método open para processar a requisição
 PP.open("Get", url, true);
 // Quando o objeto recebe o retorno, chamamos a seguinte função;
@@ -54,7 +66,7 @@ function linkar_pai_monta(nome){
 function pesquisar_mae_monta(nome){
 if(window.XMLHttpRequest) { PP = new XMLHttpRequest();} else if(window.ActiveXObject) { PP = new ActiveXObject("Microsoft.XMLHTTP"); }
 // Arquivo PHP juntamente com o valor digitado no campo (método GET)
-var url = "reproducao/monta/lista_mae.php?nome="+nome;
+var url = "reproducao/monta/lista_mae.php?nome="+encodeURIComponent(nome);
 // Chamada do método open para processar a requisição
 PP.open("Get", url, true);
 // Quando o objeto recebe o retorno, chamamos a seguinte função;
@@ -161,14 +173,14 @@ function fechar_alterar(){
           <form method="post" action="reproducao/embrioes/_cadastrar.php" onsubmit="return validar()">
             <div class="form-group">
                 <label for="exampleInputPassword1">Macho<span style="color:#F00;">*</span></label>
-                <input type="text" class="form-control" id="macho" name="macho" value="<?=$pai?>" onKeyUp="pesquisar_pai_monta(this.value)">
+                <input type="text" class="form-control" id="macho" name="macho" value="<?=htmlspecialchars($pai ?? '', ENT_QUOTES, 'UTF-8')?>" onKeyUp="pesquisar_pai_monta(this.value)">
                 <div id="lista_pai" style="border-style:solid; border-width:thin; height:auto; border-color: #bab1b4; position:absolute; z-index:99999; background:#fff; width:150%; display:none; margin-top:1%;">
             </div>
           </div>
 
             <div class="form-group">
                 <label for="exampleInputPassword1">Fêmea<span style="color:#F00;">*</span></label>
-                <input type="text" class="form-control" id="femea" name="femea" value="<?=$mae?>" onKeyUp="pesquisar_mae_monta(this.value)">
+                <input type="text" class="form-control" id="femea" name="femea" value="<?=htmlspecialchars($mae ?? '', ENT_QUOTES, 'UTF-8')?>" onKeyUp="pesquisar_mae_monta(this.value)">
                 <div id="lista_mae" style="border-style:solid; border-width:thin; height:auto; border-color: #bab1b4; position:absolute; z-index:99999; background:#fff; width:150%; display:none; margin-top:1%;">
             </div>
           </div>
@@ -235,8 +247,9 @@ function fechar_alterar(){
                 <th>Qualidade</th>
                 <th>Funções</th>
               </tr>
-              <?
-                $embriao = DBRead('embriao', "WHERE qtd > 0 ORDER BY data desc");
+              <?php if (!$embriao) { ?>
+                <tr><td colspan="8" class="text-center">Nenhum embrião disponível no banco.</td></tr>
+              <?php }
                 foreach ($embriao as $embriao_){
                 $id_macho = $embriao_['pai'];
                 if($embriao_['terceiro']){
@@ -252,24 +265,16 @@ function fechar_alterar(){
                   $femea = DBRead('animais', "WHERE id = '$id_femea'");
                 }
 
-                $data = $embriao_['data'];
-                $data_atual = $data;
-                $data = '0';
-                $data['0'] = $data_atual['8'];
-                $data['1'] = $data_atual['9'];
-                $data['2'] = "/";
-                $data['3'] = $data_atual['5'];
-                $data['4'] = $data_atual['6'];
-                $data['5'] = "/";
-                $data['6'] = $data_atual['0'];
-                $data['7'] = $data_atual['1'];
-                $data['8'] = $data_atual['2'];
-                $data['9'] = $data_atual['3'];
+                $data = 'Não informada';
+                if (preg_match('/^([0-9]{4})-([0-9]{2})-([0-9]{2})$/', $embriao_['data'] ?? '', $partes)
+                    && checkdate((int)$partes[2], (int)$partes[3], (int)$partes[1])) {
+                  $data = $partes[3] . '/' . $partes[2] . '/' . $partes[1];
+                }
                 ?>
                 <tr>
                     <td><?=$data?></td>
-                    <td><?=$macho[0]['nome']?></td>
-                    <td><?=$femea[0]['nome']?></td>
+                    <td><?=htmlspecialchars($macho[0]['nome'] ?? 'Animal não encontrado', ENT_QUOTES, 'UTF-8')?></td>
+                    <td><?=htmlspecialchars($femea[0]['nome'] ?? 'Animal não encontrado', ENT_QUOTES, 'UTF-8')?></td>
                     <td><?=$embriao_['qtd']?></td>
                     <td><?=$embriao_['botijao']?></td>
                     <td><?=$embriao_['palheta']?></td>
@@ -286,6 +291,32 @@ function fechar_alterar(){
                   </tr>
                 <? } ?>
                 </table>
+                <?php if ($totalEmbrioes > 0) { ?>
+                <div class="box-footer clearfix">
+                  <span>Exibindo <?=$offset + 1?> a <?=min($offset + count($embriao), $totalEmbrioes)?> de <?=$totalEmbrioes?> registros</span>
+                  <?php if ($totalPaginas > 1) { ?>
+                  <nav class="pull-right" aria-label="Paginação do banco de embriões">
+                    <ul class="pagination pagination-sm no-margin">
+                      <?php if ($pagina > 0) { ?>
+                      <li><a href="geral.php?pg=embrioes&amp;pag=0">Primeira</a></li>
+                      <li><a href="geral.php?pg=embrioes&amp;pag=<?=$pagina - 1?>">Anterior</a></li>
+                      <?php } ?>
+                      <?php for ($numero = max(0, $pagina - 2); $numero <= min($totalPaginas - 1, $pagina + 2); $numero++) { ?>
+                        <?php if ($numero === $pagina) { ?>
+                        <li class="active"><span aria-current="page"><?=$numero + 1?></span></li>
+                        <?php } else { ?>
+                        <li><a href="geral.php?pg=embrioes&amp;pag=<?=$numero?>"><?=$numero + 1?></a></li>
+                        <?php } ?>
+                      <?php } ?>
+                      <?php if ($pagina < $totalPaginas - 1) { ?>
+                      <li><a href="geral.php?pg=embrioes&amp;pag=<?=$pagina + 1?>">Próxima</a></li>
+                      <li><a href="geral.php?pg=embrioes&amp;pag=<?=$totalPaginas - 1?>">Última</a></li>
+                      <?php } ?>
+                    </ul>
+                  </nav>
+                  <?php } ?>
+                </div>
+                <?php } ?>
           </div>
           <!-- /.box-body -->
         </div>

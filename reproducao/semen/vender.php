@@ -82,8 +82,13 @@ function ativar_venda(){
 
 
               <div class="form-group">
-                <label for="exampleInputPassword1">Comprador<span style="color:#F00;">*</span></label>
-                <input type="text" class="form-control" id="comprador" name="comprador" value="<?=$comprador[0]['nome']?>" onKeyUp="pesquisar_comprador(this.value)">
+                <label for="comprador">Comprador<span style="color:#F00;">*</span></label>
+                <div class="input-group">
+                  <input type="text" class="form-control" id="comprador" name="comprador" value="<?=htmlspecialchars($comprador[0]['nome'] ?? '', ENT_QUOTES, 'UTF-8')?>" autocomplete="off" oninput="pesquisar_comprador(this.value)" onfocus="pesquisar_comprador(this.value)">
+                  <span class="input-group-btn">
+                    <a class="btn btn-success" href="geral.php?pg=compradores" target="_blank" rel="noopener" title="Cadastrar comprador em nova aba">Novo</a>
+                  </span>
+                </div>
                 <div id="lista_comprador" style="border-style:solid; border-width:thin; height:auto; border-color: #bab1b4; position:absolute; z-index:99999; background:#fff; width:90%; display:none; margin-top:1%;">
                 </div>
               </div>

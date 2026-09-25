@@ -377,20 +377,10 @@ if(($pg == 'perfil') || ($pg == 'comprador') || ($pg == 'compradores')){
       var line = new Morris.Line({
         element: 'line-chart',
         resize: true,
-        data: [
-          {y: '<?=$data1?>', item1: <?=$pesagem1?>},
-          {y: '<?=$data2?>', item1: <?=$pesagem2?>},
-          {y: '<?=$data3?>', item1: <?=$pesagem3?>},
-          {y: '<?=$data4?>', item1: <?=$pesagem4?>},
-          {y: '<?=$data5?>', item1: <?=$pesagem5?>},
-          {y: '<?=$data6?>', item1: <?=$pesagem6?>},
-          {y: '<?=$data7?>', item1: <?=$pesagem7?>},
-          {y: '<?=$data8?>', item1: <?=$pesagem8?>},
-          {y: '<?=$data9?>', item1: <?=$pesagem9?>}
-        ],
+        data: <?=json_encode($dadosGraficoPesagem ?? array())?>,
         xkey: 'y',
         ykeys: ['item1'],
-        labels: ['Item 1'],
+        labels: ['Peso (kg)'],
         lineColors: ['#3c8dbc'],
         hideHover: 'auto'
       });
@@ -665,7 +655,7 @@ function abrir_terceiro(id){
 function pesquisar_comprador(nome){
 if(window.XMLHttpRequest) { PP = new XMLHttpRequest();} else if(window.ActiveXObject) { PP = new ActiveXObject("Microsoft.XMLHTTP"); }
 // Arquivo PHP juntamente com o valor digitado no campo (método GET)
-var url = "animal/vender/lista_comprador.php?nome="+nome;
+var url = "animal/vender/lista_comprador.php?nome="+encodeURIComponent(nome);
 // Chamada do método open para processar a requisição
 PP.open("Get", url, true);
 // Quando o objeto recebe o retorno, chamamos a seguinte função;
@@ -723,7 +713,7 @@ function fechar_lista_conjunta(id){
 function pesquisar_animal_pesagem(nome){
 if(window.XMLHttpRequest) { PP = new XMLHttpRequest();} else if(window.ActiveXObject) { PP = new ActiveXObject("Microsoft.XMLHTTP"); }
 // Arquivo PHP juntamente com o valor digitado no campo (método GET)
-var url = "pesagem/lista_animal_peso.php?nome="+nome;
+var url = "pesagem/lista_animal_peso.php?nome="+encodeURIComponent(nome);
 // Chamada do método open para processar a requisição
 PP.open("Get", url, true);
 // Quando o objeto recebe o retorno, chamamos a seguinte função;

@@ -1,26 +1,21 @@
-<?
-
-function geraTimestamp($data) {
-  $partes = explode('/', $data);
-  return mktime(0, 0, 0, $partes[1], $partes[0], $partes[2]);
-}
-
+<?php
 $hoje = date('d/m/Y');
-$id_animal = $_GET['id_animal'];
-$animal = DBRead('animais', "WHERE id = '$id_animal'");
-if($id_animal>0){
-  $peso = DBRead('pesagem', "WHERE id_animal = '$id_animal' ORDER BY data asc");
-  if($peso[0]['peso'] > 0){ $pesagem1 = $peso[0]['peso']; $data1 = $peso[0]['data'];}
-  if($peso[1]['peso'] > 0){ $pesagem2 = $peso[1]['peso']; $data2 = $peso[1]['data']; }else{ $pesagem2 = $pesagem1; $data2 = $data1; }
-  if($peso[2]['peso'] > 0){ $pesagem3 = $peso[2]['peso']; $data3 = $peso[2]['data']; }else{ $pesagem3 = $pesagem2; $data3 = $data2; }
-  if($peso[3]['peso'] > 0){ $pesagem4 = $peso[3]['peso']; $data4 = $peso[3]['data']; }else{ $pesagem4 = $pesagem3; $data4 = $data3; }
-  if($peso[4]['peso'] > 0){ $pesagem5 = $peso[4]['peso']; $data5 = $peso[4]['data']; }else{ $pesagem5 = $pesagem4; $data5 = $data4; }
-  if($peso[5]['peso'] > 0){ $pesagem6 = $peso[5]['peso']; $data6 = $peso[5]['data']; }else{ $pesagem6 = $pesagem5; $data6 = $data5; }
-  if($peso[6]['peso'] > 0){ $pesagem7 = $peso[6]['peso']; $data7 = $peso[6]['data']; }else{ $pesagem7 = $pesagem6; $data7 = $data6; }
-  if($peso[7]['peso'] > 0){ $pesagem8 = $peso[7]['peso']; $data8 = $peso[7]['data']; }else{ $pesagem8 = $pesagem7; $data8 = $data7; }
-  if($peso[8]['peso'] > 0){ $pesagem9 = $peso[8]['peso']; $data9 = $peso[8]['data']; }else{ $pesagem9 = $pesagem8; $data9 = $data8; }
+$id_animal = max(0, (int)filter_var($_GET['id_animal'] ?? 0, FILTER_VALIDATE_INT));
+$animal = $id_animal ? (DBRead('animais', "WHERE id = '$id_animal'") ?: array()) : array();
+$peso = $animal ? (DBRead('pesagem', "WHERE id_animal = '$id_animal' ORDER BY data ASC, id ASC") ?: array()) : array();
+$lerDataPeso = function ($valor) {
+  if (!is_string($valor) || !preg_match('/^([0-9]{4})-([0-9]{2})-([0-9]{2})$/', $valor, $partes)
+      || !checkdate((int)$partes[2], (int)$partes[3], (int)$partes[1])) {
+    return null;
+  }
+  return DateTime::createFromFormat('!Y-m-d', $valor);
+};
+$dadosGraficoPesagem = array();
+foreach ($peso as $registroPeso) {
+  if ($lerDataPeso($registroPeso['data'] ?? null) && is_numeric($registroPeso['peso'] ?? null)) {
+    $dadosGraficoPesagem[] = array('y' => $registroPeso['data'], 'item1' => (float)$registroPeso['peso']);
+  }
 }
-
 ?>
 
 <script type="text/javascript">
@@ -92,10 +87,10 @@ function ativar_excluir_peso(id_peso){
           <div class="box-body">
             <div class="form-group">
                   <label for="exampleInputPassword1">Animal<span style="color:#F00;">*</span></label>
-                  <input type="text" name="animal" id="animal" class="form-control" onKeyPress="pesquisar_animal_pesagem(this.value)" value="<?=$animal[0]['nome']?>">
+                  <input type="text" name="animal" id="animal" class="form-control" oninput="pesquisar_animal_pesagem(this.value)" value="<?=htmlspecialchars($animal[0]['nome'] ?? '', ENT_QUOTES, 'UTF-8')?>">
                 <div id="lista_animal_peso" style="border-style:solid; border-width:thin; height:auto; border-color: #bab1b4; position:absolute; z-index:99999; background:#fff; width:150%; display:none; margin-top:1%;"></div>
             </div>
-            <? if($id_animal){ ?>
+            <? if($animal){ ?>
             <div class="form-group">
                 <label for="exampleInputPassword1">Data<span style="color:#F00;">*</span></label>
                 <div class="input-group date">
@@ -132,39 +127,31 @@ function ativar_excluir_peso(id_peso){
             <th>&nbsp;</th>
           </tr>
           <?
-          $peso = DBRead('pesagem', "WHERE id_animal = '$id_animal' ORDER BY data asc");
-          foreach ($peso as $peso_){
-            $data = $peso_['data'];;
-            $data_atual = $data;
-            $data = '0';
-            $data['0'] = $data_atual['8'];
-            $data['1'] = $data_atual['9'];
-            $data['2'] = "/";
-            $data['3'] = $data_atual['5'];
-            $data['4'] = $data_atual['6'];
-            $data['5'] = "/";
-            $data['6'] = $data_atual['0'];
-            $data['7'] = $data_atual['1'];
-            $data['8'] = $data_atual['2'];
-            $data['9'] = $data_atual['3'];
-            $data_pesagem = $data;
-
-            if($data_antiga > "0000-00-00"){
-              $time_inicial = geraTimestamp($data_antiga);
-              $time_final = geraTimestamp($data_pesagem);
-              $diferenca = $time_final - $time_inicial;
-              $dias = (int)floor( $diferenca / (60 * 60 * 24));
-              $gmd = ($peso_['peso']-$peso_antigo)/$dias;
-            }else{
-              $data_antiga = $data_pesagem;
-              $peso_antigo = $peso_['peso'];
+          $dataBase = null;
+          $pesoBase = null;
+          if (!$peso) { ?>
+            <tr><td colspan="4" class="text-center"><?=$animal ? 'Nenhuma pesagem cadastrada.' : 'Selecione um animal para consultar as pesagens.'?></td></tr>
+          <?php }
+          foreach ($peso as $peso_) {
+            $dataPeso = $lerDataPeso($peso_['data'] ?? null);
+            $data = $dataPeso ? $dataPeso->format('d/m/Y') : 'Não informada';
+            $gmd = null;
+            $dias = null;
+            if ($dataPeso && is_numeric($peso_['peso'] ?? null)) {
+              if ($dataBase && $dataPeso > $dataBase) {
+                $dias = (int)$dataBase->diff($dataPeso)->days;
+                $gmd = ($peso_['peso'] - $pesoBase) / $dias * 1000;
+              } elseif (!$dataBase) {
+                $dataBase = $dataPeso;
+                $pesoBase = $peso_['peso'];
+              }
             }
           ?>
 
         <? if($gmd < 0){?>  <tr style="color:red;"> <? } else{ ?> <tr style="color:green;"> <? } ?>
             <td><?=$data?></td>
             <td><?=$peso_['peso']?> kg</td>
-            <td><?=number_format($gmd,2,",",".");?>g - <?=$dias?> dias</td>
+            <td><?=$gmd === null ? '—' : number_format($gmd, 2, ',', '.') . ' g - ' . $dias . ' dias'?></td>
             <td><button type="button" class="btn btn-danger" style="padding:0%; padding-left:5%; padding-right:5%; height:20px;" onclick="excluir_peso(<?=$peso_['id']?>)">X</button></td>
             </tr>
           <? } ?>
@@ -190,6 +177,7 @@ function ativar_excluir_peso(id_peso){
                 </div>
               </div>
               <div class="box-body chart-responsive">
+                <?php if (!$dadosGraficoPesagem) { ?><p class="text-muted">Nenhuma pesagem disponível para o gráfico.</p><?php } ?>
                 <div class="chart" id="line-chart" style="height: 300px;"></div>
               </div>
               <!-- /.box-body -->

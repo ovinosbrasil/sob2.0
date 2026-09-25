@@ -1,6 +1,5 @@
-
-<?
-include "../../_config.php";
+<?php
+require_once __DIR__ . "/../../_config.php";
 
 $id_embriao = $_GET['id_embriao'];
 

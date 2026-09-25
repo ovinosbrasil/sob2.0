@@ -64,43 +64,24 @@ function ativar_avaliacao(){
 <?
 $ava2 = DBRead('avaliacao', "WHERE id_animal = '$id_animal' AND avaliacao = 2");
 
-$data = $animal[0]['data_de_nascimento'];
-$data_atual = $data;
-$data = '0';
-$data['0'] = $data_atual['8'];
-$data['1'] = $data_atual['9'];
-$data['2'] = "/";
-$data['3'] = $data_atual['5'];
-$data['4'] = $data_atual['6'];
-$data['5'] = "/";
-$data['6'] = $data_atual['0'];
-$data['7'] = $data_atual['1'];
-$data['8'] = $data_atual['2'];
-$data['9'] = $data_atual['3'];
-$data_nascimento = $data;
-
-if($animal[0]['data3'] != '0000-00-00'){
-$data = $animal[0]['data3'];
-$data_atual = $data;
-$data = '0';
-$data['0'] = $data_atual['8'];
-$data['1'] = $data_atual['9'];
-$data['2'] = "/";
-$data['3'] = $data_atual['5'];
-$data['4'] = $data_atual['6'];
-$data['5'] = "/";
-$data['6'] = $data_atual['0'];
-$data['7'] = $data_atual['1'];
-$data['8'] = $data_atual['2'];
-$data['9'] = $data_atual['3'];
-$data_adulto = $data;
-
-$time_inicial = geraTimestamp($data_nascimento);
-$time_final = geraTimestamp($data_adulto);
-$diferenca = $time_final - $time_inicial;
-$dias_adulto = (int)floor( $diferenca / (60 * 60 * 24));
-
-$gmd = ($animal[0]['peso3'] - $animal[0]['peso_inicial']) / $dias_adulto*1000;
+$lerDataAvaliacao = function ($valor) {
+  if (!is_string($valor) || !preg_match('/^([0-9]{4})-([0-9]{2})-([0-9]{2})$/', $valor, $partes)
+      || !checkdate((int)$partes[2], (int)$partes[3], (int)$partes[1])) {
+    return null;
+  }
+  return DateTime::createFromFormat('!Y-m-d', $valor);
+};
+$nascimentoAvaliacao = $lerDataAvaliacao($animal[0]['data_de_nascimento'] ?? null);
+$pesagemAvaliacao = $lerDataAvaliacao($animal[0]['data3'] ?? null);
+$data_nascimento = $nascimentoAvaliacao ? $nascimentoAvaliacao->format('d/m/Y') : '';
+$data_adulto = $pesagemAvaliacao ? $pesagemAvaliacao->format('d/m/Y') : '';
+$dias_adulto = null;
+$gmd = null;
+if ($nascimentoAvaliacao && $pesagemAvaliacao && $pesagemAvaliacao > $nascimentoAvaliacao) {
+  $dias_adulto = (int)$nascimentoAvaliacao->diff($pesagemAvaliacao)->days;
+  if (is_numeric($animal[0]['peso3'] ?? null) && is_numeric($animal[0]['peso_inicial'] ?? null)) {
+    $gmd = ($animal[0]['peso3'] - $animal[0]['peso_inicial']) / $dias_adulto * 1000;
+  }
 }
 ?>
   <div class="col-md-12">
@@ -163,7 +144,7 @@ $gmd = ($animal[0]['peso3'] - $animal[0]['peso_inicial']) / $dias_adulto*1000;
 
             <div class="col-md-12" style="margin-top:-5%;">
               <button type="submit" class="btn btn-primary" style="margin-top:6%; width:100%;">Calcular Média de peso</button>
-            <label style="text-align:center; width:100%; margin-top:1%;">Ganho média diário (GMD):<span style="color:green;"> <?=number_format($gmd, 2, ',', '.')?> g</span></label>
+            <label style="text-align:center; width:100%; margin-top:1%;">Ganho média diário (GMD):<span style="color:green;"> <?=$gmd === null ? 'Não disponível' : number_format($gmd, 2, ',', '.') . ' g'?></span></label>
             </div>
       </div>
 </form>
@@ -171,7 +152,7 @@ $gmd = ($animal[0]['peso3'] - $animal[0]['peso_inicial']) / $dias_adulto*1000;
       <div class="col-md-6">
         <?
         if($animal[0]['sexo'] == 'Fêmea'){
-          if($dias_adulto <= 90) {
+          if($dias_adulto !== null && $dias_adulto <= 90) {
             ?>
             <div class="col-md-12">
             Dicas de tipo para cada "Ganho Média Diário" para Fêmeas com até 90 dias:</br>
@@ -216,7 +197,7 @@ $gmd = ($animal[0]['peso3'] - $animal[0]['peso_inicial']) / $dias_adulto*1000;
 
           <?
           if($animal[0]['sexo'] == 'Macho'){
-            if($dias_adulto <= 90) {
+            if($dias_adulto !== null && $dias_adulto <= 90) {
               ?>
               <div class="col-md-12">
               Dicas de tipo para cada "Ganho Média Diário" para machos com até 90 dias:</br>
@@ -264,11 +245,11 @@ $gmd = ($animal[0]['peso3'] - $animal[0]['peso_inicial']) / $dias_adulto*1000;
         <div class="col-md-12">
           <div class="form-group" style="margin-top:3%;">
           <label for="exampleInputPassword1">Selecionar tipo</label><br/>
-          <? if($ava2[0]['tamanho'] == 5){ ?> <input type="radio" id="tamanho1" name="tamanho" value="5" checked="checked"> <? }else{?> <input type="radio" id="tamanho1" name="tamanho" value="5"><? } ?>
+          <? if(($ava2[0]['tamanho'] ?? null) == 5){ ?> <input type="radio" id="tamanho1" name="tamanho" value="5" checked="checked"> <? }else{?> <input type="radio" id="tamanho1" name="tamanho" value="5"><? } ?>
           Tipo 5 (Muito bom) &nbsp;&nbsp;&nbsp;
-          <? if($ava2[0]['tamanho'] == 4){ ?> <input type="radio" id="tamanho2" name="tamanho" value="4" checked="checked"> <? }else{?> <input type="radio" id="tamanho2" name="tamanho" value="4"><? } ?>Tipo 4 (Bom)&nbsp;&nbsp;&nbsp;
-          <? if($ava2[0]['tamanho'] == 3){ ?> <input type="radio" id="tamanho3" name="tamanho" value="3" checked="checked"> <? }else{?> <input type="radio" id="tamanho3" name="tamanho" value="3"><? } ?>Tipo 3 (Ruim)&nbsp;&nbsp;&nbsp;
-          <? if($ava2[0]['tamanho'] == 2){ ?> <input type="radio" id="tamanho4" name="tamanho" value="2" checked="checked"> <? }else{?> <input type="radio" id="tamanho4" name="tamanho" value="2"><? } ?>Tipo 2 (Descarte)&nbsp;&nbsp;&nbsp;
+          <? if(($ava2[0]['tamanho'] ?? null) == 4){ ?> <input type="radio" id="tamanho2" name="tamanho" value="4" checked="checked"> <? }else{?> <input type="radio" id="tamanho2" name="tamanho" value="4"><? } ?>Tipo 4 (Bom)&nbsp;&nbsp;&nbsp;
+          <? if(($ava2[0]['tamanho'] ?? null) == 3){ ?> <input type="radio" id="tamanho3" name="tamanho" value="3" checked="checked"> <? }else{?> <input type="radio" id="tamanho3" name="tamanho" value="3"><? } ?>Tipo 3 (Ruim)&nbsp;&nbsp;&nbsp;
+          <? if(($ava2[0]['tamanho'] ?? null) == 2){ ?> <input type="radio" id="tamanho4" name="tamanho" value="2" checked="checked"> <? }else{?> <input type="radio" id="tamanho4" name="tamanho" value="2"><? } ?>Tipo 2 (Descarte)&nbsp;&nbsp;&nbsp;
           </div>
         </div>
       </div>
@@ -283,10 +264,10 @@ $gmd = ($animal[0]['peso3'] - $animal[0]['peso_inicial']) / $dias_adulto*1000;
       </div>
       <div class="box-body">
         <label for="exampleInputPassword1">Selecionar tipo</label><br/>
-        <? if($ava2[0]['cabeca'] == 5){ ?><input type="radio" id="cabeca1" name="cabeca" value="5" checked="checked"> <? }else{?> <input type="radio" id="cabeca1" name="cabeca" value="5"><? } ?>Tipo 5 (Muito bom)<br/>
-        <? if($ava2[0]['cabeca'] == 4){ ?><input type="radio" id="cabeca2" name="cabeca" value="4" checked="checked"> <? }else{?> <input type="radio" id="cabeca2" name="cabeca" value="4"><? } ?>Tipo 4 (Bom)<br/>
-        <? if($ava2[0]['cabeca'] == 3){ ?><input type="radio" id="cabeca3" name="cabeca" value="3" checked="checked"> <? }else{?> <input type="radio" id="cabeca3" name="cabeca" value="3"><? } ?>Tipo 3 (Ruim)<br/>
-        <? if($ava2[0]['cabeca'] == 2){ ?><input type="radio" id="cabeca4" name="cabeca" value="2" checked="checked"> <? }else{?> <input type="radio" id="cabeca4" name="cabeca" value="2"><? } ?>Tipo 2 (Descarte)<br/>
+        <? if(($ava2[0]['cabeca'] ?? null) == 5){ ?><input type="radio" id="cabeca1" name="cabeca" value="5" checked="checked"> <? }else{?> <input type="radio" id="cabeca1" name="cabeca" value="5"><? } ?>Tipo 5 (Muito bom)<br/>
+        <? if(($ava2[0]['cabeca'] ?? null) == 4){ ?><input type="radio" id="cabeca2" name="cabeca" value="4" checked="checked"> <? }else{?> <input type="radio" id="cabeca2" name="cabeca" value="4"><? } ?>Tipo 4 (Bom)<br/>
+        <? if(($ava2[0]['cabeca'] ?? null) == 3){ ?><input type="radio" id="cabeca3" name="cabeca" value="3" checked="checked"> <? }else{?> <input type="radio" id="cabeca3" name="cabeca" value="3"><? } ?>Tipo 3 (Ruim)<br/>
+        <? if(($ava2[0]['cabeca'] ?? null) == 2){ ?><input type="radio" id="cabeca4" name="cabeca" value="2" checked="checked"> <? }else{?> <input type="radio" id="cabeca4" name="cabeca" value="2"><? } ?>Tipo 2 (Descarte)<br/>
       </div>
     </div>
 </div>
@@ -298,10 +279,10 @@ $gmd = ($animal[0]['peso3'] - $animal[0]['peso_inicial']) / $dias_adulto*1000;
       </div>
       <div class="box-body">
         <label for="exampleInputPassword1">Selecionar tipo</label><br/>
-        <? if($ava2[0]['pescoco'] == 5){ ?><input type="radio" id="pescoco1" name="pescoco" value="5" checked="checked"><? }else{?><input type="radio" id="pescoco1" name="pescoco" value="5"><? } ?> Tipo 5 (Muito bom)<br/>
-        <? if($ava2[0]['pescoco'] == 4){ ?><input type="radio" id="pescoco2" name="pescoco" value="4" checked="checked"><? }else{?><input type="radio" id="pescoco2" name="pescoco" value="4"><? } ?> Tipo 4 (Bom)<br/>
-        <? if($ava2[0]['pescoco'] == 3){ ?><input type="radio" id="pescoco3" name="pescoco" value="3" checked="checked"><? }else{?><input type="radio" id="pescoco3" name="pescoco" value="3"><? } ?> Tipo 3 (Ruim)<br/>
-        <? if($ava2[0]['pescoco'] == 2){ ?><input type="radio" id="pescoco4" name="pescoco" value="2" checked="checked"><? }else{?><input type="radio" id="pescoco4" name="pescoco" value="2"><? } ?> Tipo 2 (Descarte)<br/>
+        <? if(($ava2[0]['pescoco'] ?? null) == 5){ ?><input type="radio" id="pescoco1" name="pescoco" value="5" checked="checked"><? }else{?><input type="radio" id="pescoco1" name="pescoco" value="5"><? } ?> Tipo 5 (Muito bom)<br/>
+        <? if(($ava2[0]['pescoco'] ?? null) == 4){ ?><input type="radio" id="pescoco2" name="pescoco" value="4" checked="checked"><? }else{?><input type="radio" id="pescoco2" name="pescoco" value="4"><? } ?> Tipo 4 (Bom)<br/>
+        <? if(($ava2[0]['pescoco'] ?? null) == 3){ ?><input type="radio" id="pescoco3" name="pescoco" value="3" checked="checked"><? }else{?><input type="radio" id="pescoco3" name="pescoco" value="3"><? } ?> Tipo 3 (Ruim)<br/>
+        <? if(($ava2[0]['pescoco'] ?? null) == 2){ ?><input type="radio" id="pescoco4" name="pescoco" value="2" checked="checked"><? }else{?><input type="radio" id="pescoco4" name="pescoco" value="2"><? } ?> Tipo 2 (Descarte)<br/>
       </div>
     </div>
 </div>
@@ -313,10 +294,10 @@ $gmd = ($animal[0]['peso3'] - $animal[0]['peso_inicial']) / $dias_adulto*1000;
       </div>
       <div class="box-body">
         <label for="exampleInputPassword1">Selecionar tipo</label><br/>
-        <? if($ava2[0]['quarto_anterior'] == 5){ ?><input type="radio" id="quarto_anterior1" name="quarto_anterior" value="5" checked="checked"><? }else{?><input type="radio" id="quarto_anterior1" name="quarto_anterior" value="5"><? } ?> Tipo 5 (Muito bom)<br/>
-        <? if($ava2[0]['quarto_anterior'] == 4){ ?><input type="radio" id="quarto_anterior2" name="quarto_anterior" value="4" checked="checked"><? }else{?><input type="radio" id="quarto_anterior2" name="quarto_anterior" value="4"><? } ?> Tipo 4 (Bom)<br/>
-        <? if($ava2[0]['quarto_anterior'] == 3){ ?><input type="radio" id="quarto_anterior3" name="quarto_anterior" value="3" checked="checked"><? }else{?><input type="radio" id="quarto_anterior3" name="quarto_anterior" value="3"><? } ?> Tipo 3 (Ruim)<br/>
-        <? if($ava2[0]['quarto_anterior'] == 2){ ?><input type="radio" id="quarto_anterior4" name="quarto_anterior" value="2" checked="checked"><? }else{?><input type="radio" id="quarto_anterior4" name="quarto_anterior" value="2"><? } ?> Tipo 2 (Descarte)<br/>
+        <? if(($ava2[0]['quarto_anterior'] ?? null) == 5){ ?><input type="radio" id="quarto_anterior1" name="quarto_anterior" value="5" checked="checked"><? }else{?><input type="radio" id="quarto_anterior1" name="quarto_anterior" value="5"><? } ?> Tipo 5 (Muito bom)<br/>
+        <? if(($ava2[0]['quarto_anterior'] ?? null) == 4){ ?><input type="radio" id="quarto_anterior2" name="quarto_anterior" value="4" checked="checked"><? }else{?><input type="radio" id="quarto_anterior2" name="quarto_anterior" value="4"><? } ?> Tipo 4 (Bom)<br/>
+        <? if(($ava2[0]['quarto_anterior'] ?? null) == 3){ ?><input type="radio" id="quarto_anterior3" name="quarto_anterior" value="3" checked="checked"><? }else{?><input type="radio" id="quarto_anterior3" name="quarto_anterior" value="3"><? } ?> Tipo 3 (Ruim)<br/>
+        <? if(($ava2[0]['quarto_anterior'] ?? null) == 2){ ?><input type="radio" id="quarto_anterior4" name="quarto_anterior" value="2" checked="checked"><? }else{?><input type="radio" id="quarto_anterior4" name="quarto_anterior" value="2"><? } ?> Tipo 2 (Descarte)<br/>
       </div>
     </div>
 </div>
@@ -328,10 +309,10 @@ $gmd = ($animal[0]['peso3'] - $animal[0]['peso_inicial']) / $dias_adulto*1000;
       </div>
       <div class="box-body">
         <label for="exampleInputPassword1">Selecionar tipo</label><br/>
-        <? if($ava2[0]['barril'] == 5){ ?><input type="radio" id="barril1" name="barril" value="5" checked="checked"><? }else{?><input type="radio" id="barril1" name="barril" value="5"><? } ?> Tipo 5 (Muito bom)<br/>
-        <? if($ava2[0]['barril'] == 4){ ?><input type="radio" id="barril2" name="barril" value="4" checked="checked"><? }else{?><input type="radio" id="barril2" name="barril" value="4"><? } ?> Tipo 4 (Bom)<br/>
-        <? if($ava2[0]['barril'] == 3){ ?><input type="radio" id="barril3" name="barril" value="3" checked="checked"><? }else{?><input type="radio" id="barril3" name="barril" value="3"><? } ?> Tipo 3 (Ruim)<br/>
-        <? if($ava2[0]['barril'] == 2){ ?><input type="radio" id="barril4" name="barril" value="2" checked="checked"><? }else{?><input type="radio" id="barril4" name="barril" value="2"><? } ?> Tipo 2 (Descarte)<br/>
+        <? if(($ava2[0]['barril'] ?? null) == 5){ ?><input type="radio" id="barril1" name="barril" value="5" checked="checked"><? }else{?><input type="radio" id="barril1" name="barril" value="5"><? } ?> Tipo 5 (Muito bom)<br/>
+        <? if(($ava2[0]['barril'] ?? null) == 4){ ?><input type="radio" id="barril2" name="barril" value="4" checked="checked"><? }else{?><input type="radio" id="barril2" name="barril" value="4"><? } ?> Tipo 4 (Bom)<br/>
+        <? if(($ava2[0]['barril'] ?? null) == 3){ ?><input type="radio" id="barril3" name="barril" value="3" checked="checked"><? }else{?><input type="radio" id="barril3" name="barril" value="3"><? } ?> Tipo 3 (Ruim)<br/>
+        <? if(($ava2[0]['barril'] ?? null) == 2){ ?><input type="radio" id="barril4" name="barril" value="2" checked="checked"><? }else{?><input type="radio" id="barril4" name="barril" value="2"><? } ?> Tipo 2 (Descarte)<br/>
       </div>
     </div>
 </div>
@@ -343,10 +324,10 @@ $gmd = ($animal[0]['peso3'] - $animal[0]['peso_inicial']) / $dias_adulto*1000;
       </div>
       <div class="box-body">
         <label for="exampleInputPassword1">Selecionar tipo</label><br/>
-        <? if($ava2[0]['quarto_posterior'] == 5){ ?><input type="radio" id="quarto_posterior1" name="quarto_posterior" value="5" checked="checked"><? }else{?><input type="radio" id="quarto_posterior1" name="quarto_posterior" value="5"><? } ?> Tipo 5 (Muito bom)<br/>
-        <? if($ava2[0]['quarto_posterior'] == 4){ ?><input type="radio" id="quarto_posterior2" name="quarto_posterior" value="4" checked="checked"><? }else{?><input type="radio" id="quarto_posterior2" name="quarto_posterior" value="4"><? } ?> Tipo 4 (Bom)<br/>
-        <? if($ava2[0]['quarto_posterior'] == 3){ ?><input type="radio" id="quarto_posterior3" name="quarto_posterior" value="3" checked="checked"><? }else{?><input type="radio" id="quarto_posterior3" name="quarto_posterior" value="3"><? } ?> Tipo 3 (Ruim)<br/>
-        <? if($ava2[0]['quarto_posterior'] == 2){ ?><input type="radio" id="quarto_posterior4" name="quarto_posterior" value="2" checked="checked"><? }else{?><input type="radio" id="quarto_posterior4" name="quarto_posterior" value="2"><? } ?> Tipo 2 (Descarte)<br/>
+        <? if(($ava2[0]['quarto_posterior'] ?? null) == 5){ ?><input type="radio" id="quarto_posterior1" name="quarto_posterior" value="5" checked="checked"><? }else{?><input type="radio" id="quarto_posterior1" name="quarto_posterior" value="5"><? } ?> Tipo 5 (Muito bom)<br/>
+        <? if(($ava2[0]['quarto_posterior'] ?? null) == 4){ ?><input type="radio" id="quarto_posterior2" name="quarto_posterior" value="4" checked="checked"><? }else{?><input type="radio" id="quarto_posterior2" name="quarto_posterior" value="4"><? } ?> Tipo 4 (Bom)<br/>
+        <? if(($ava2[0]['quarto_posterior'] ?? null) == 3){ ?><input type="radio" id="quarto_posterior3" name="quarto_posterior" value="3" checked="checked"><? }else{?><input type="radio" id="quarto_posterior3" name="quarto_posterior" value="3"><? } ?> Tipo 3 (Ruim)<br/>
+        <? if(($ava2[0]['quarto_posterior'] ?? null) == 2){ ?><input type="radio" id="quarto_posterior4" name="quarto_posterior" value="2" checked="checked"><? }else{?><input type="radio" id="quarto_posterior4" name="quarto_posterior" value="2"><? } ?> Tipo 2 (Descarte)<br/>
       </div>
     </div>
 </div>
@@ -358,10 +339,10 @@ $gmd = ($animal[0]['peso3'] - $animal[0]['peso_inicial']) / $dias_adulto*1000;
       </div>
       <div class="box-body">
         <label for="exampleInputPassword1">Selecionar tipo</label><br/>
-        <? if($ava2[0]['comprimento'] == 5){ ?><input type="radio" id="comprimento1" name="comprimento" value="5" checked="checked"><? }else{?><input type="radio" id="comprimento1" name="comprimento" value="5"><? } ?> Tipo 5 (Muito bom)<br/>
-        <? if($ava2[0]['comprimento'] == 4){ ?><input type="radio" id="comprimento2" name="comprimento" value="4" checked="checked"><? }else{?><input type="radio" id="comprimento2" name="comprimento" value="4"><? } ?> Tipo 4 (Bom)<br/>
-        <? if($ava2[0]['comprimento'] == 3){ ?><input type="radio" id="comprimento3" name="comprimento" value="3" checked="checked"><? }else{?><input type="radio" id="comprimento3" name="comprimento" value="3"><? } ?> Tipo 3 (Ruim)<br/>
-        <? if($ava2[0]['comprimento'] == 2){ ?><input type="radio" id="comprimento4" name="comprimento" value="2" checked="checked"><? }else{?><input type="radio" id="comprimento4" name="comprimento" value="2"><? } ?> Tipo 2 (Descarte)<br/>
+        <? if(($ava2[0]['comprimento'] ?? null) == 5){ ?><input type="radio" id="comprimento1" name="comprimento" value="5" checked="checked"><? }else{?><input type="radio" id="comprimento1" name="comprimento" value="5"><? } ?> Tipo 5 (Muito bom)<br/>
+        <? if(($ava2[0]['comprimento'] ?? null) == 4){ ?><input type="radio" id="comprimento2" name="comprimento" value="4" checked="checked"><? }else{?><input type="radio" id="comprimento2" name="comprimento" value="4"><? } ?> Tipo 4 (Bom)<br/>
+        <? if(($ava2[0]['comprimento'] ?? null) == 3){ ?><input type="radio" id="comprimento3" name="comprimento" value="3" checked="checked"><? }else{?><input type="radio" id="comprimento3" name="comprimento" value="3"><? } ?> Tipo 3 (Ruim)<br/>
+        <? if(($ava2[0]['comprimento'] ?? null) == 2){ ?><input type="radio" id="comprimento4" name="comprimento" value="2" checked="checked"><? }else{?><input type="radio" id="comprimento4" name="comprimento" value="2"><? } ?> Tipo 2 (Descarte)<br/>
       </div>
     </div>
 </div>
@@ -373,10 +354,10 @@ $gmd = ($animal[0]['peso3'] - $animal[0]['peso_inicial']) / $dias_adulto*1000;
       </div>
       <div class="box-body">
         <label for="exampleInputPassword1">Selecionar tipo</label><br/>
-        <? if($ava2[0]['orgao'] == 5){ ?><input type="radio" id="orgao1" name="orgao" value="5" checked="checked"><? }else{?><input type="radio" id="orgao1" name="orgao" value="5"><? } ?> Tipo 5 (Muito bom)<br/>
-        <? if($ava2[0]['orgao'] == 4){ ?><input type="radio" id="orgao2" name="orgao" value="4" checked="checked"><? }else{?><input type="radio" id="orgao2" name="orgao" value="4"><? } ?> Tipo 4 (Bom)<br/>
-        <? if($ava2[0]['orgao'] == 3){ ?><input type="radio" id="orgao3" name="orgao" value="3" checked="checked"><? }else{?><input type="radio" id="orgao3" name="orgao" value="3"><? } ?> Tipo 3 (Ruim)<br/>
-        <? if($ava2[0]['orgao'] == 2){ ?><input type="radio" id="orgao4" name="orgao" value="2" checked="checked"><? }else{?><input type="radio" id="orgao4" name="orgao" value="2"><? } ?>Tipo 2 (Descarte)<br/>
+        <? if(($ava2[0]['orgao'] ?? null) == 5){ ?><input type="radio" id="orgao1" name="orgao" value="5" checked="checked"><? }else{?><input type="radio" id="orgao1" name="orgao" value="5"><? } ?> Tipo 5 (Muito bom)<br/>
+        <? if(($ava2[0]['orgao'] ?? null) == 4){ ?><input type="radio" id="orgao2" name="orgao" value="4" checked="checked"><? }else{?><input type="radio" id="orgao2" name="orgao" value="4"><? } ?> Tipo 4 (Bom)<br/>
+        <? if(($ava2[0]['orgao'] ?? null) == 3){ ?><input type="radio" id="orgao3" name="orgao" value="3" checked="checked"><? }else{?><input type="radio" id="orgao3" name="orgao" value="3"><? } ?> Tipo 3 (Ruim)<br/>
+        <? if(($ava2[0]['orgao'] ?? null) == 2){ ?><input type="radio" id="orgao4" name="orgao" value="2" checked="checked"><? }else{?><input type="radio" id="orgao4" name="orgao" value="2"><? } ?>Tipo 2 (Descarte)<br/>
       </div>
     </div>
 </div>
@@ -388,10 +369,10 @@ $gmd = ($animal[0]['peso3'] - $animal[0]['peso_inicial']) / $dias_adulto*1000;
       </div>
       <div class="box-body">
         <label for="exampleInputPassword1">Selecionar tipo</label><br/>
-        <? if($ava2[0]['distribuicao'] == 5){ ?><input type="radio" id="distribuicao1" name="distribuicao" value="5" checked="checked"><? }else{?><input type="radio" id="distribuicao1" name="distribuicao" value="5"><? } ?> Tipo 5 (Muito bom)<br/>
-        <? if($ava2[0]['distribuicao'] == 4){ ?><input type="radio" id="distribuicao2" name="distribuicao" value="4" checked="checked"><? }else{?><input type="radio" id="distribuicao2" name="distribuicao" value="4"><? } ?> Tipo 4 (Bom)<br/>
-        <? if($ava2[0]['distribuicao'] == 3){ ?><input type="radio" id="distribuicao3" name="distribuicao" value="3" checked="checked"><? }else{?><input type="radio" id="distribuicao3" name="distribuicao" value="3"><? } ?> Tipo 3 (Ruim)<br/>
-        <? if($ava2[0]['distribuicao'] == 2){ ?><input type="radio" id="distribuicao4" name="distribuicao" value="2" checked="checked"><? }else{?><input type="radio" id="distribuicao4" name="distribuicao" value="2"><? } ?> Tipo 2 (Descarte)<br/>
+        <? if(($ava2[0]['distribuicao'] ?? null) == 5){ ?><input type="radio" id="distribuicao1" name="distribuicao" value="5" checked="checked"><? }else{?><input type="radio" id="distribuicao1" name="distribuicao" value="5"><? } ?> Tipo 5 (Muito bom)<br/>
+        <? if(($ava2[0]['distribuicao'] ?? null) == 4){ ?><input type="radio" id="distribuicao2" name="distribuicao" value="4" checked="checked"><? }else{?><input type="radio" id="distribuicao2" name="distribuicao" value="4"><? } ?> Tipo 4 (Bom)<br/>
+        <? if(($ava2[0]['distribuicao'] ?? null) == 3){ ?><input type="radio" id="distribuicao3" name="distribuicao" value="3" checked="checked"><? }else{?><input type="radio" id="distribuicao3" name="distribuicao" value="3"><? } ?> Tipo 3 (Ruim)<br/>
+        <? if(($ava2[0]['distribuicao'] ?? null) == 2){ ?><input type="radio" id="distribuicao4" name="distribuicao" value="2" checked="checked"><? }else{?><input type="radio" id="distribuicao4" name="distribuicao" value="2"><? } ?> Tipo 2 (Descarte)<br/>
       </div>
     </div>
 </div>
@@ -403,10 +384,10 @@ $gmd = ($animal[0]['peso3'] - $animal[0]['peso_inicial']) / $dias_adulto*1000;
       </div>
       <div class="box-body">
         <label for="exampleInputPassword1">Selecionar tipo</label><br/>
-        <? if($ava2[0]['cobertura'] == 5){ ?><input type="radio" id="cobertura1" name="cobertura" value="5" checked="checked"><? }else{?><input type="radio" id="cobertura1" name="cobertura" value="5"><? } ?> Tipo 5 (Muito bom)<br/>
-        <? if($ava2[0]['cobertura'] == 4){ ?><input type="radio" id="cobertura2" name="cobertura" value="4" checked="checked"><? }else{?><input type="radio" id="cobertura2" name="cobertura" value="4"><? } ?> Tipo 4 (Bom)<br/>
-        <? if($ava2[0]['cobertura'] == 3){ ?><input type="radio" id="cobertura3" name="cobertura" value="3" checked="checked"><? }else{?><input type="radio" id="cobertura3" name="cobertura" value="3"><? } ?> Tipo 3 (Ruim)<br/>
-        <? if($ava2[0]['cobertura'] == 2){ ?><input type="radio" id="cobertura4" name="cobertura" value="2" checked="checked"><? }else{?><input type="radio" id="cobertura4" name="cobertura" value="2"><? } ?> Tipo 2 (Descarte)<br/>
+        <? if(($ava2[0]['cobertura'] ?? null) == 5){ ?><input type="radio" id="cobertura1" name="cobertura" value="5" checked="checked"><? }else{?><input type="radio" id="cobertura1" name="cobertura" value="5"><? } ?> Tipo 5 (Muito bom)<br/>
+        <? if(($ava2[0]['cobertura'] ?? null) == 4){ ?><input type="radio" id="cobertura2" name="cobertura" value="4" checked="checked"><? }else{?><input type="radio" id="cobertura2" name="cobertura" value="4"><? } ?> Tipo 4 (Bom)<br/>
+        <? if(($ava2[0]['cobertura'] ?? null) == 3){ ?><input type="radio" id="cobertura3" name="cobertura" value="3" checked="checked"><? }else{?><input type="radio" id="cobertura3" name="cobertura" value="3"><? } ?> Tipo 3 (Ruim)<br/>
+        <? if(($ava2[0]['cobertura'] ?? null) == 2){ ?><input type="radio" id="cobertura4" name="cobertura" value="2" checked="checked"><? }else{?><input type="radio" id="cobertura4" name="cobertura" value="2"><? } ?> Tipo 2 (Descarte)<br/>
       </div>
     </div>
 </div>
@@ -418,10 +399,10 @@ $gmd = ($animal[0]['peso3'] - $animal[0]['peso_inicial']) / $dias_adulto*1000;
       </div>
       <div class="box-body">
         <label for="exampleInputPassword1">Selecionar tipo</label><br/>
-        <? if($ava2[0]['cor'] == 5){ ?><input type="radio" id="cor1" name="cor" value="5" checked="checked"><? }else{?><input type="radio" id="cor1" name="cor" value="5"><? } ?> Tipo 5 (Muito bom)<br/>
-        <? if($ava2[0]['cor'] == 4){ ?><input type="radio" id="cor2" name="cor" value="4" checked="checked"><? }else{?><input type="radio" id="cor2" name="cor" value="4"><? } ?> Tipo 4 (Bom)<br/>
-        <? if($ava2[0]['cor'] == 3){ ?><input type="radio" id="cor3" name="cor" value="3" checked="checked"><? }else{?><input type="radio" id="cor3" name="cor" value="3"><? } ?> Tipo 3 (Ruim)<br/>
-        <? if($ava2[0]['cor'] == 2){ ?><input type="radio" id="cor4" name="cor" value="2" checked="checked"><? }else{?><input type="radio" id="cor4" name="cor" value="2"><? } ?> Tipo 2 (Descarte)<br/>
+        <? if(($ava2[0]['cor'] ?? null) == 5){ ?><input type="radio" id="cor1" name="cor" value="5" checked="checked"><? }else{?><input type="radio" id="cor1" name="cor" value="5"><? } ?> Tipo 5 (Muito bom)<br/>
+        <? if(($ava2[0]['cor'] ?? null) == 4){ ?><input type="radio" id="cor2" name="cor" value="4" checked="checked"><? }else{?><input type="radio" id="cor2" name="cor" value="4"><? } ?> Tipo 4 (Bom)<br/>
+        <? if(($ava2[0]['cor'] ?? null) == 3){ ?><input type="radio" id="cor3" name="cor" value="3" checked="checked"><? }else{?><input type="radio" id="cor3" name="cor" value="3"><? } ?> Tipo 3 (Ruim)<br/>
+        <? if(($ava2[0]['cor'] ?? null) == 2){ ?><input type="radio" id="cor4" name="cor" value="2" checked="checked"><? }else{?><input type="radio" id="cor4" name="cor" value="2"><? } ?> Tipo 2 (Descarte)<br/>
       </div>
     </div>
 </div>

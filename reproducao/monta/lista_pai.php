@@ -1,26 +1,24 @@
+<?php
+require_once __DIR__ . '/../../_config.php';
+$nome = isset($_GET['nome']) && is_string($_GET['nome']) ? $_GET['nome'] : '';
+?>
 <div id="titulo_geral" style="background-color:#00a65a; height:35px; color:#fff; padding-top:0.5%;">
   <div style="padding-left:1%; font-weight:bold; font-size:16px;">Animais do rebanho</div>
 </div>
 
 <?
-include "../../_config.php";
-$nome = $_GET['nome'];
 
 $animal = DBRead('animais',"WHERE nome LIKE '%$nome%' AND sexo = 'Macho' ORDER BY nome asc LIMIT 7");
-foreach ($animal as $animais) {
-  $data = $animais['data_de_nascimento'];
-  $data_atual = $data;
-  $data = '0';
-  $data['0'] = $data_atual['8'];
-  $data['1'] = $data_atual['9'];
-  $data['2'] = "/";
-  $data['3'] = $data_atual['5'];
-  $data['4'] = $data_atual['6'];
-  $data['5'] = "/";
-  $data['6'] = $data_atual['0'];
-  $data['7'] = $data_atual['1'];
-  $data['8'] = $data_atual['2'];
-  $data['9'] = $data_atual['3'];
+if (!$animal) { ?>
+  <div style="padding:0.8%; padding-left:1%;">Nenhum macho encontrado.</div>
+<?php }
+foreach (($animal ?: array()) as $animais) {
+  $nascimento = $animais['data_de_nascimento'] ?? '';
+  $data = 'Não informada';
+  if (preg_match('/^([0-9]{4})-([0-9]{2})-([0-9]{2})$/', $nascimento, $partes)
+      && checkdate((int)$partes[2], (int)$partes[3], (int)$partes[1])) {
+    $data = $partes[3] . '/' . $partes[2] . '/' . $partes[1];
+  }
 
   ?>
   <a href="javascript:linkar_pai_monta('<?=$animais['nome']?>');" style="color:#2d2c2c;">
@@ -39,20 +37,16 @@ foreach ($animal as $animais) {
 
 <?
 $animal = DBRead('terceiros',"WHERE nome LIKE '%$nome%' AND sexo = 'Macho' ORDER BY nome asc LIMIT 3");
-foreach ($animal as $animais) {
-  $data = $animais['data_de_nascimento'];
-  $data_atual = $data;
-  $data = '0';
-  $data['0'] = $data_atual['8'];
-  $data['1'] = $data_atual['9'];
-  $data['2'] = "/";
-  $data['3'] = $data_atual['5'];
-  $data['4'] = $data_atual['6'];
-  $data['5'] = "/";
-  $data['6'] = $data_atual['0'];
-  $data['7'] = $data_atual['1'];
-  $data['8'] = $data_atual['2'];
-  $data['9'] = $data_atual['3'];
+if (!$animal) { ?>
+  <div style="padding:0.8%; padding-left:1%;">Nenhum macho encontrado.</div>
+<?php }
+foreach (($animal ?: array()) as $animais) {
+  $nascimento = $animais['data_de_nascimento'] ?? '';
+  $data = 'Não informada';
+  if (preg_match('/^([0-9]{4})-([0-9]{2})-([0-9]{2})$/', $nascimento, $partes)
+      && checkdate((int)$partes[2], (int)$partes[3], (int)$partes[1])) {
+    $data = $partes[3] . '/' . $partes[2] . '/' . $partes[1];
+  }
 
   ?>
   <a href="javascript:linkar_pai_monta('<?=$animais['nome']?>');" style="color:#2d2c2c;">

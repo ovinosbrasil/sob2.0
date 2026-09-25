@@ -1,3 +1,15 @@
+<?php
+$porPagina = 20;
+$contagem = DBRead('semen', 'WHERE qtd > 0', 'COUNT(*) AS total');
+$totalSemen = (int)($contagem[0]['total'] ?? 0);
+$totalPaginas = max(1, (int)ceil($totalSemen / $porPagina));
+$paginaInformada = filter_var($_GET['pag'] ?? 0, FILTER_VALIDATE_INT);
+$pagina = min(max(0, $paginaInformada === false ? 0 : $paginaInformada), $totalPaginas - 1);
+$offset = $pagina * $porPagina;
+$embriao = $totalSemen > 0
+  ? (DBRead('semen', "WHERE qtd > 0 ORDER BY data DESC, id DESC LIMIT $offset,$porPagina") ?: array())
+  : array();
+?>
 <script type="text/javascript">
 function validar(){
   saida = 0;
@@ -23,7 +35,7 @@ function validar(){
 function pesquisar_pai_monta(nome){
 if(window.XMLHttpRequest) { PP = new XMLHttpRequest();} else if(window.ActiveXObject) { PP = new ActiveXObject("Microsoft.XMLHTTP"); }
 // Arquivo PHP juntamente com o valor digitado no campo (método GET)
-var url = "reproducao/monta/lista_pai.php?nome="+nome;
+var url = "reproducao/monta/lista_pai.php?nome="+encodeURIComponent(nome);
 // Chamada do método open para processar a requisição
 PP.open("Get", url, true);
 // Quando o objeto recebe o retorno, chamamos a seguinte função;
@@ -131,7 +143,7 @@ function fechar_alterar(){
           <form method="post" action="reproducao/semen/_cadastrar.php" onsubmit="return validar()">
             <div class="form-group">
                 <label for="exampleInputPassword1">Macho<span style="color:#F00;">*</span></label>
-                <input type="text" class="form-control" id="macho" name="macho" value="<?=$pai?>" onKeyUp="pesquisar_pai_monta(this.value)">
+                <input type="text" class="form-control" id="macho" name="macho" value="<?=htmlspecialchars($pai ?? '', ENT_QUOTES, 'UTF-8')?>" onKeyUp="pesquisar_pai_monta(this.value)">
                 <div id="lista_pai" style="border-style:solid; border-width:thin; height:auto; border-color: #bab1b4; position:absolute; z-index:99999; background:#fff; width:150%; display:none; margin-top:1%;">
             </div>
           </div>
@@ -198,8 +210,9 @@ function fechar_alterar(){
                 <th>Qualidade</th>
                 <th>Funções</th>
               </tr>
-              <?
-                $embriao = DBRead('semen', "WHERE qtd > 0 ORDER BY data desc");
+              <?php if (!$embriao) { ?>
+                <tr><td colspan="7" class="text-center">Nenhum sêmen disponível no banco.</td></tr>
+              <?php }
                 foreach ($embriao as $embriao_){
                 $id_macho = $embriao_['id_animal'];
                 if($embriao_['terceiro']){
@@ -224,7 +237,7 @@ function fechar_alterar(){
                 ?>
                 <tr>
                     <td><?=$data?></td>
-                    <td><?=$macho[0]['nome']?></td>
+                    <td><?=htmlspecialchars($macho[0]['nome'] ?? 'Animal não encontrado', ENT_QUOTES, 'UTF-8')?></td>
                     <td><?=$embriao_['qtd']?></td>
                     <td><?=$embriao_['botijao']?></td>
                     <td><?=$embriao_['palheta']?></td>
@@ -241,6 +254,32 @@ function fechar_alterar(){
                   </tr>
                 <? } ?>
                 </table>
+                <?php if ($totalSemen > 0) { ?>
+                <div class="box-footer clearfix">
+                  <span>Exibindo <?=$offset + 1?> a <?=min($offset + count($embriao), $totalSemen)?> de <?=$totalSemen?> registros</span>
+                  <?php if ($totalPaginas > 1) { ?>
+                  <nav class="pull-right" aria-label="Paginação do banco de sêmen">
+                    <ul class="pagination pagination-sm no-margin">
+                      <?php if ($pagina > 0) { ?>
+                      <li><a href="geral.php?pg=semen&amp;pag=0">Primeira</a></li>
+                      <li><a href="geral.php?pg=semen&amp;pag=<?=$pagina - 1?>">Anterior</a></li>
+                      <?php } ?>
+                      <?php for ($numero = max(0, $pagina - 2); $numero <= min($totalPaginas - 1, $pagina + 2); $numero++) { ?>
+                        <?php if ($numero === $pagina) { ?>
+                        <li class="active"><span aria-current="page"><?=$numero + 1?></span></li>
+                        <?php } else { ?>
+                        <li><a href="geral.php?pg=semen&amp;pag=<?=$numero?>"><?=$numero + 1?></a></li>
+                        <?php } ?>
+                      <?php } ?>
+                      <?php if ($pagina < $totalPaginas - 1) { ?>
+                      <li><a href="geral.php?pg=semen&amp;pag=<?=$pagina + 1?>">Próxima</a></li>
+                      <li><a href="geral.php?pg=semen&amp;pag=<?=$totalPaginas - 1?>">Última</a></li>
+                      <?php } ?>
+                    </ul>
+                  </nav>
+                  <?php } ?>
+                </div>
+                <?php } ?>
           </div>
           <!-- /.box-body -->
         </div>
