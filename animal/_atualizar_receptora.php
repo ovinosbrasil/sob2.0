@@ -11,6 +11,8 @@ $pagina = max(1, (int) filter_input(INPUT_POST, 'pag', FILTER_VALIDATE_INT));
 $ativo = isset($_POST['ativo']) ? $_POST['ativo'] : null;
 $token = isset($_POST['csrf_token']) && is_string($_POST['csrf_token']) ? $_POST['csrf_token'] : '';
 $busca = isset($_POST['busca']) && is_string($_POST['busca']) ? trim($_POST['busca']) : '';
+$porPagina = filter_var($_POST['por_pagina'] ?? 10, FILTER_VALIDATE_INT);
+if (!in_array($porPagina, array(10, 20, 50, 100), true)) { $porPagina = 10; }
 $erro = '';
 if (empty($_SESSION['receptora_csrf']) || !hash_equals($_SESSION['receptora_csrf'], $token)) {
     $erro = 'Sua sessão expirou. Atualize a página e tente novamente.';
@@ -47,5 +49,5 @@ $_SESSION['receptora_flash'] = array(
     'nome' => '',
     'sucesso' => 'Status da receptora atualizado com sucesso.',
 );
-header('Location: ../geral.php?pg=lista_receptoras&pag=' . $pagina . '&busca=' . rawurlencode($busca), true, 303);
+header('Location: ../geral.php?pg=lista_receptoras&pag=' . $pagina . '&busca=' . rawurlencode($busca) . '&por_pagina=' . $porPagina, true, 303);
 exit;

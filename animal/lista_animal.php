@@ -1,57 +1,45 @@
 <?php
 require __DIR__ . "/../_config.php";
 ?>
-<div id="titulo_geral" style="background-color:#00a65a; height:35px; color:#fff; padding-top:0.5%;">
-  <div style="padding-left:1%; font-weight:bold; font-size:16px;">Pesquisa de Animais</div>
-</div>
 <?
-ini_set('display_errors', 0);
 $nome = DBEscape($_GET['nome'] ?? '');
 
 $animal = DBRead('animais',"WHERE nome LIKE '%$nome%' ORDER BY nome asc LIMIT 10");
 foreach (($animal ?: []) as $animais) {
-  $data = $animais['data_de_nascimento'];
-  $data_atual = $data;
-  $data = '0';
-  $data['0'] = $data_atual['8'];
-  $data['1'] = $data_atual['9'];
-  $data['2'] = "/";
-  $data['3'] = $data_atual['5'];
-  $data['4'] = $data_atual['6'];
-  $data['5'] = "/";
-  $data['6'] = $data_atual['0'];
-  $data['7'] = $data_atual['1'];
-  $data['8'] = $data_atual['2'];
-  $data['9'] = $data_atual['3'];
-
+  $data = 'Não informado';
+  $nascimento = $animais['data_de_nascimento'] ?? '';
+  if (is_string($nascimento) && preg_match('/^(\d{4})-(\d{2})-(\d{2})$/', $nascimento, $partes)
+      && checkdate((int)$partes[2], (int)$partes[3], (int)$partes[1])) {
+    $data = $partes[3] . '/' . $partes[2] . '/' . $partes[1];
+  }
   ?>
-  <a href="javascript:linkar_animal('<?=$animais['id']?>');" style="color:#2d2c2c;">
-     <div id="nome" style="cursor:pointer; padding:0.8%; padding-left:1%;">
-       <span style="font-weight:bold;"> <?=$animais['nome']?></span> - Nascimento: <?=$data?>
-       <? if($animais['status'] == 0){ ?> <span style="color:#37abc0;">(Rebanho) <? } ?>
-       <? if($animais['status'] == 1){ ?> <span style="color:red;">(Morto) <? } ?>
-       <? if($animais['status'] == 2){ ?> <span style="color:green;">(Vendido) <? } ?>
-       <? if($animais['status'] == 3){ ?> <span style="color:red;">(Empréstimo) <? } ?>
-       <? if($animais['status'] == 4){ ?> <span style="color:red;">(Doação) <? } ?>
-       <? if($animais['status'] == 5){ ?> <span style="color:red;">(Abate) <? } ?>
+  <button type="button" class="animal-search-result" onclick="linkar_animal(<?=(int)$animais['id']?>)" style="display:block; width:100%; text-align:left; border:0; border-bottom:1px solid #eee; color:#2d2c2c; padding:8px; overflow-wrap:anywhere;">
+    <strong><?=htmlspecialchars($animais['nome'], ENT_QUOTES, 'UTF-8')?></strong><br>
+    Nascimento: <?=$data?>
+  <? if($animais['status'] == 0){ ?> <span style="color:#00a65a;">(Rebanho)</span> <? } ?>
+  <? if($animais['status'] == 1){ ?> <span style="color:red;">(Morto)</span> <? } ?>
+  <? if($animais['status'] == 2){ ?> <span style="color:green;">(Vendido)</span> <? } ?>
+  <? if($animais['status'] == 3){ ?> <span style="color:red;">(Empréstimo)</span> <? } ?>
+  <? if($animais['status'] == 4){ ?> <span style="color:red;">(Doação)</span> <? } ?>
+  <? if($animais['status'] == 5){ ?> <span style="color:red;">(Abate)</span> <? } ?></button>
 
-     </div>
-</a>
 <? } ?>
-
-<div id="titulo_geral" style="background-color:#00a65a; height:35px; color:#fff; padding-top:0.5%;">
-  <div style="padding-left:1%; font-weight:bold; font-size:16px;">Animais de terceiros</div>
-</div>
 
 <?
 $animal = DBRead('terceiros',"WHERE nome LIKE '%$nome%' ORDER BY nome asc LIMIT 5");
 foreach (($animal ?: []) as $animais) {
+  $data = 'Não informado';
+  $nascimento = $animais['data_de_nascimento'] ?? '';
+  if (is_string($nascimento) && preg_match('/^(\d{4})-(\d{2})-(\d{2})$/', $nascimento, $partes)
+      && checkdate((int)$partes[2], (int)$partes[3], (int)$partes[1])) {
+    $data = $partes[3] . '/' . $partes[2] . '/' . $partes[1];
+  }
   ?>
-  <a href="javascript:linkar_terceiro('<?=$animais['id']?>');" style="color:#2d2c2c;">
-<div id="nome" style="cursor:pointer; padding:0.8%; padding-left:1%;"> <span style="font-weight:bold;"> <?=$animais['nome']?></span> - Sexo: <?=$animais['sexo']?></div> </a>
+  <button type="button" class="animal-search-result" onclick="linkar_terceiro(<?=(int)$animais['id']?>)" style="display:block; width:100%; text-align:left; border:0; border-bottom:1px solid #eee; color:#2d2c2c; padding:8px; overflow-wrap:anywhere;">
+    <strong><?=htmlspecialchars($animais['nome'], ENT_QUOTES, 'UTF-8')?></strong><br>
+    Nascimento: <?=$data?> · Sexo: <?=htmlspecialchars($animais['sexo'] ?? '', ENT_QUOTES, 'UTF-8')?> <span class="text-muted">(Terceiros)</span></button>
 <? } ?>
 
 
-  <a href="javascript:fechar_lista_animal();" style="color:#2d2c2c;">
-    <div id="nome" style="cursor:pointer; padding:0.8%; padding-left:1%; font-size:15px;"> <span style="color:red;"> Fechar Pesquisa </span></div>
-  </a>
+
+  <button type="button" onclick="fechar_lista_animal()" class="btn btn-link btn-sm">Fechar Pesquisa</button>

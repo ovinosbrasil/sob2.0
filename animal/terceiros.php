@@ -21,32 +21,6 @@ function terceiros(){
 }
 
 
-function excluir_terceiro(id_animal){
-if(window.XMLHttpRequest) { PP = new XMLHttpRequest();} else if(window.ActiveXObject) { PP = new ActiveXObject("Microsoft.XMLHTTP"); }
-// Arquivo PHP juntamente com o valor digitado no campo (método GET)
-var url = "animal/palco_excluir_terceiro.php?id_animal="+id_animal;
-// Chamada do método open para processar a requisição
-PP.open("Get", url, true);
-// Quando o objeto recebe o retorno, chamamos a seguinte função;
-PP.onreadystatechange = function() {
-if (PP.readyState == 4) {
-resposta = PP.responseText;
-document.getElementById("palco_excluir").innerHTML = resposta;
-}
-}
-PP.send(null);
-document.getElementById("transparencia").style.display = 'block';
-document.getElementById("palco_excluir").style.display = 'block';
-}
-
-function fechar_excluir_terceiro(){
-  document.getElementById("transparencia").style.display = 'none';
-  document.getElementById("palco_excluir").style.display = 'none';
-}
-
-function ativar_excluir_terceiro(id_animal){
-    window.location.href = "animal/_excluir_terceiro.php?id_animal="+id_animal;
-}
 </script>
 
 

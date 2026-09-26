@@ -14,7 +14,9 @@ PP.onreadystatechange = function() {
 if (PP.readyState == 4) {
 resposta = PP.responseText;
 document.getElementById("lista_pai").innerHTML = resposta;
-document.getElementById("lista_pai").style.display = 'block';
+if (document.activeElement === document.getElementById("pai")) {
+  document.getElementById("lista_pai").style.display = 'block';
+}
 }
 }
 PP.send(null);
@@ -25,7 +27,8 @@ function fechar_lista_pai(){
 }
 
 function linkar_pai_te(nome){
-  window.location.href = "geral.php?pg=lista_te&pai="+encodeURIComponent(nome);
+  document.getElementById("pai").value = nome;
+  fechar_lista_pai();
 }
 
 function pesquisar_mae_te(nome){
@@ -39,7 +42,9 @@ PP.onreadystatechange = function() {
 if (PP.readyState == 4) {
 resposta = PP.responseText;
 document.getElementById("lista_mae").innerHTML = resposta;
-document.getElementById("lista_mae").style.display = 'block';
+if (document.activeElement === document.getElementById("mae")) {
+  document.getElementById("lista_mae").style.display = 'block';
+}
 }
 }
 PP.send(null);
@@ -50,7 +55,8 @@ function fechar_lista_mae(){
 }
 
 function linkar_mae_te(nome){
-  window.location.href = "geral.php?pg=lista_te&mae="+encodeURIComponent(nome);
+  document.getElementById("mae").value = nome;
+  fechar_lista_mae();
 }
 
 function excluir_lote_te(id_lote){
@@ -155,19 +161,23 @@ $urlPaginaTe = function ($pagina) use ($pai, $mae) {
             </div>
 
 
-            <div class="form-group">
+            <form method="get" action="geral.php">
+              <input type="hidden" name="pg" value="lista_te">
+            <div class="form-group" style="position:relative;">
                 <label for="exampleInputPassword1">Mãe</label>
-                <input type="text" class="form-control" id="mae" name="mae" value="<?=htmlspecialchars($mae, ENT_QUOTES, 'UTF-8')?>" onKeyUp="pesquisar_mae_te(this.value)">
-                <div id="lista_mae" style="border-style:solid; border-width:thin; height:auto; border-color: #bab1b4; position:absolute; z-index:99999; background:#fff; width:150%; display:none; margin-top:1%;">
+                <input type="text" class="form-control" id="mae" name="mae" value="<?=htmlspecialchars($mae, ENT_QUOTES, 'UTF-8')?>" oninput="pesquisar_mae_te(this.value)">
+                <div id="lista_mae" style="border-style:solid; border-width:thin; height:auto; border-color: #bab1b4; position:absolute; z-index:99999; background:#fff; width:100%; display:none; margin-top:1%;">
             </div>
           </div>
 
-            <div class="form-group">
+            <div class="form-group" style="position:relative;">
                 <label for="exampleInputPassword1">Pai</label>
-                <input type="text" class="form-control" id="pai" name="pai" value="<?=htmlspecialchars($pai, ENT_QUOTES, 'UTF-8')?>" onKeyUp="pesquisar_pai_te(this.value)">
-                <div id="lista_pai" style="border-style:solid; border-width:thin; height:auto; border-color: #bab1b4; position:absolute; z-index:99999; background:#fff; width:150%; display:none; margin-top:1%;">
+                <input type="text" class="form-control" id="pai" name="pai" value="<?=htmlspecialchars($pai, ENT_QUOTES, 'UTF-8')?>" oninput="pesquisar_pai_te(this.value)">
+                <div id="lista_pai" style="border-style:solid; border-width:thin; height:auto; border-color: #bab1b4; position:absolute; z-index:99999; background:#fff; width:100%; display:none; margin-top:1%;">
             </div>
           </div>
+              <button type="submit" class="btn btn-primary btn-block">Pesquisar</button>
+            </form>
         </div>
           <!-- /.box-body -->
 			</div>
@@ -296,14 +306,25 @@ $urlPaginaTe = function ($pagina) use ($pai, $mae) {
                   <th>Excluir</th>
                 </tr>
                 <?
+                  $filtroMae = '';
+                  if ($mae !== '') {
+                    $maeSelecionada = DBRead('animais', "WHERE nome = '" . DBEscape($mae) . "'");
+                    $terceiroMae = 0;
+                    if (empty($maeSelecionada[0]['id'])) {
+                      $maeSelecionada = DBRead('terceiros', "WHERE nome = '" . DBEscape($mae) . "'");
+                      $terceiroMae = 1;
+                    }
+                    $idMaeSelecionada = (int)($maeSelecionada[0]['id'] ?? 0);
+                    $filtroMae = " AND id_mae = '$idMaeSelecionada' AND terceiro_mae = '$terceiroMae'";
+                  }
                   $pai_ = DBRead('animais', "WHERE nome = '" . DBEscape($pai) . "'");
                   if(!empty($pai_[0]['id'])){
                     $id_macho = (int)($pai_[0]['id'] ?? 0);
-                    $lote = $carregarLotesTe("WHERE id_pai = '$id_macho' AND terceiro_pai = '0'");
+                    $lote = $carregarLotesTe("WHERE id_pai = '$id_macho' AND terceiro_pai = '0'" . $filtroMae);
                   }else{
                     $pai_ = DBRead('terceiros', "WHERE nome = '" . DBEscape($pai) . "'");
                     $id_macho = (int)($pai_[0]['id'] ?? 0);
-                    $lote = $carregarLotesTe("WHERE id_pai = '$id_macho' AND terceiro_pai = '1'");
+                    $lote = $carregarLotesTe("WHERE id_pai = '$id_macho' AND terceiro_pai = '1'" . $filtroMae);
                   }
 
 

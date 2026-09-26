@@ -1,0 +1,63 @@
+.sob-confirmacao-exclusao .modal-dialog {
+  width: 440px;
+  max-width: calc(100vw - 32px);
+  margin: 10vh auto;
+}
+.sob-confirmacao-exclusao .modal-content { border: 0; }
+
+.sob-confirmacao-exclusao .modal-content {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, .22);
+  padding: 28px;
+  color: #374151;
+}
+.sob-confirmacao-exclusao .modal-content .fechar-confirmacao {
+  position: absolute;
+  top: 14px;
+  right: 16px;
+  border: 0;
+  background: transparent;
+  color: #788391;
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+}
+.sob-confirmacao-exclusao .modal-content .icone-confirmacao {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: #fef2f2;
+  color: #dc4545;
+  font-size: 23px;
+  margin-bottom: 18px;
+}
+.sob-confirmacao-exclusao .modal-content h3 {
+  margin: 0 0 10px;
+  font-size: 20px;
+  font-weight: 600;
+}
+.sob-confirmacao-exclusao .modal-content p {
+  color: #6b7280;
+  line-height: 1.6;
+  margin-bottom: 18px;
+}
+.sob-confirmacao-exclusao .modal-content .animal-confirmacao {
+  padding: 12px 14px;
+  background: #f7f8fa;
+  border-radius: 7px;
+  margin-bottom: 24px;
+  overflow-wrap: anywhere;
+}
+.sob-confirmacao-exclusao .modal-content .acoes-confirmacao {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+.sob-confirmacao-exclusao .modal-content .btn {
+  border-radius: 6px;
+  padding: 9px 20px;
+}

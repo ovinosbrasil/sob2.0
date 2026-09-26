@@ -1,574 +1,155 @@
-<?
-function addDayIntoDate($date,$days) {
-     $thisyear = substr ( $date, 0, 4 );
-     $thismonth = substr ( $date, 4, 2 );
-     $thisday =  substr ( $date, 6, 2 );
-     $nextdate = mktime ( 0, 0, 0, $thismonth, $thisday + $days, $thisyear );
-     return strftime("%Y%m%d", $nextdate);
+<?php
+require_once __DIR__ . '/_filtros_rebanho.php';
+$filtros = filtrosRebanho($_GET);
+list($fonte, $condicao) = fonteRebanho($filtros);
+$contagem = DBRead($fonte, $condicao, 'COUNT(*) AS total');
+$totalAnimais = (int)($contagem[0]['total'] ?? 0);
+$porPagina = filter_var($_GET['por_pagina'] ?? 10, FILTER_VALIDATE_INT);
+if (!in_array($porPagina, array(10, 20, 50, 100), true)) {
+    $porPagina = 10;
 }
-?>
-
-<script type="text/javascript">
-function atualizar(filtro){
-    window.location.href = "geral.php?pg=lista_rebanho&filtro="+filtro;
-}
-
-function atualizar2(sexo){
-    window.location.href = "geral.php?pg=lista_rebanho&filtro=Sexo&sexo="+sexo;
-}
-</script>
-
-<?
-$filtro = $_GET['filtro'] ?? 'Todos';
-if (!in_array($filtro, ['Todos', 'Rebanho', 'Sexo', 'Reprodutores', 'Matrizes'], true)) {
-  $filtro = 'Todos';
-}
-$sexo = $_GET['sexo'] ?? '';
-if (!in_array($sexo, ['', 'Macho', 'Fêmea'], true)) { $sexo = ''; }
-$tabelaContagem = $filtro === 'Reprodutores' ? 'reprodutor' : ($filtro === 'Matrizes' ? 'matriz' : 'animais');
-$condicaoContagem = $filtro === 'Rebanho' ? "WHERE status = '0'" : ($filtro === 'Sexo' ? "WHERE status = '0' AND sexo = '$sexo'" : '');
-$contagem = DBRead($tabelaContagem, $condicaoContagem, 'COUNT(*) AS total');
-$qtd_pag = (int)ceil((int)($contagem[0]['total'] ?? 0) / 40);
+$qtd_pag = (int)ceil($totalAnimais / $porPagina);
 $paginaInformada = filter_var($_GET['pag'] ?? 0, FILTER_VALIDATE_INT);
 $pagina = min(max(0, $paginaInformada === false ? 0 : $paginaInformada), max(0, $qtd_pag - 1));
-$loop = $pagina * 40;
-$urlPagina = 'geral.php?pg=lista_rebanho&amp;filtro=' . rawurlencode($filtro) . '&amp;sexo=' . rawurlencode($sexo);
+$loop = $pagina * $porPagina;
+$animais = DBRead($fonte, "$condicao ORDER BY id DESC, origem ASC LIMIT $loop,$porPagina") ?: array();
+$parametros = htmlspecialchars(http_build_query($filtros), ENT_QUOTES, 'UTF-8');
+$urlPagina = 'geral.php?pg=lista_rebanho&amp;' . $parametros . '&amp;por_pagina=' . $porPagina;
 ?>
-
-
 <section class="content-header">
-  <h1>
-    Rebanho
-  </h1>
+  <h1>Rebanho</h1>
   <ol class="breadcrumb">
     <li><a href="#"><i class="fa fa-github-alt"></i> Animais</a></li>
     <li><a href="#">Rebanho</a></li>
   </ol>
 </section>
-
-  <!-- Main content -->
-  <section class="content">
-    <div class="row">
-      <div class="col-md-3">
-				<div class="box box-success">
-          <!-- /.box-header -->
-          <div class="box-body">
-
-            <div class="form-group">
-                <label for="exampleInputPassword1">Filtro<span style="color:#F00;">*</span></label>
-                <select class="form-control select" id="filtro" name="filtro" onchange="atualizar(this.value)">
-                  <option value="<?=$filtro?>"><?=$filtro?></option>
-                  <option></option>
-                  <option value="Todos">Todos</option>
-                  <option value="Rebanho">Rebanho</option>
-                  <option value="Sexo">Sexo</option>
-                  <option value="Reprodutores">Reprodutores</option>
-                  <option value="Matrizes">Matrizes</option>
-                </select>
-            </div>
-
-
-
-<? if($filtro == 'Sexo'){ ?>
-  <div class="form-group">
-      <label for="exampleInputPassword1">Sexo<span style="color:#F00;">*</span></label>
-      <select class="form-control select" id="filtro" name="filtro" onchange="atualizar2(this.value)">
-        <? if($sexo == ''){?> <option value="">Selecionar</option> <? }else{ ?>
-        <option value="<?=$sexo?>"><?=$sexo?></option> <? } ?>
-        <option></option>
-        <option value="Macho">Macho</option>
-        <option value="Fêmea">Fêmea</option>
-      </select>
-      </div>
-<? } ?>
-
-<? if(($filtro != 'Reprodutores') && ($filtro != 'Matrizes')){ ?>
-  <div class="form-group">
-    <a href="animal/_imprimir_rebanho.php?filtro=<?=$filtro?>&sexo=<?=$sexo?>" target="_new"> <button type="submit" class="btn btn-primary" style="margin-bottom:1%; width:100%;">Imprimir relatório</button> </a>
-  </div>
-<? } ?>
-
-      </div>
-    </div>
-      <!-- /.col -->
-</div>
-
-<?
-//TODOS ANIMAIS
-if($filtro == 'Todos'){ ?>
-    <div class="col-md-9">
-      <div class="box box-success">
-        <!-- /.box-header -->
+<section class="content">
+  <div class="row">
+    <div class="col-md-12">
+      <div class="box" style="border-top:0;">
         <div class="box-body">
-          <table class="table table-bordered" id="tabela_padrao">
-            <tr>
-              <th>Nº</th>
-              <th>Animal</th>
-              <th>Sexo</th>
-              <th>Nascimento</th>
-              <th>Idade</th>
-              <th>Entrada</th>
-              <th>tipo</th>
-            </tr>
-            <?
-            $x = $loop;
-            $animais = DBRead('animais', "ORDER BY id desc LIMIT $loop,40") ?: array();
-            if (!$animais) { ?>
-            <tr><td colspan="7" class="text-center">Nenhum animal encontrado para este filtro.</td></tr>
-            <?php }
-            foreach ($animais as $animais_){
-              $x++;
-              $data_atual = $animais_['data_de_nascimento'];
-              $data = '0';
-              $data['0'] = $data_atual['8'];
-              $data['1'] = $data_atual['9'];
-              $data['2'] = "/";
-              $data['3'] = $data_atual['5'];
-              $data['4'] = $data_atual['6'];
-              $data['5'] = "/";
-              $data['6'] = $data_atual['0'];
-              $data['7'] = $data_atual['1'];
-              $data['8'] = $data_atual['2'];
-              $data['9'] = $data_atual['3'];
-
-              list($dia, $mes, $ano) = explode('/', $data);
-              // Descobre que dia é hoje e retorna a unix timestamp
-              $hoje = mktime(0, 0, 0, date('m'), date('d'), date('Y'));
-              // Descobre a unix timestamp da data de nascimento do fulano
-              $nascimento = mktime( 0, 0, 0, $mes, $dia, $ano);
-              // Depois apenas fazemos o cálculo já citado :)
-              $anos = floor((((($hoje - $nascimento) / 60) / 60) / 24));
-              $idade_anos  = floor($anos /365);
-              $idade_meses = (($anos /365) - $idade_anos) * 12;
-              $idade_meses = (int)$idade_meses;
-              $idade_meses = round($idade_meses);
-              ?>
-
-              <? if($animais_['status'] > 0){ ?><tr style="color:red;"> <? }else{?><tr> <? } ?>
-              <td><?=$x?></td>
-              <td onclick="abrir_animal(<?=$animais_['id']?>)" style="cursor:pointer;" ><?=$animais_['nome']?></td>
-              <td><?=$animais_['sexo']?></td>
-              <td><?=$data?></td>
-              <td><?=$idade_anos?> Anos <?=$idade_meses?> Meses</td>
-              <td>
-              <?
-              if($animais_['entrada'] == 0){echo "Nascimento";}
-              if($animais_['entrada'] == 1){echo "Compra";}
-              ?>
-              </td>
-              <td><?=$animais_['tipo']?></td>
-              </tr>
-            <? } ?>
-            </table>
-
-            <?php if ($qtd_pag > 1) { ?>
-            <div class="box-footer clearfix">
-              <ul class="pagination pagination-sm no-margin pull-right">
-                <?php if ($pagina > 0) { ?>
-                <li><a href="<?=$urlPagina?>&amp;pag=<?=$pagina-1?>">&laquo;</a></li>
-                <?php } ?>
-                <?php for ($x = 0; $x < $qtd_pag; $x++) { ?>
-                  <?php if ($x === $pagina) { ?>
-                  <li class="active"><span><?=$x+1?></span></li>
-                  <?php } else { ?>
-                  <li><a href="<?=$urlPagina?>&amp;pag=<?=$x?>"><?=$x+1?></a></li>
-                  <?php } ?>
-                <?php } ?>
-                <?php if ($pagina < $qtd_pag - 1) { ?>
-                <li><a href="<?=$urlPagina?>&amp;pag=<?=$pagina+1?>">&raquo;</a></li>
-                <?php } ?>
-              </ul>
+          <form action="geral.php" method="get">
+            <div class="row">
+            <input type="hidden" name="pg" value="lista_rebanho">
+            <input type="hidden" name="por_pagina" value="<?=$porPagina?>">
+            <?php foreach (array(
+                'tipo' => array('Tipo', array('Todos' => 'Todos', 'Rebanho' => 'Rebanho', 'Terceiros' => 'Terceiros')),
+                'sexo' => array('Sexo', array('' => 'Todos', 'Macho' => 'Macho', 'Fêmea' => 'Fêmea')),
+                'situacao' => array('Situação', array('Todos' => 'Todos', 'Vivo' => 'Vivo', 'Morto' => 'Morto', 'Vendido' => 'Vendido')),
+            ) as $campo => $opcoes): ?>
+            <div class="form-group col-sm-3">
+              <label for="filtro-<?=$campo?>"><?=$opcoes[0]?></label>
+              <select class="form-control" id="filtro-<?=$campo?>" name="<?=$campo?>" onchange="this.form.submit()">
+                <?php foreach ($opcoes[1] as $valor => $rotulo): ?>
+                <option value="<?=$valor?>" <?=$filtros[$campo] === $valor ? 'selected' : ''?>><?=$rotulo?></option>
+                <?php endforeach; ?>
+              </select>
             </div>
-            <?php } ?>
+            <?php endforeach; ?>
+              <div class="form-group col-sm-3">
+                <label class="hidden-xs" aria-hidden="true">&nbsp;</label>
+                <div style="display:flex; gap:8px;">
+                  <a class="btn btn-primary" style="flex:1;" href="animal/_imprimir_rebanho.php?<?=$parametros?>" >Gerar PDF</a>
+                  <a class="btn btn-default" style="flex:1;" href="geral.php?pg=lista_rebanho">Limpar</a>
+                </div>
+              </div>
+            </div>
+            <noscript><button type="submit" class="btn btn-default">Filtrar</button></noscript>
+          </form>
+          <?php if ($filtros['tipo'] !== 'Rebanho'): ?>
+          <p class="help-block">Animais de terceiros não possuem situação registrada e aparecem somente na situação Todos.</p>
+          <?php endif; ?>
         </div>
-        <!-- /.box-body -->
       </div>
-    <!-- /.col -->
     </div>
-<? } //FIM TODOS ANIMAIS ?>
-
-
-<?
-//REBANHO
-if($filtro == 'Rebanho'){ ?>
-    <div class="col-md-9">
-      <div class="box box-success">
-        <!-- /.box-header -->
+    <div class="col-md-12">
+      <div class="box" style="border-top:0;">
         <div class="box-body">
-          <table class="table table-bordered" id="tabela_padrao">
-            <tr>
-              <th>Nº</th>
-              <th>Animal</th>
-              <th>Sexo</th>
-              <th>Nascimento</th>
-              <th>Idade</th>
-              <th>Entrada</th>
-              <th>tipo</th>
-            </tr>
-            <?
-            $x = $loop;
-            $animais = DBRead('animais', "WHERE status = '0' ORDER BY id desc LIMIT $loop,40") ?: array();
-            if (!$animais) { ?>
-            <tr><td colspan="7" class="text-center">Nenhum animal encontrado para este filtro.</td></tr>
-            <?php }
-            foreach ($animais as $animais_){
-              $x++;
-              $data_atual = $animais_['data_de_nascimento'];
-              $data = '0';
-              $data['0'] = $data_atual['8'];
-              $data['1'] = $data_atual['9'];
-              $data['2'] = "/";
-              $data['3'] = $data_atual['5'];
-              $data['4'] = $data_atual['6'];
-              $data['5'] = "/";
-              $data['6'] = $data_atual['0'];
-              $data['7'] = $data_atual['1'];
-              $data['8'] = $data_atual['2'];
-              $data['9'] = $data_atual['3'];
-
-              list($dia, $mes, $ano) = explode('/', $data);
-              // Descobre que dia é hoje e retorna a unix timestamp
-              $hoje = mktime(0, 0, 0, date('m'), date('d'), date('Y'));
-              // Descobre a unix timestamp da data de nascimento do fulano
-              $nascimento = mktime( 0, 0, 0, $mes, $dia, $ano);
-              // Depois apenas fazemos o cálculo já citado :)
-              $anos = floor((((($hoje - $nascimento) / 60) / 60) / 24));
-              $idade_anos  = floor($anos /365);
-              $idade_meses = (($anos /365) - $idade_anos) * 12;
-              $idade_meses = (int)$idade_meses;
-              $idade_meses = round($idade_meses);
-              ?>
-
-              <tr>
-              <td><?=$x?></td>
-              <td onclick="abrir_animal(<?=$animais_['id']?>)" style="cursor:pointer;" ><?=$animais_['nome']?></td>
-              <td><?=$animais_['sexo']?></td>
-              <td><?=$data?></td>
-              <td><?=$idade_anos?> Anos <?=$idade_meses?> Meses</td>
-              <td>
-              <?
-              if($animais_['entrada'] == 0){echo "Nascimento";}
-              if($animais_['entrada'] == 1){echo "Compra";}
-              ?>
-              </td>
-              <td><?=$animais_['tipo']?></td>
-              </tr>
-            <? } ?>
+          <div class="table-responsive">
+            <table class="table table-bordered table-striped">
+              <thead><tr><th style="width:1%; white-space:nowrap;">Nº</th><th>Animal</th><th>Sexo</th><th>Nascimento</th><th>Idade</th><th>Entrada</th><th>Tipo</th><th style="width:1%; white-space:nowrap;"><span class="sr-only">Ações</span></th></tr></thead>
+              <tbody>
+                <?php if (!$animais): ?>
+                <tr><td colspan="8" class="text-center">Nenhum animal encontrado para estes filtros.</td></tr>
+                <?php endif; ?>
+                <?php foreach ($animais as $indice => $animal):
+                    list($nascimento, $idade) = nascimentoRebanho($animal['data_de_nascimento']);
+                    $abrir = $animal['origem'] === 'Terceiros' ? 'abrir_terceiro' : 'abrir_animal';
+                    $situacao = array(0 => 'Rebanho', 1 => 'Morto', 2 => 'Vendido', 3 => 'Empréstimo', 4 => 'Doação', 5 => 'Abate');
+                ?>
+                <tr<?=(int)$animal['status'] === 1 ? ' style="color:red;"' : ((int)$animal['status'] === 2 ? ' style="color:green;"' : '')?>>
+                  <td><?=$loop + $indice + 1?></td>
+                  <td onclick="<?=$abrir?>('<?=(int)$animal['id']?>')" style="cursor:pointer;"><?=htmlspecialchars($animal['nome'], ENT_QUOTES, 'UTF-8')?> (<?=$animal['origem'] === 'Terceiros' ? 'Terceiro' : ($animal['status'] === null ? '--' : ($situacao[$animal['status']] ?? '--'))?>)</td>
+                  <td><?=htmlspecialchars($animal['sexo'], ENT_QUOTES, 'UTF-8')?></td>
+                  <td><?=$nascimento?></td>
+                  <td><?=$idade?></td>
+                  <td><?=$animal['entrada'] === null ? '--' : (array(0 => 'Nascimento', 1 => 'Compra')[$animal['entrada']] ?? '--')?></td>
+                  <td><?=htmlspecialchars((string)($animal['tipo'] ?? '--'), ENT_QUOTES, 'UTF-8')?></td>
+                  <td style="white-space:nowrap;">
+                    <button type="button" class="text-primary" style="background:none; border:0; padding:0; margin-right:10px; cursor:pointer;" onclick="<?=$abrir?>('<?=(int)$animal['id']?>')" title="Abrir dados do animal" aria-label="Abrir dados do animal"><i class="fa fa-search" aria-hidden="true"></i></button>
+                    <button type="button" class="text-danger" style="background:none; border:0; padding:0; cursor:pointer;" data-id="<?=(int)$animal['id']?>" data-origem="<?=$animal['origem']?>" data-nome="<?=htmlspecialchars($animal['nome'], ENT_QUOTES, 'UTF-8')?>" onclick="confirmarExclusaoRebanho(this)" title="Excluir animal" aria-label="Excluir animal"><i class="fa fa-trash-o" aria-hidden="true"></i></button>
+                  </td>
+                </tr>
+                <?php endforeach; ?>
+              </tbody>
             </table>
-
-            <?php if ($qtd_pag > 1) { ?>
-            <div class="box-footer clearfix">
-              <ul class="pagination pagination-sm no-margin pull-right">
-                <?php if ($pagina > 0) { ?>
-                <li><a href="<?=$urlPagina?>&amp;pag=<?=$pagina-1?>">&laquo;</a></li>
-                <?php } ?>
-                <?php for ($x = 0; $x < $qtd_pag; $x++) { ?>
-                  <?php if ($x === $pagina) { ?>
-                  <li class="active"><span><?=$x+1?></span></li>
-                  <?php } else { ?>
-                  <li><a href="<?=$urlPagina?>&amp;pag=<?=$x?>"><?=$x+1?></a></li>
-                  <?php } ?>
-                <?php } ?>
-                <?php if ($pagina < $qtd_pag - 1) { ?>
-                <li><a href="<?=$urlPagina?>&amp;pag=<?=$pagina+1?>">&raquo;</a></li>
-                <?php } ?>
-              </ul>
-            </div>
-            <?php } ?>
-        </div>
-        <!-- /.box-body -->
-      </div>
-    <!-- /.col -->
-    </div>
-<? } //FIM REBANHO ?>
-
-
-<?
-//TODOS SEXO
-if($filtro == 'Sexo'){ ?>
-    <div class="col-md-9">
-      <div class="box box-success">
-        <!-- /.box-header -->
-        <div class="box-body">
-          <table class="table table-bordered" id="tabela_padrao">
-            <tr>
-              <th>Nº</th>
-              <th>Animal</th>
-              <th>Sexo</th>
-              <th>Nascimento</th>
-              <th>Idade</th>
-              <th>Entrada</th>
-              <th>tipo</th>
-            </tr>
-            <?
-            $x = $loop;
-            $animais = DBRead('animais', "WHERE status = '0' AND sexo = '$sexo' ORDER BY id desc LIMIT $loop,40") ?: array();
-            if (!$animais) { ?>
-            <tr><td colspan="7" class="text-center">Nenhum animal encontrado para este filtro.</td></tr>
-            <?php }
-            foreach ($animais as $animais_){
-              $x++;
-              $data_atual = $animais_['data_de_nascimento'];
-              $data = '0';
-              $data['0'] = $data_atual['8'];
-              $data['1'] = $data_atual['9'];
-              $data['2'] = "/";
-              $data['3'] = $data_atual['5'];
-              $data['4'] = $data_atual['6'];
-              $data['5'] = "/";
-              $data['6'] = $data_atual['0'];
-              $data['7'] = $data_atual['1'];
-              $data['8'] = $data_atual['2'];
-              $data['9'] = $data_atual['3'];
-
-              list($dia, $mes, $ano) = explode('/', $data);
-              // Descobre que dia é hoje e retorna a unix timestamp
-              $hoje = mktime(0, 0, 0, date('m'), date('d'), date('Y'));
-              // Descobre a unix timestamp da data de nascimento do fulano
-              $nascimento = mktime( 0, 0, 0, $mes, $dia, $ano);
-              // Depois apenas fazemos o cálculo já citado :)
-              $anos = floor((((($hoje - $nascimento) / 60) / 60) / 24));
-              $idade_anos  = floor($anos /365);
-              $idade_meses = (($anos /365) - $idade_anos) * 12;
-              $idade_meses = (int)$idade_meses;
-              $idade_meses = round($idade_meses);
-
+          </div>
+          <div class="box-footer" style="display:flex; flex-wrap:wrap; align-items:center; justify-content:center; gap:16px;">
+            <form action="geral.php" method="get" style="display:flex; align-items:center; gap:8px; margin:0;">
+              <input type="hidden" name="pg" value="lista_rebanho">
+              <?php foreach ($filtros as $campo => $valor): ?>
+              <input type="hidden" name="<?=$campo?>" value="<?=htmlspecialchars($valor, ENT_QUOTES, 'UTF-8')?>">
+              <?php endforeach; ?>
+              <label for="por-pagina" style="margin:0; font-weight:normal;">Por página</label>
+              <select id="por-pagina" name="por_pagina" class="form-control input-sm" style="width:auto;" onchange="this.form.submit()">
+                <?php foreach (array(10, 20, 50, 100) as $quantidade): ?>
+                <option value="<?=$quantidade?>" <?=$porPagina === $quantidade ? 'selected' : ''?>><?=$quantidade?></option>
+                <?php endforeach; ?>
+              </select>
+              <noscript><button type="submit" class="btn btn-default btn-sm">Aplicar</button></noscript>
+            </form>
+            <span class="text-muted">
+              Exibindo <?=$totalAnimais ? $loop + 1 : 0?> a <?=min($loop + $porPagina, $totalAnimais)?> de <?=$totalAnimais?> animais
+            </span>
+            <?php if ($qtd_pag > 1):
+                $paginasVisiveis = array(0, $qtd_pag - 1);
+                $inicioPaginas = max(0, min($pagina - 1, $qtd_pag - 3));
+                $fimPaginas = min($qtd_pag - 1, max($pagina + 1, 2));
+                for ($numero = $inicioPaginas; $numero <= $fimPaginas; $numero++) {
+                    $paginasVisiveis[] = $numero;
+                }
+                $paginasVisiveis = array_unique($paginasVisiveis);
+                sort($paginasVisiveis);
+                $anterior = -1;
             ?>
-            <? if($animais_['status'] > 0){ ?><tr style="color:red;"> <? }else{?><tr> <? } ?>
-              <td><?=$x?></td>
-              <td onclick="abrir_animal(<?=$animais_['id']?>)" style="cursor:pointer;" ><?=$animais_['nome']?></td>
-              <td><?=$animais_['sexo']?></td>
-              <td><?=$data?></td>
-              <td><?=$idade_anos?> Anos <?=$idade_meses?> Meses</td>
-              <td>
-              <?
-              if($animais_['entrada'] == 0){echo "Nascimento";}
-              if($animais_['entrada'] == 1){echo "Compra";}
-              ?>
-              </td>
-              <td><?=$animais_['tipo']?></td>
-              </tr>
-            <? } ?>
-            </table>
-
-            <?php if ($qtd_pag > 1) { ?>
-            <div class="box-footer clearfix">
-              <ul class="pagination pagination-sm no-margin pull-right">
-                <?php if ($pagina > 0) { ?>
-                <li><a href="<?=$urlPagina?>&amp;pag=<?=$pagina-1?>">&laquo;</a></li>
-                <?php } ?>
-                <?php for ($x = 0; $x < $qtd_pag; $x++) { ?>
-                  <?php if ($x === $pagina) { ?>
-                  <li class="active"><span><?=$x+1?></span></li>
-                  <?php } else { ?>
-                  <li><a href="<?=$urlPagina?>&amp;pag=<?=$x?>"><?=$x+1?></a></li>
-                  <?php } ?>
-                <?php } ?>
-                <?php if ($pagina < $qtd_pag - 1) { ?>
-                <li><a href="<?=$urlPagina?>&amp;pag=<?=$pagina+1?>">&raquo;</a></li>
-                <?php } ?>
+            <nav aria-label="Paginação do rebanho">
+              <ul class="pagination pagination-sm no-margin">
+                <?php if ($pagina > 0): ?>
+                <li><a href="<?=$urlPagina?>&amp;pag=<?=$pagina-1?>" aria-label="Página anterior" title="Página anterior" rel="prev">&laquo;</a></li>
+                <?php else: ?>
+                <li class="disabled"><span aria-label="Página anterior" aria-disabled="true">&laquo;</span></li>
+                <?php endif; ?>
+                <?php foreach ($paginasVisiveis as $numero): ?>
+                  <?php if ($anterior >= 0 && $numero > $anterior + 1): ?>
+                  <li class="disabled"><span aria-hidden="true">&hellip;</span></li>
+                  <?php endif; ?>
+                  <?php if ($numero === $pagina): ?>
+                  <li class="active"><span aria-current="page" aria-label="Página <?=$numero+1?>"><?=$numero+1?></span></li>
+                  <?php else: ?>
+                  <li><a href="<?=$urlPagina?>&amp;pag=<?=$numero?>" aria-label="Página <?=$numero+1?>"><?=$numero+1?></a></li>
+                  <?php endif; ?>
+                <?php $anterior = $numero; endforeach; ?>
+                <?php if ($pagina < $qtd_pag - 1): ?>
+                <li><a href="<?=$urlPagina?>&amp;pag=<?=$pagina+1?>" aria-label="Próxima página" title="Próxima página" rel="next">&raquo;</a></li>
+                <?php else: ?>
+                <li class="disabled"><span aria-label="Próxima página" aria-disabled="true">&raquo;</span></li>
+                <?php endif; ?>
               </ul>
-            </div>
-            <?php } ?>
+            </nav>
+            <?php endif; ?>
+          </div>
         </div>
-        <!-- /.box-body -->
       </div>
-    <!-- /.col -->
     </div>
-<? } //FIM SEXO ?>
-
-
-<?
-//REPRODUTORES
-if($filtro == 'Reprodutores'){?>
-    <div class="col-md-9">
-      <div class="box box-success">
-        <!-- /.box-header -->
-        <div class="box-body">
-          <table class="table table-bordered" id="tabela_padrao">
-            <tr>
-              <th>Nº</th>
-              <th>Animal</th>
-              <th>Nascimento</th>
-              <th>Idade</th>
-              <th>Entrada</th>
-              <th>tipo</th>
-              <th>Crias</th>
-            </tr>
-            <?
-            $x = $loop;
-            $reprodutor = DBRead('reprodutor', "ORDER BY id_macho desc LIMIT $loop,40") ?: array();
-            if (!$reprodutor) { ?>
-            <tr><td colspan="7" class="text-center">Nenhum animal encontrado para este filtro.</td></tr>
-            <?php }
-            foreach ($reprodutor as $reprodutor_){
-            $id_animal = $reprodutor_['id_macho'];
-            $animal = DBRead('animais',"WHERE id = '$id_animal'");
-              $x++;
-              $data_atual = $animal[0]['data_de_nascimento'];
-              $data = '0';
-              $data['0'] = $data_atual['8'];
-              $data['1'] = $data_atual['9'];
-              $data['2'] = "/";
-              $data['3'] = $data_atual['5'];
-              $data['4'] = $data_atual['6'];
-              $data['5'] = "/";
-              $data['6'] = $data_atual['0'];
-              $data['7'] = $data_atual['1'];
-              $data['8'] = $data_atual['2'];
-              $data['9'] = $data_atual['3'];
-
-              list($dia, $mes, $ano) = explode('/', $data);
-              // Descobre que dia é hoje e retorna a unix timestamp
-              $hoje = mktime(0, 0, 0, date('m'), date('d'), date('Y'));
-              // Descobre a unix timestamp da data de nascimento do fulano
-              $nascimento = mktime( 0, 0, 0, $mes, $dia, $ano);
-              // Depois apenas fazemos o cálculo já citado :)
-              $anos = floor((((($hoje - $nascimento) / 60) / 60) / 24));
-              $idade_anos  = floor($anos /365);
-              $idade_meses = (($anos /365) - $idade_anos) * 12;
-              $idade_meses = (int)$idade_meses;
-              $idade_meses = round($idade_meses);
-
-            ?>
-              <? if($animal[0]['status'] > 0){ ?><tr style="color:red;"> <? }else{?><tr> <? } ?>
-              <td><?=$x?></td>
-              <td onclick="abrir_animal(<?=$animal[0]['id']?>)" style="cursor:pointer;" ><?=$animal[0]['nome']?></td>
-              <td><?=$data?></td>
-              <td><?=$idade_anos?> Anos <?=$idade_meses?> Meses</td>
-              <td>
-              <?
-              if($animal[0]['entrada'] == 0){echo "Nascimento";}
-              if($animal[0]['entrada'] == 1){echo "Compra";}
-              ?>
-              </td>
-              <td><?=$animal[0]['tipo']?></td>
-              <td><?=$reprodutor_['qtd_crias']?></td>
-              </tr>
-            <? } ?>
-            </table>
-
-            <?php if ($qtd_pag > 1) { ?>
-            <div class="box-footer clearfix">
-              <ul class="pagination pagination-sm no-margin pull-right">
-                <?php if ($pagina > 0) { ?>
-                <li><a href="<?=$urlPagina?>&amp;pag=<?=$pagina-1?>">&laquo;</a></li>
-                <?php } ?>
-                <?php for ($x = 0; $x < $qtd_pag; $x++) { ?>
-                  <?php if ($x === $pagina) { ?>
-                  <li class="active"><span><?=$x+1?></span></li>
-                  <?php } else { ?>
-                  <li><a href="<?=$urlPagina?>&amp;pag=<?=$x?>"><?=$x+1?></a></li>
-                  <?php } ?>
-                <?php } ?>
-                <?php if ($pagina < $qtd_pag - 1) { ?>
-                <li><a href="<?=$urlPagina?>&amp;pag=<?=$pagina+1?>">&raquo;</a></li>
-                <?php } ?>
-              </ul>
-            </div>
-            <?php } ?>
-        </div>
-        <!-- /.box-body -->
-      </div>
-    <!-- /.col -->
-    </div>
-<? } //FIM REPRODUTORES ?>
-
-<?
-//MATRIZES
-if($filtro == 'Matrizes'){?>
-    <div class="col-md-9">
-      <div class="box box-success">
-        <!-- /.box-header -->
-        <div class="box-body">
-          <table class="table table-bordered" id="tabela_padrao">
-            <tr>
-              <th>Nº</th>
-              <th>Animal</th>
-              <th>Nascimento</th>
-              <th>Idade</th>
-              <th>Entrada</th>
-              <th>tipo</th>
-              <th>Crias</th>
-            </tr>
-            <?
-            $x = $loop;
-            $matriz = DBRead('matriz', "ORDER BY id_femea desc LIMIT $loop,40") ?: array();
-            if (!$matriz) { ?>
-            <tr><td colspan="7" class="text-center">Nenhum animal encontrado para este filtro.</td></tr>
-            <?php }
-            foreach ($matriz as $matriz_){
-            $id_animal = $matriz_['id_femea'];
-            $animal = DBRead('animais',"WHERE id = '$id_animal'");
-              $x++;
-              $data_atual = $animal[0]['data_de_nascimento'];
-              $data = '0';
-              $data['0'] = $data_atual['8'];
-              $data['1'] = $data_atual['9'];
-              $data['2'] = "/";
-              $data['3'] = $data_atual['5'];
-              $data['4'] = $data_atual['6'];
-              $data['5'] = "/";
-              $data['6'] = $data_atual['0'];
-              $data['7'] = $data_atual['1'];
-              $data['8'] = $data_atual['2'];
-              $data['9'] = $data_atual['3'];
-
-              list($dia, $mes, $ano) = explode('/', $data);
-              // Descobre que dia é hoje e retorna a unix timestamp
-              $hoje = mktime(0, 0, 0, date('m'), date('d'), date('Y'));
-              // Descobre a unix timestamp da data de nascimento do fulano
-              $nascimento = mktime( 0, 0, 0, $mes, $dia, $ano);
-              // Depois apenas fazemos o cálculo já citado :)
-              $anos = floor((((($hoje - $nascimento) / 60) / 60) / 24));
-              $idade_anos  = floor($anos /365);
-              $idade_meses = (($anos /365) - $idade_anos) * 12;
-              $idade_meses = (int)$idade_meses;
-              $idade_meses = round($idade_meses);
-
-            ?>
-            <? if($animal[0]['status'] > 0){ ?><tr style="color:red;"> <? }else{?><tr> <? } ?>
-              <td><?=$x?></td>
-              <td onclick="abrir_animal(<?=$animal[0]['id']?>)" style="cursor:pointer;" ><?=$animal[0]['nome']?></td>
-              <td><?=$data?></td>
-              <td><?=$idade_anos?> Anos <?=$idade_meses?> Meses</td>
-              <td>
-              <?
-              if($animal[0]['entrada'] == 0){echo "Nascimento";}
-              if($animal[0]['entrada'] == 1){echo "Compra";}
-              ?>
-              </td>
-              <td><?=$animal[0]['tipo']?></td>
-              <td><?=$matriz_['qtd_crias']?></td>
-              </tr>
-            <? } ?>
-            </table>
-
-            <?php if ($qtd_pag > 1) { ?>
-            <div class="box-footer clearfix">
-              <ul class="pagination pagination-sm no-margin pull-right">
-                <?php if ($pagina > 0) { ?>
-                <li><a href="<?=$urlPagina?>&amp;pag=<?=$pagina-1?>">&laquo;</a></li>
-                <?php } ?>
-                <?php for ($x = 0; $x < $qtd_pag; $x++) { ?>
-                  <?php if ($x === $pagina) { ?>
-                  <li class="active"><span><?=$x+1?></span></li>
-                  <?php } else { ?>
-                  <li><a href="<?=$urlPagina?>&amp;pag=<?=$x?>"><?=$x+1?></a></li>
-                  <?php } ?>
-                <?php } ?>
-                <?php if ($pagina < $qtd_pag - 1) { ?>
-                <li><a href="<?=$urlPagina?>&amp;pag=<?=$pagina+1?>">&raquo;</a></li>
-                <?php } ?>
-              </ul>
-            </div>
-            <?php } ?>
-        </div>
-        <!-- /.box-body -->
-      </div>
-    <!-- /.col -->
-    </div>
-<? } //FIM MATRIZES ?>
   </div>
 </section>
-  <!-- /.content -->

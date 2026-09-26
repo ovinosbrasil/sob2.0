@@ -143,7 +143,9 @@ PP.onreadystatechange = function() {
 if (PP.readyState == 4) {
 resposta = PP.responseText;
 document.getElementById("lista_mae").innerHTML = resposta;
-document.getElementById("lista_mae").style.display = 'block';
+if (document.activeElement === document.getElementById("mae")) {
+  document.getElementById("lista_mae").style.display = 'block';
+}
 }
 }
 PP.send(null);
@@ -168,15 +170,40 @@ function linkar_mae_te(nome){
 </section>
 
 <section class="content">
+  <div class="box" style="border-top:0;" aria-labelledby="titulo-dicas-cadastro">
+    <div class="box-header with-border">
+      <h3 class="box-title" id="titulo-dicas-cadastro"><i class="fa fa-lightbulb-o text-muted" aria-hidden="true"></i> Dicas</h3>
+    </div>
+    <div class="box-body">
+      <div class="row">
+        <div class="col-sm-6 col-md-3">
+          <h4 style="font-size:14px; margin-top:5px;"><strong>Rebanho</strong></h4>
+          <p class="text-muted">Utilize para cadastrar animais que já existem na fazenda.</p>
+        </div>
+        <div class="col-sm-6 col-md-3">
+          <h4 style="font-size:14px; margin-top:5px;"><strong>Compra</strong></h4>
+          <p class="text-muted">Ao comprar um animal, utilize este tipo para gerar o registro financeiro da compra.</p>
+        </div>
+        <div class="col-sm-6 col-md-3">
+          <h4 style="font-size:14px; margin-top:5px;"><strong>Nascimento</strong></h4>
+          <p class="text-muted">Utilize para registrar nascimentos. Os pais precisam estar vinculados a um lote de reprodução: monta natural, inseminação artificial ou transplante de embriões.</p>
+        </div>
+        <div class="col-sm-6 col-md-3">
+          <h4 style="font-size:14px; margin-top:5px;"><strong>Terceiros</strong></h4>
+          <p class="text-muted">Utilize para cadastrar animais que não pertencem ao seu rebanho.</p>
+        </div>
+      </div>
+    </div>
+  </div>
   <div class="row">
     <!-- left column -->
     <div class="col-md-12">
       <!-- general form elements -->
-      <div class="box box-success">
+      <div class="box" style="border-top:0;">
         <!-- form start -->
           <div class="box-body">
 
-          <div class="col-md-3" style="margin-left:-10px;">
+          <div class="row"><div class="col-sm-6 col-md-4">
             <div class="form-group">
               <label for="exampleInputEmail1">Tipo de cadastro<span style="color:#F00;">*</span></label>
               <select class="form-control select" id="tipo_cadastro" name="tipo_cadastro" onchange="atualizar(this.value)">
@@ -192,33 +219,33 @@ function linkar_mae_te(nome){
                 <option value="4">Terceiros</option>
               </select>
             </div>
-         </div>
+         </div></div>
 
 <? if($tipo == 1){ ?>
 <!-- FIM COMPRA -->
-  <form role="form" action="animal/cadastrar/_compra.php" method="post" onsubmit="return ativar_compra()">
-        <div class="col-md-12" style="margin-left:-30px;">
-           <div class="col-md-3">
-             <!-- general form elements -->
-             <div class="box-body">
-
-               <div class="form-group">
-                 <label for="exampleInputPassword1">Nome<span style="color:#F00;">*</span></label>
+  <form role="form" action="animal/cadastrar/_compra.php" method="post" onsubmit="return ativar_compra()" style="clear:both;">
+    <div class="row" style="display:flex; flex-wrap:wrap;">
+      <div class="col-sm-6 col-md-4">
+<div class="form-group">
+                 <label for="nome_animal">Nome<span style="color:#F00;">*</span></label>
                  <input type="text" class="form-control" id="nome_animal" name="nome_animal">
                </div>
-
-               <div class="form-group">
-                 <label for="exampleInputPassword1">Tatuagem<span style="color:#F00;">*</span></label>
+      </div>
+      <div class="col-sm-6 col-md-4">
+<div class="form-group">
+                 <label for="tatuagem">Tatuagem<span style="color:#F00;">*</span></label>
                  <input type="text" class="form-control" id="tatuagem" name="tatuagem" >
                </div>
-
-               <div class="form-group">
-                 <label for="exampleInputPassword1">FBB</label>
+      </div>
+      <div class="col-sm-6 col-md-4">
+<div class="form-group">
+                 <label for="fbb">FBB</label>
                  <input type="text" class="form-control" id="fbb" name="fbb" value="">
                </div>
-
-               <div class="form-group">
-                 <label for="exampleInputPassword1">Sexo<span style="color:#F00;">*</span></label>
+      </div>
+      <div class="col-sm-6 col-md-4">
+<div class="form-group">
+                 <label for="sexo">Sexo<span style="color:#F00;">*</span></label>
                  <select class="form-control select" id="sexo" name="sexo" onchange="lista_colaborador(this.value)">
                  <option value="">Selecionar</option>
                    <option></option>
@@ -226,72 +253,10 @@ function linkar_mae_te(nome){
                    <option value="Fêmea">Fêmea</option>
                  </select>
                </div>
-
-             </div>
-           </div>
-
-           <div class="col-md-3">
-             <!-- general form elements -->
-             <div class="box-body">
-               <div class="form-group" >
-                 <label for="exampleInputPassword1">Data de Nascimento<span style="color:#F00;">*</span></label>
-                 <div class="input-group date">
-                   <div class="input-group-addon">
-                     <i class="fa fa-calendar"></i>
-                   </div>
-                   <input type="text" class="form-control pull-right" id="data_nascimento" name="data_de_nascimento" >
-                 </div>
-               </div>
-
-               <div class="form-group">
-                 <label for="exampleInputPassword1">Data de entrada no rebanho<span style="color:#F00;">*</span></label>
-                 <div class="input-group date">
-                   <div class="input-group-addon">
-                     <i class="fa fa-calendar"></i>
-                   </div>
-                   <input type="text" class="form-control pull-right" id="data_entrada" name="data_de_entrada">
-                 </div>
-               </div>
-
-               <div class="form-group">
-                 <label for="exampleInputPassword1">Observações</label>
-                 <textarea  class="form-control" name="observacoes" id="observacoes" cols="45" rows="5" style="height:105px; width:100%;"></textarea>
-               </div>
-
-             </div>
-           </div>
-
-
-           <div class="col-md-3">
-             <!-- general form elements -->
-             <div class="box-body">
-               <div class="form-group">
-                 <label for="exampleInputPassword1">Pai<span style="color:#F00;">*</span>
-                   <a href="geral.php?pg=cadastrar_animal&tipo=2" target="_blank"><span style="font-size:11px; color:green;">Novo</span> </a></label>
-                 <input type="text" class="form-control" id="pai" name="pai" value="" onKeyUp="pesquisar_pai(this.value)">
-                 <div id="lista_pai" style="border-style:solid; border-width:thin; height:auto; border-color: #bab1b4; position:absolute; z-index:99999; background:#fff; width:150%; display:none; margin-top:1%;">
-                 </div>
-               </div>
-
-               <div class="form-group">
-                 <label for="exampleInputPassword1">Mãe<span style="color:#F00;">*</span>
-                   <a href="geral.php?pg=cadastrar_animal&tipo=2" target="_blank"> <span style="font-size:11px; color:green;">Novo</span></a></label>
-                 <input type="text" class="form-control" id="mae" name="mae" value="" onKeyUp="pesquisar_mae(this.value)">
-                 <div id="lista_mae" style="border-style:solid; border-width:thin; height:auto; border-color: #bab1b4; position:absolute; z-index:99999; background:#fff; width:150%; display:none; margin-top:1%;">
-                 </div>
-               </div>
-
-               <div class="form-group">
-                 <button type="submit" class="btn btn-success" style="width:100%; margin-top:4%;">Cadastrar animal</button>
-               </div>
-             </div>
-           </div>
-
-           <div class="col-md-3">
-             <!-- general form elements -->
-             <div class="box-body">
-               <div class="form-group">
-                 <label for="exampleInputPassword1">Raça<span style="color:#F00;">*</span></label>
+      </div>
+      <div class="col-sm-6 col-md-4">
+<div class="form-group">
+                 <label for="raca">Raça<span style="color:#F00;">*</span></label>
                  <select class="form-control select" id="raca" name="raca">
                    <option value="<?=$user[0]['raca']?>"><?=$user[0]['raca']?></option>
                    <option></option>
@@ -302,45 +267,101 @@ function linkar_mae_te(nome){
                    <? } ?>
                  </select>
                </div>
-
-               <div class="form-group">
-                 <label for="exampleInputPassword1">Preço de compra<span style="color:#F00;">*</span></label>
-                 <input type="text" class="form-control" id="valor" name="valor">
+      </div>
+      <div class="col-sm-6 col-md-4">
+<div class="form-group" >
+                 <label for="data_nascimento">Data de Nascimento<span style="color:#F00;">*</span></label>
+                 <div class="input-group date">
+                   <div class="input-group-addon">
+                     <i class="fa fa-calendar"></i>
+                   </div>
+                   <input type="text" class="form-control pull-right" id="data_nascimento" name="data_de_nascimento" >
                  </div>
                </div>
-
-             </div>
-           </div>
-         </form>
+      </div>
+      <div class="col-sm-6 col-md-4">
+<div class="form-group">
+                 <label for="data_entrada">Data de entrada no rebanho<span style="color:#F00;">*</span></label>
+                 <div class="input-group date">
+                   <div class="input-group-addon">
+                     <i class="fa fa-calendar"></i>
+                   </div>
+                   <input type="text" class="form-control pull-right" id="data_entrada" name="data_de_entrada">
+                 </div>
+               </div>
+      </div>
+      <div class="col-sm-6 col-md-4">
+<div class="form-group" style="position:relative;">
+                 <label for="pai">Pai<span style="color:#F00;">*</span></label>
+      <div class="input-group">
+        <input type="text" class="form-control" id="pai" name="pai" value="" onKeyUp="pesquisar_pai(this.value)">
+        <span class="input-group-btn">
+          <a class="btn btn-success" href="geral.php?pg=cadastrar_animal&amp;tipo=2" target="_blank" rel="noopener" title="Cadastrar animal em nova aba">Novo</a>
+        </span>
+      </div>
+                 <div id="lista_pai" style="border-style:solid; border-width:thin; height:auto; border-color: #bab1b4; position:absolute; z-index:99999; background:#fff; width:100%; display:none; margin-top:1%;">
+                 </div>
+               </div>
+      </div>
+      <div class="col-sm-6 col-md-4">
+<div class="form-group" style="position:relative;">
+                 <label for="mae">Mãe<span style="color:#F00;">*</span></label>
+      <div class="input-group">
+        <input type="text" class="form-control" id="mae" name="mae" value="" onKeyUp="pesquisar_mae(this.value)">
+        <span class="input-group-btn">
+          <a class="btn btn-success" href="geral.php?pg=cadastrar_animal&amp;tipo=2" target="_blank" rel="noopener" title="Cadastrar animal em nova aba">Novo</a>
+        </span>
+      </div>
+                 <div id="lista_mae" style="border-style:solid; border-width:thin; height:auto; border-color: #bab1b4; position:absolute; z-index:99999; background:#fff; width:100%; display:none; margin-top:1%;">
+                 </div>
+               </div>
+      </div>
+      <div class="col-sm-6 col-md-4">
+<div class="form-group">
+                 <label for="valor">Preço de compra<span style="color:#F00;">*</span></label>
+                 <input type="text" class="form-control" id="valor" name="valor">
+                 </div>
+      </div>
+      <div class="col-sm-6 col-md-8">
+<div class="form-group">
+                 <label for="observacoes">Observações</label>
+                 <textarea  class="form-control" name="observacoes" id="observacoes" cols="45" rows="5" style="height:105px; width:100%;"></textarea>
+               </div>
+      </div>
+    </div>
+    <div class="text-right" style="margin-bottom:10px;">
+      <button type="submit" class="btn btn-success">Cadastrar animal</button>
+    </div>
+  </form>
 <? } ?>
 <!-- FIM COMPRA -->
 
 
 <? if($tipo == 2){ ?>
 <!-- REBANHO -->
-  <form role="form" action="animal/cadastrar/_rebanho.php" method="post" onsubmit="return ativar_rebanho()">
-        <div class="col-md-12" style="margin-left:-30px;">
-           <div class="col-md-3">
-             <!-- general form elements -->
-             <div class="box-body">
-
-               <div class="form-group">
-                 <label for="exampleInputPassword1">Nome<span style="color:#F00;">*</span></label>
+  <form role="form" action="animal/cadastrar/_rebanho.php" method="post" onsubmit="return ativar_rebanho()" style="clear:both;">
+    <div class="row" style="display:flex; flex-wrap:wrap;">
+      <div class="col-sm-6 col-md-4">
+<div class="form-group">
+                 <label for="nome_animal">Nome<span style="color:#F00;">*</span></label>
                  <input type="text" class="form-control" id="nome_animal" name="nome_animal" value="<?=$user[0]['prefixo']?>">
                </div>
-
-               <div class="form-group">
-                 <label for="exampleInputPassword1">Tatuagem<span style="color:#F00;">*</span></label>
+      </div>
+      <div class="col-sm-6 col-md-4">
+<div class="form-group">
+                 <label for="tatuagem">Tatuagem<span style="color:#F00;">*</span></label>
                  <input type="text" class="form-control" id="tatuagem" name="tatuagem" >
                </div>
-
-               <div class="form-group">
-                 <label for="exampleInputPassword1">FBB</label>
+      </div>
+      <div class="col-sm-6 col-md-4">
+<div class="form-group">
+                 <label for="fbb">FBB</label>
                  <input type="text" class="form-control" id="fbb" name="fbb" value="">
                </div>
-
-               <div class="form-group">
-                 <label for="exampleInputPassword1">Sexo<span style="color:#F00;">*</span></label>
+      </div>
+      <div class="col-sm-6 col-md-4">
+<div class="form-group">
+                 <label for="sexo">Sexo<span style="color:#F00;">*</span></label>
                  <select class="form-control select" id="sexo" name="sexo" onchange="lista_colaborador(this.value)">
                  <option value="">Selecionar</option>
                    <option></option>
@@ -348,63 +369,10 @@ function linkar_mae_te(nome){
                    <option value="Fêmea">Fêmea</option>
                  </select>
                </div>
-
-             </div>
-           </div>
-
-           <div class="col-md-3">
-             <!-- general form elements -->
-             <div class="box-body">
-               <div class="form-group" >
-                 <label for="exampleInputPassword1">Data de Nascimento<span style="color:#F00;">*</span></label>
-                 <div class="input-group date">
-                   <div class="input-group-addon">
-                     <i class="fa fa-calendar"></i>
-                   </div>
-                   <input type="text" class="form-control pull-right" id="data_nascimento" name="data_de_nascimento" >
-                 </div>
-               </div>
-
-               <div class="form-group">
-                 <label for="exampleInputPassword1">Data de entrada no rebanho</label>
-                 <div class="input-group date">
-                   <div class="input-group-addon">
-                     <i class="fa fa-calendar"></i>
-                   </div>
-                   <input type="text" class="form-control pull-right" id="data_entrada" name="data_de_entrada">
-                 </div>
-               </div>
-
-               <div class="form-group">
-                 <label for="exampleInputPassword1">Observações</label>
-                 <textarea  class="form-control" name="observacoes" id="observacoes" cols="45" rows="5" style="height:105px; width:100%;"></textarea>
-               </div>
-
-             </div>
-           </div>
-
-
-           <div class="col-md-3">
-             <!-- general form elements -->
-             <div class="box-body">
-               <div class="form-group">
-                 <label for="exampleInputPassword1">Pai<span style="color:#F00;">*</span>
-                   <a href="geral.php?pg=cadastrar_animal&tipo=2" target="_blank"><span style="font-size:11px; color:green;">Novo</span></a></label>
-                 <input type="text" class="form-control" id="pai" name="pai" value="" onKeyUp="pesquisar_pai(this.value)">
-                 <div id="lista_pai" style="border-style:solid; border-width:thin; height:auto; border-color: #bab1b4; position:absolute; z-index:99999; background:#fff; width:150%; display:none; margin-top:1%;">
-                 </div>
-               </div>
-
-               <div class="form-group">
-                 <label for="exampleInputPassword1">Mãe<span style="color:#F00;">*</span>
-                   <a href="geral.php?pg=cadastrar_animal&tipo=2" target="_blank"><span style="font-size:11px; color:green;">Novo</span></a></label>
-                 <input type="text" class="form-control" id="mae" name="mae" value="" onKeyUp="pesquisar_mae(this.value)">
-                 <div id="lista_mae" style="border-style:solid; border-width:thin; height:auto; border-color: #bab1b4; position:absolute; z-index:99999; background:#fff; width:150%; display:none; margin-top:1%;">
-                 </div>
-               </div>
-
-               <div class="form-group">
-                 <label for="exampleInputPassword1">Raça<span style="color:#F00;">*</span></label>
+      </div>
+      <div class="col-sm-6 col-md-4">
+<div class="form-group">
+                 <label for="raca">Raça<span style="color:#F00;">*</span></label>
                  <select class="form-control select" id="raca" name="raca">
                    <option value="<?=$user[0]['raca']?>"><?=$user[0]['raca']?></option>
                    <option></option>
@@ -415,15 +383,66 @@ function linkar_mae_te(nome){
                    <? } ?>
                  </select>
                </div>
-
-               <div class="form-group">
-                 <button type="submit" class="btn btn-success" style="width:100%; margin-top:4%;">Cadastrar animal</button>
+      </div>
+      <div class="col-sm-6 col-md-4">
+<div class="form-group" >
+                 <label for="data_nascimento">Data de Nascimento<span style="color:#F00;">*</span></label>
+                 <div class="input-group date">
+                   <div class="input-group-addon">
+                     <i class="fa fa-calendar"></i>
+                   </div>
+                   <input type="text" class="form-control pull-right" id="data_nascimento" name="data_de_nascimento" >
+                 </div>
                </div>
-             </div>
-           </div>
-
-           </div>
-         </form>
+      </div>
+      <div class="col-sm-6 col-md-4">
+<div class="form-group">
+                 <label for="data_entrada">Data de entrada no rebanho</label>
+                 <div class="input-group date">
+                   <div class="input-group-addon">
+                     <i class="fa fa-calendar"></i>
+                   </div>
+                   <input type="text" class="form-control pull-right" id="data_entrada" name="data_de_entrada">
+                 </div>
+               </div>
+      </div>
+      <div class="col-sm-6 col-md-4">
+<div class="form-group" style="position:relative;">
+                 <label for="pai">Pai<span style="color:#F00;">*</span></label>
+      <div class="input-group">
+        <input type="text" class="form-control" id="pai" name="pai" value="" onKeyUp="pesquisar_pai(this.value)">
+        <span class="input-group-btn">
+          <a class="btn btn-success" href="geral.php?pg=cadastrar_animal&amp;tipo=2" target="_blank" rel="noopener" title="Cadastrar animal em nova aba">Novo</a>
+        </span>
+      </div>
+                 <div id="lista_pai" style="border-style:solid; border-width:thin; height:auto; border-color: #bab1b4; position:absolute; z-index:99999; background:#fff; width:100%; display:none; margin-top:1%;">
+                 </div>
+               </div>
+      </div>
+      <div class="col-sm-6 col-md-4">
+<div class="form-group" style="position:relative;">
+                 <label for="mae">Mãe<span style="color:#F00;">*</span></label>
+      <div class="input-group">
+        <input type="text" class="form-control" id="mae" name="mae" value="" onKeyUp="pesquisar_mae(this.value)">
+        <span class="input-group-btn">
+          <a class="btn btn-success" href="geral.php?pg=cadastrar_animal&amp;tipo=2" target="_blank" rel="noopener" title="Cadastrar animal em nova aba">Novo</a>
+        </span>
+      </div>
+                 <div id="lista_mae" style="border-style:solid; border-width:thin; height:auto; border-color: #bab1b4; position:absolute; z-index:99999; background:#fff; width:100%; display:none; margin-top:1%;">
+                 </div>
+               </div>
+      </div>
+      <div class="col-sm-12">
+<div class="form-group">
+                 <label for="observacoes">Observações</label>
+                 <textarea  class="form-control" name="observacoes" id="observacoes" cols="45" rows="5" style="height:105px; width:100%;"></textarea>
+               </div>
+      </div>
+    </div>
+    <div class="text-right" style="margin-bottom:10px;">
+      <button type="submit" class="btn btn-success">Cadastrar animal</button>
+    </div>
+  </form>
 <? } ?>
 <!-- FIM REBANHO -->
 
@@ -436,23 +455,22 @@ $dataNascimentoValida = $dataNascimentoValidada && $dataNascimentoValidada->form
 ?>
 <!--NASCIMENTO -->
   <form role="form" action="geral.php?pg=cadastrar_animal&tipo=3" method="post">
-        <div class="col-md-12" style="margin-left:-30px;">
-          <div class="box-body">
+        <div class="row" style="display:flex; flex-wrap:wrap; align-items:flex-end;">
 
-          <div class="col-md-3">
+          <div class="col-sm-4">
             <!-- general form elements -->
               <div class="form-group">
-                <label for="exampleInputPassword1">Selecionar matriz:</label>
+                <label for="mae">Selecionar matriz:</label>
                 <input type="text" class="form-control" id="mae" name="mae" onKeyUp="pesquisar_mae(this.value)" value="<?=htmlspecialchars($nome_mae, ENT_QUOTES, 'UTF-8')?>">
                 <div id="lista_mae" style="border-style:solid; border-width:thin; height:auto; border-color: #bab1b4; position:absolute; z-index:99999; background:#fff; width:250%; display:none; margin-top:1%;">
                 </div>
               </div>
           </div>
 
-          <div class="col-md-3">
+          <div class="col-sm-4">
             <!-- general form elements -->
               <div class="form-group" >
-                <label for="exampleInputPassword1">Data de Nascimento</label>
+                <label for="data_nascimento">Data de Nascimento</label>
                 <div class="input-group date">
                   <div class="input-group-addon">
                     <i class="fa fa-calendar"></i>
@@ -464,30 +482,34 @@ $dataNascimentoValida = $dataNascimentoValidada && $dataNascimentoValidada->form
 
 
 
-          <div class="col-md-3">
+          <div class="col-sm-4">
             <!-- general form elements -->
               <div class="form-group">
-                <button type="submit" class="btn btn-primary" style="width:50%; margin-top:7%;">Próxima etapa</button>
+                <button type="submit" class="btn btn-primary">Buscar lote</button>
+                <a href="geral.php?pg=cadastrar_animal&amp;tipo=3" class="btn btn-default">Limpar</a>
               </div>
           </div>
         </div>
-    </div>
 </form>
-
-
-  <div class="col-md-12">
+    </div>
+  </div>
+  <div class="box" style="border-top:0;">
+    <div class="box-body">
             <? if(!$nome_mae){ ?>
-            Últimos nascimentos cadastrados
-          <table class="table table-bordered" id="tabela_padrao">
-            <tr>
+            <h3 class="box-title" style="font-size:16px; margin:0 0 15px;">Últimos nascimentos cadastrados</h3>
+          <div class="table-responsive">
+          <table class="table table-bordered table-striped">
+            <thead><tr>
               <th>Data de nascimento</th>
               <th>Animal</th>
-              <th>sexo</th>
+              <th>Sexo</th>
               <th>Pai</th>
               <th>Mãe</th>
-            </tr>
+            </tr></thead>
+            <tbody>
             <?
             $nasc = DBRead('animais', "WHERE entrada = 0 ORDER BY id desc LIMIT 15");
+            if (!$nasc) { echo '<tr><td colspan="5" class="text-center">Nenhum nascimento cadastrado.</td></tr>'; }
             foreach (($nasc ?: []) as $nasc_) {
 
               $data = $nasc_['data_de_nascimento'];
@@ -530,7 +552,9 @@ $dataNascimentoValida = $dataNascimentoValidada && $dataNascimentoValidada->form
               <? if(!$nasc_['terceiro_mae']){ ?> <td onclick="abrir_animal(<?=$mae[0]['id']?>)" style="cursor:pointer;"><?=$mae[0]['nome']?></td> <? } ?>
             </tr>
           <? } ?>
+            </tbody>
             </table>
+          </div>
           <? }elseif (!$dataNascimentoValida){ ?>
             <p role="alert">Informe uma data de nascimento válida no formato dia/mês/ano para consultar os lotes da matriz.</p>
           <? }else{ ?>
@@ -985,59 +1009,51 @@ $dataNascimentoValida = $dataNascimentoValidada && $dataNascimentoValidada->form
     <div class="col-md-12" style="margin-left:0.2%; margin-top:-1%;">
       <span style="color: green;">Legenda: Cria cadastrada (verde) </span>
     </div>
-</div>
 <? } } ?>
 <!-- FIM NASCIMENTO -->
 
 <? if($tipo == 4){ ?>
 <!-- TERCEIRO -->
-  <form role="form" action="animal/cadastrar/_terceiros.php" method="post" onsubmit="return ativar_terceiros()">
-        <div class="col-md-12" style="margin-left:-30px;">
-           <div class="col-md-3">
-             <!-- general form elements -->
-             <div class="box-body">
-
-               <div class="form-group">
-                 <label for="exampleInputPassword1">Nome<span style="color:#F00;">*</span></label>
+  <form role="form" action="animal/cadastrar/_terceiros.php" method="post" onsubmit="return ativar_terceiros()" style="clear:both;">
+    <div class="row">
+      <div class="col-sm-6 col-md-4">
+        <div class="form-group">
+                 <label for="nome_animal">Nome<span style="color:#F00;">*</span></label>
                  <input type="text" class="form-control" id="nome_animal" name="nome_animal">
-               </div>
-
-               <div class="form-group">
-                 <label for="exampleInputPassword1">FBB</label>
+                       </div>
+      </div>
+      <div class="col-sm-6 col-md-4">
+        <div class="form-group">
+                 <label for="fbb">FBB</label>
                  <input type="text" class="form-control" id="fbb" name="fbb" value="">
-               </div>
-
-               <div class="form-group">
-                 <label for="exampleInputPassword1">Sexo<span style="color:#F00;">*</span></label>
+                       </div>
+      </div>
+      <div class="col-sm-6 col-md-4">
+        <div class="form-group">
+                 <label for="sexo">Sexo<span style="color:#F00;">*</span></label>
                  <select class="form-control select" id="sexo" name="sexo" onchange="lista_colaborador(this.value)">
                  <option value="">Selecionar</option>
                    <option></option>
                    <option value="Macho">Macho</option>
                    <option value="Fêmea">Fêmea</option>
                  </select>
-               </div>
-             </div>
-           </div>
-
-
-
-           <div class="col-md-3">
-             <!-- general form elements -->
-             <div class="box-body">
-               <div class="form-group">
-                 <label for="exampleInputPassword1">Pai</label>
+                       </div>
+      </div>
+      <div class="col-sm-6 col-md-4">
+        <div class="form-group">
+                 <label for="pai">Pai</label>
                  <input type="text" class="form-control" id="pai" name="pai" value="" onKeyUp="pesquisar_pai(this.value)">
-                 </div>
-
-
-               <div class="form-group">
-                 <label for="exampleInputPassword1">Mãe</label>
+                         </div>
+      </div>
+      <div class="col-sm-6 col-md-4">
+        <div class="form-group">
+                 <label for="mae">Mãe</label>
                  <input type="text" class="form-control" id="mae" name="mae" value="" onKeyUp="pesquisar_mae(this.value)">
-                </div>
-
-
-               <div class="form-group">
-                 <label for="exampleInputPassword1">Raça<span style="color:#F00;">*</span></label>
+                        </div>
+      </div>
+      <div class="col-sm-6 col-md-4">
+        <div class="form-group">
+                 <label for="raca">Raça<span style="color:#F00;">*</span></label>
                  <select class="form-control select" id="raca" name="raca">
                    <option value="<?=$user[0]['raca']?>"><?=$user[0]['raca']?></option>
                    <option></option>
@@ -1047,14 +1063,13 @@ $dataNascimentoValida = $dataNascimentoValidada && $dataNascimentoValidada->form
                      <option value="<?=$raca_['nome']?>"><?=$raca_['nome']?></option>
                    <? } ?>
                  </select>
-               </div>
-               <div class="form-group">
-                 <button type="submit" class="btn btn-success" style="width:100%; margin-top:4%;">Cadastrar animal</button>
-               </div>
-             </div>
-           </div>
-        </div>
-    </form>
+                       </div>
+      </div>
+    </div>
+    <div class="text-right" style="margin-bottom:10px;">
+      <button type="submit" class="btn btn-success">Cadastrar animal</button>
+    </div>
+  </form>
 <? } ?>
 <!-- FIM TERCEIRO -->
 

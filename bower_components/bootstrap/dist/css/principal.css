@@ -32,3 +32,51 @@
 #nome:hover{
   background-color: #47bb86;
 }
+
+.animal-search-result {
+  background-color: #fff;
+  cursor: pointer;
+}
+
+.animal-search-result:hover {
+  background-color: #f0f0f0;
+}
+
+.animal-search-result:focus-visible {
+  outline: 2px solid #008d4c;
+  outline-offset: -2px;
+}
+
+#lista_animal .btn-link {
+  background: transparent;
+  color: #3c8dbc;
+  height: auto;
+  border: 1px solid transparent;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+#lista_animal .btn-link:hover,
+#lista_animal .btn-link:focus {
+  background: transparent;
+  color: #23527c;
+}
+
+.alert.farm-alert.alert-danger {
+  background-color: #ef9288 !important;
+  border-color: #ef9288;
+}
+
+.alert.farm-alert.alert-success {
+  background-color: #70c9a0 !important;
+  border-color: #70c9a0;
+}
+
+.alert.farm-alert .close,
+.alert.farm-alert .close:hover,
+.alert.farm-alert .close:focus {
+  color: #fff;
+  opacity: 1;
+  filter: none;
+  text-shadow: none;
+}

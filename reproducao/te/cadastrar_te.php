@@ -67,27 +67,27 @@ function validar_ter(){
             </div>
 
 
-            <div class="form-group">
+            <div class="form-group" style="position:relative;">
               <label for="exampleInputPassword1">Macho<span style="color:#F00;">*</span>
                 <a href="geral.php?pg=cadastrar_animal&tipo=2" target="_blank"><span style="font-size:11px; color:green;">Novo</span></a></label>
               <input type="text" class="form-control" id="pai" name="macho" onKeyUp="pesquisar_pai(this.value)" value="<?=$user[0]['prefixo']?>">
-              <div id="lista_pai" style="border-style:solid; border-width:thin; height:auto; border-color: #bab1b4; position:absolute; z-index:99999; background:#fff; width:150%; display:none; margin-top:1%;">
+              <div id="lista_pai" style="border-style:solid; border-width:thin; height:auto; border-color: #bab1b4; position:absolute; z-index:99999; background:#fff; width:100%; display:none; margin-top:1%;">
               </div>
             </div>
 
-            <div class="form-group">
+            <div class="form-group" style="position:relative;">
               <label for="macho_complementar">Macho complementar</label>
               <input type="text" class="form-control" id="macho_complementar" name="macho_complementar" autocomplete="off" oninput="pesquisar_pai_2(this.value)">
               <input type="hidden" id="id_pai_2" name="id_pai_2" value="0">
               <input type="hidden" id="terceiro_pai_2" name="terceiro_pai_2" value="0">
-              <div id="lista_pai_2" style="border:1px solid #bab1b4; position:absolute; z-index:99999; background:#fff; width:150%; display:none; margin-top:1%;"></div>
+              <div id="lista_pai_2" style="border:1px solid #bab1b4; position:absolute; z-index:99999; background:#fff; width:100%; display:none; margin-top:1%;"></div>
             </div>
 
-            <div class="form-group">
+            <div class="form-group" style="position:relative;">
               <label for="exampleInputPassword1">Fêmea<span style="color:#F00;">*</span>
                 <a href="geral.php?pg=cadastrar_animal&tipo=2" target="_blank"><span style="font-size:11px; color:green;">Novo</span></a></label>
               <input type="text" class="form-control" id="mae" name="femea" onKeyUp="pesquisar_mae(this.value)" value="<?=$user[0]['prefixo']?>">
-              <div id="lista_mae" style="border-style:solid; border-width:thin; height:auto; border-color: #bab1b4; position:absolute; z-index:99999; background:#fff; width:150%; display:none; margin-top:1%;">
+              <div id="lista_mae" style="border-style:solid; border-width:thin; height:auto; border-color: #bab1b4; position:absolute; z-index:99999; background:#fff; width:100%; display:none; margin-top:1%;">
               </div>
             </div>
 

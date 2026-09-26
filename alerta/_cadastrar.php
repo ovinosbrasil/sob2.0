@@ -1,6 +1,5 @@
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<?
-include "../_config.php";
+<?php
+require __DIR__ . "/../_config.php";
 $titulo = str_replace("'", '"', $_POST['titulo']);
 $data = $_POST['data'];
 include "../funcoes_data/data.php";

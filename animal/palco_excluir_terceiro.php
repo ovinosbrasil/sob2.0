@@ -1,26 +1,15 @@
-<?
-$id_animal = $_GET['id_animal'];
-?>
-  <!-- left column -->
-  <div class="col-md-12">
-    <!-- general form elements -->
-    <div class="box box-danger">
-      <div class="box-header with-border">
-        <h3 class="box-title">Excluir Terceiro</h3>
-      </div>
-      <!-- /.box-header -->
+<?php
+require_once __DIR__ . '/../_config.php';
+$id_animal = filter_var($_GET['id_animal'] ?? null, FILTER_VALIDATE_INT);
+if (!$id_animal || $id_animal < 1) {
+    http_response_code(400);
+    exit;
+}
+$terceiro = DBRead('terceiros', "WHERE id = $id_animal", 'nome');
+if (!$terceiro) {
+    http_response_code(404);
+    exit;
+}
 
-      <!-- form start -->
-        <div class="box-body">
-            <div class="timeline-body" style="margin-bottom:10px;">
-              Você deseja realmente excluir esse Terceiro e todas as informações ligadas a ele?
-            </div>
-            <div class="timeline-footer">
-              <button type="submit" class="btn btn-success" onclick="ativar_excluir_terceiro(<?=$id_animal?>)">Sim</button>
-                <button type="submit" class="btn btn-danger" onclick="fechar_excluir_terceiro()">Não</button>
-            </div>
-          </div>
-    </div>
-    <!-- /.col -->
-</div>
-  <!-- /.row -->
+header('Content-Type: application/json; charset=utf-8');
+echo json_encode(array('nome' => $terceiro[0]['nome']), JSON_UNESCAPED_UNICODE);

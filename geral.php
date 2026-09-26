@@ -35,13 +35,15 @@ $data_expira2 = $data;
   <!-- Bootstrap 3.3.7 -->
   <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.min.css">
 
-  <link rel="stylesheet" href="bower_components/bootstrap/dist/css/principal.css">
+  <link rel="stylesheet" href="bower_components/bootstrap/dist/css/principal.css?v=<?=filemtime(__DIR__ . '/bower_components/bootstrap/dist/css/principal.css')?>">
   <!-- Font Awesome -->
   <link rel="stylesheet" href="bower_components/font-awesome/css/font-awesome.min.css">
   <!-- Ionicons -->
   <link rel="stylesheet" href="bower_components/Ionicons/css/ionicons.min.css">
   <!-- Theme style -->
   <link rel="stylesheet" href="dist/css/AdminLTE.min.css">
+  <link rel="stylesheet" href="dist/css/controle-status.css?v=<?=filemtime(__DIR__ . '/dist/css/controle-status.css')?>">
+  <link rel="stylesheet" href="dist/css/confirmacao-exclusao.css?v=<?=filemtime(__DIR__ . '/dist/css/confirmacao-exclusao.css')?>">
   <!-- AdminLTE Skins. Choose a skin from the css/skins
        folder instead of downloading all of them to reduce the load. -->
   <link rel="stylesheet" href="dist/css/skins/_all-skins.css">
@@ -80,7 +82,7 @@ $data_expira2 = $data;
       <!-- mini logo for sidebar mini 50x50 pixels -->
       <span class="logo-mini">SOB</span>
       <!-- logo for regular state and mobile devices -->
-      <span class="logo-lg"><b>Sistema </b>Ovinos Brasil</span>
+      <span class="logo-lg"><b>Ovinos </b>Brasil</span>
     </a>
     <!-- Header Navbar: style can be found in header.less -->
     <nav class="navbar navbar-static-top">
@@ -130,15 +132,15 @@ $data_expira2 = $data;
     <!-- sidebar: style can be found in sidebar.less -->
     <section class="sidebar">
       <!-- search form -->
-        <form action="chip/animal/_pesquisar_animal.php" method="post" class="sidebar-form">
+        <form action="chip/animal/_pesquisar_animal.php" method="post" class="sidebar-form" style="position:relative; overflow:visible;">
         <div class="input-group">
-          <input type="text" name="animal" class="form-control" placeholder="Pesquisar animal..." onKeyUp="pesquisar_animal(this.value)">
+          <input type="text" name="animal" id="pesquisa_animal_menu" class="form-control" placeholder="Pesquisar animal..." autocomplete="off" oninput="pesquisar_animal(this.value)">
           <span class="input-group-btn">
                 <button type="submit" name="search" id="search-btn" class="btn btn-flat"><i class="fa fa-search"></i>
                 </button>
               </span>
         </div>
-        <div id="lista_animal" style="border-style:solid; border-width:2px; height:auto; border-color: #4f8730; position:absolute; z-index:99999; background:#fff; width:500%; display:none; margin:0.5%; margin-top:2%;">
+        <div id="lista_animal" style="border:1px solid #bab1b4; position:absolute; left:0; top:100%; z-index:99999; background:#fff; color:#2d2c2c; width:530px; max-width:calc(100vw - 40px); max-height:70vh; overflow-y:auto; display:none; margin-top:6px; font-size:14px; line-height:1.42857143;">
         </div>
       </form>
 
@@ -296,6 +298,8 @@ $data_expira2 = $data;
 </script>
 <!-- Bootstrap 3.3.7 -->
 <script src="bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
+<?php require __DIR__ . '/includes/confirmacao_exclusao.php'; ?>
+<script src="dist/js/confirmacao-exclusao.js?v=<?=filemtime(__DIR__ . '/dist/js/confirmacao-exclusao.js')?>"></script>
 <!-- Morris.js charts -->
 <script src="bower_components/raphael/raphael.min.js"></script>
 <script src="bower_components/morris.js/morris.min.js"></script>
@@ -547,7 +551,7 @@ function somenteNumeros(num) {
 function pesquisar_animal(nome){
 if(window.XMLHttpRequest) { PP = new XMLHttpRequest();} else if(window.ActiveXObject) { PP = new ActiveXObject("Microsoft.XMLHTTP"); }
 // Arquivo PHP juntamente com o valor digitado no campo (método GET)
-var url = "animal/lista_animal.php?nome="+nome;
+var url = "animal/lista_animal.php?nome="+encodeURIComponent(nome);
 // Chamada do método open para processar a requisição
 PP.open("Get", url, true);
 // Quando o objeto recebe o retorno, chamamos a seguinte função;
@@ -555,7 +559,9 @@ PP.onreadystatechange = function() {
 if (PP.readyState == 4) {
 resposta = PP.responseText;
 document.getElementById("lista_animal").innerHTML = resposta;
-document.getElementById("lista_animal").style.display = 'block';
+if (document.activeElement === document.getElementById("pesquisa_animal_menu")) {
+  document.getElementById("lista_animal").style.display = 'block';
+}
 }
 }
 PP.send(null);
@@ -583,7 +589,9 @@ PP.onreadystatechange = function() {
 if (PP.readyState == 4) {
 resposta = PP.responseText;
 document.getElementById("lista_pai").innerHTML = resposta;
-document.getElementById("lista_pai").style.display = 'block';
+if (document.activeElement === document.getElementById("pai")) {
+  document.getElementById("lista_pai").style.display = 'block';
+}
 }
 }
 PP.send(null);
@@ -598,6 +606,16 @@ function linkar_pai(nome){
   document.getElementById("lista_pai").style.display = 'none';
 }
 
+document.addEventListener('click', function(event) {
+  [['lista_animal', 'pesquisa_animal_menu'], ['lista_mae', 'mae'], ['lista_pai', 'pai'], ['lista_pai_2', 'macho_complementar']].forEach(function(par) {
+    var lista = document.getElementById(par[0]);
+    var campo = document.getElementById(par[1]);
+    if (lista && event.target !== campo && !lista.contains(event.target)) {
+      lista.style.display = 'none';
+    }
+  });
+});
+
 function pesquisar_mae(nome){
 if(window.XMLHttpRequest) { PP = new XMLHttpRequest();} else if(window.ActiveXObject) { PP = new ActiveXObject("Microsoft.XMLHTTP"); }
 // Arquivo PHP juntamente com o valor digitado no campo (método GET)
@@ -609,7 +627,9 @@ PP.onreadystatechange = function() {
 if (PP.readyState == 4) {
 resposta = PP.responseText;
 document.getElementById("lista_mae").innerHTML = resposta;
-document.getElementById("lista_mae").style.display = 'block';
+if (document.activeElement === document.getElementById("mae")) {
+  document.getElementById("lista_mae").style.display = 'block';
+}
 }
 }
 PP.send(null);
@@ -635,7 +655,9 @@ PP.onreadystatechange = function() {
 if (PP.readyState == 4) {
 resposta = PP.responseText;
 document.getElementById("lista_mae").innerHTML = resposta;
-document.getElementById("lista_mae").style.display = 'block';
+if (document.activeElement === document.getElementById("mae")) {
+  document.getElementById("lista_mae").style.display = 'block';
+}
 }
 }
 PP.send(null);

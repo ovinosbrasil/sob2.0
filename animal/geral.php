@@ -160,8 +160,13 @@ if($animal[0]['terceiro_mae']){
   <!-- general form elements -->
   <div class="box-body">
     <div class="form-group">
-      <label for="exampleInputPassword1">Pai<span style="color:#F00;">*</span><a href="geral.php?pg=cadastrar_animal&tipo=2" target="_blank"><span style="font-size:13px; color:green;"> Novo</span></a></label>
-      <input type="text" class="form-control" id="pai" name="pai" value="<?=$pai[0]['nome']?>" onKeyUp="pesquisar_pai(this.value)">
+      <label for="pai">Pai<span style="color:#F00;">*</span></label>
+      <div class="input-group">
+        <input type="text" class="form-control" id="pai" name="pai" value="<?=$pai[0]['nome']?>" onKeyUp="pesquisar_pai(this.value)">
+        <span class="input-group-btn">
+          <a class="btn btn-success" href="geral.php?pg=cadastrar_animal&amp;tipo=2" target="_blank" rel="noopener" title="Cadastrar animal em nova aba">Novo</a>
+        </span>
+      </div>
       <div id="lista_pai" style="border-style:solid; border-width:thin; height:auto; border-color: #bab1b4; position:absolute; z-index:99999; background:#fff; width:90%; display:none; margin-top:1%;">
       </div>
     </div>
@@ -194,8 +199,13 @@ if($animal[0]['terceiro_mae']){
   <!-- general form elements -->
   <div class="box-body">
     <div class="form-group">
-      <label for="exampleInputPassword1">Mãe<span style="color:#F00;">*</span><a href="geral.php?pg=cadastrar_animal&tipo=2" target="_blank"> <span style="font-size:13px; color:green;"> Novo</span></a></label>
-      <input type="text" class="form-control" id="mae" name="mae" value="<?=$mae[0]['nome']?>" onKeyUp="pesquisar_mae(this.value)">
+      <label for="mae">Mãe<span style="color:#F00;">*</span></label>
+      <div class="input-group">
+        <input type="text" class="form-control" id="mae" name="mae" value="<?=$mae[0]['nome']?>" onKeyUp="pesquisar_mae(this.value)">
+        <span class="input-group-btn">
+          <a class="btn btn-success" href="geral.php?pg=cadastrar_animal&amp;tipo=2" target="_blank" rel="noopener" title="Cadastrar animal em nova aba">Novo</a>
+        </span>
+      </div>
       <div id="lista_mae" style="border-style:solid; border-width:thin; height:auto; border-color: #bab1b4; position:absolute; z-index:99999; background:#fff; width:90%; display:none; margin-top:1%;">
       </div>
     </div>
@@ -218,7 +228,7 @@ if($animal[0]['terceiro_mae']){
     <div class="form-group">
       <button type="submit" class="btn btn-warning" style="margin-top:2%; width:100%;">Alterar animal</button>
       <a href="animal/_imprimir.php?id_animal=<?=$id_animal?>" target="_blank"><button type="button" class="btn btn-primary" style="margin-top:2%; width:100%;">Imprimir animal</button></a>
-      <a href="animal/_excluir_animal.php?id_animal=<?=$id_animal?>" onclick="return confirm('Tem certeza de que deseja excluir este animal?');" class="btn btn-danger" style="margin-top:2%; width:100%;">Excluir animal</a>
+      <a href="animal/_excluir_animal.php?id_animal=<?=$id_animal?>" data-id="<?=(int)$id_animal?>" data-origem="Rebanho" data-nome="<?=htmlspecialchars($animal[0]['nome'], ENT_QUOTES, 'UTF-8')?>" onclick="confirmarExclusaoRebanho(this); return false;" class="btn btn-danger" style="margin-top:2%; width:100%;">Excluir animal</a>
     </div>
 
   </div>
