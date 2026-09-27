@@ -33,9 +33,46 @@
   background-color: #47bb86;
 }
 
+.animal-search-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 15px;
+  z-index: 1050;
+  width: calc(100% - 30px);
+  max-height: 320px;
+  overflow-y: auto;
+  background: #fff;
+  border: 1px solid #d2d6de;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, .12);
+}
+
 .animal-search-result {
+  display: block;
+  width: 100%;
+  padding: 8px 10px;
   background-color: #fff;
+  color: #2d2c2c;
+  text-align: left;
+  overflow-wrap: anywhere;
+  border: 0;
+  border-bottom: 1px solid #eee;
   cursor: pointer;
+}
+
+.animal-search-result-meta {
+  display: block;
+  margin-top: 2px;
+  font-size: 12px;
+  font-weight: normal;
+}
+
+.animal-search-empty {
+  padding: 12px 10px;
+  color: #777;
+}
+
+.animal-search-close {
+  margin: 3px 5px;
 }
 
 .animal-search-result:hover {

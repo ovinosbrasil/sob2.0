@@ -45,18 +45,32 @@ if($sql[0]['id'] > 0){
           echo "<script type=\"text/javascript\"> alert(\"Nome do animal já existe, tente novamente.\"); </script>
 			    <script language='javascript'>history.back()</script>";
 }else{
-$pai = $_POST['pai'];
-$verifica_pai = DBRead('animais', "WHERE nome = '$pai' AND sexo = 'Macho'");
-$verifica_pai_terceiro = DBRead('terceiros', "WHERE nome = '$pai' AND sexo = 'Macho'");
+function localizarParenteCadastro($campo, $sexo)
+{
+  $id = filter_var($_POST[$campo . '_id'] ?? 0, FILTER_VALIDATE_INT);
+  $origem = $_POST[$campo . '_origem'] ?? '';
+  if ($id && in_array($origem, array('rebanho', 'terceiros'), true)) {
+    $tabela = $origem === 'terceiros' ? 'terceiros' : 'animais';
+    $registro = DBRead($tabela, "WHERE id = '" . (int)$id . "' AND sexo = '" . DBEscape($sexo) . "'");
+    if ($registro) {
+      return array((int)$registro[0]['id'], $origem === 'terceiros' ? 1 : 0);
+    }
+  }
 
-$mae = $_POST['mae'];
-$verifica_mae = DBRead('animais', "WHERE nome = '$mae' AND sexo = 'Fêmea'");
-$verifica_mae_terceiro = DBRead('terceiros', "WHERE nome = '$mae' AND sexo = 'Fêmea'");
+  $nome = DBEscape(trim((string)($_POST[$campo] ?? '')));
+  if ($nome === '') {
+    return array(0, 0);
+  }
+  $registro = DBRead('animais', "WHERE nome = '$nome' AND sexo = '" . DBEscape($sexo) . "'");
+  if ($registro) {
+    return array((int)$registro[0]['id'], 0);
+  }
+  $registro = DBRead('terceiros', "WHERE nome = '$nome' AND sexo = '" . DBEscape($sexo) . "'");
+  return $registro ? array((int)$registro[0]['id'], 1) : array(0, 0);
+}
 
-if($verifica_pai[0]['id'] > 0){ $id_pai = $verifica_pai[0]['id']; $terceiro_pai = 0;}
-if($verifica_pai_terceiro[0]['id'] > 0){ $id_pai = $verifica_pai_terceiro[0]['id']; $terceiro_pai = 1;}
-if($verifica_mae[0]['id'] > 0){ $id_mae = $verifica_mae[0]['id']; $terceiro_mae = 0;}
-if($verifica_mae_terceiro[0]['id'] > 0){ $id_mae = $verifica_mae_terceiro[0]['id']; $terceiro_mae = 1;}
+list($id_pai, $terceiro_pai) = localizarParenteCadastro('pai', 'Macho');
+list($id_mae, $terceiro_mae) = localizarParenteCadastro('mae', 'Fêmea');
 
 if(!$id_pai > 0){
   echo "<script type=\"text/javascript\"> alert(\"Pai não existe, tente novamente.\"); </script>

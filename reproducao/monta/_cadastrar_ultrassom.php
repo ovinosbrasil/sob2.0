@@ -1,34 +1,29 @@
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<?
-include "../../_config.php";
+<?php
+require_once __DIR__ . '/../../_config.php';
 
-$id_lote = $_GET['id_lote'];
-$status = $_GET['status'];
+$idControle = filter_var($_GET['id_lote'] ?? 0, FILTER_VALIDATE_INT);
+$status = filter_var($_GET['status'] ?? 0, FILTER_VALIDATE_INT);
 
-$dados = array(
-  'ultrassom' => $status
-);
+if (!$idControle || !in_array($status, array(1, 2), true)) {
+    header('Location: ../../geral.php?pg=lista_monta');
+    exit;
+}
+$idControle = (int)$idControle;
+$controle = DBRead('monta_controle', "WHERE id = '$idControle'") ?: array();
+if (!$controle) {
+    header('Location: ../../geral.php?pg=lista_monta');
+    exit;
+}
 
-DBUpdate('monta_controle', $dados, "id = '$id_lote'");
-$monta = DBRead('monta_controle', "WHERE id = '$id_lote'");
-$id_lote = $monta[0]['id_monta'];
+$idLote = (int)$controle[0]['id_monta'];
+DBUpdate('monta_controle', array('ultrassom' => $status), "id = '$idControle'");
 
-//RANKING MONTA
-$qtd=$ultrassom=$nascimento=0;
-$ultrassom = DBRead('monta_controle', "WHERE id_monta = '$id_lote' AND ultrassom = '1'");
-$dados = DBRead('monta_controle', "WHERE id_monta = '$id_lote'");
-$qtd = count($dados);
-  if($ultrassom[0]['id'] > 0){
-    $ultrassom = count($ultrassom);
-    $ultrassom = ($ultrassom*100)/$qtd;
-  }else{
-    $ultrassom = 0;
-  }
-$dados = array(
-  'ultrassom' => $ultrassom
-);
-DBUpdate('lotes_reproducao', $dados, "id_lote = '$id_lote' AND tipo = '0'");
-//RANKING MONTA FIM
+$controles = DBRead('monta_controle', "WHERE id_monta = '$idLote'") ?: array();
+$positivos = DBRead('monta_controle', "WHERE id_monta = '$idLote' AND ultrassom = '1'") ?: array();
+$total = count($controles);
+DBUpdate('lotes_reproducao', array(
+    'ultrassom' => $total ? count($positivos) * 100 / $total : 0
+), "id_lote = '$idLote' AND tipo = '0'");
 
-echo "<META HTTP-EQUIV=REFRESH CONTENT='0; URL=../../geral.php?pg=monta&id_lote=$id_lote'>";
-?>
+header('Location: ../../geral.php?pg=monta&id_lote=' . $idLote);
+exit;

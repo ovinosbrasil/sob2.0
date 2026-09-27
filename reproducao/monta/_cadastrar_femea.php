@@ -1,68 +1,83 @@
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<?
-include "../../_config.php";
+<?php
+require_once __DIR__ . '/../../_config.php';
 
-$mae = $_POST['mae'];
-$id_lote = $_GET['id_lote'];
-$verifica_mae = DBRead('animais', "WHERE nome = '$mae' AND sexo = 'Fêmea'");
-$verifica_mae_terceiro = DBRead('terceiros', "WHERE nome = '$mae' AND sexo = 'Fêmea'");
-$verifica_chip = DBRead('animais', "WHERE chip = '$mae' AND sexo = 'Fêmea'");
-
-echo "aqui";
-//TESTE MACHO
-if(($verifica_mae[0]['id'] <= 0) && ($verifica_mae_terceiro[0]['id'] <= 0) && ($verifica_chip[0]['id'] <= 0)){
-
-  echo "<script type=\"text/javascript\"> alert(\"Animal não existe. Tente novamente\"); </script>
-  <script language='javascript'>history.back()</script>";
+function voltarCadastroFemeaMonta($mensagem)
+{
+    echo '<script>alert(' . json_encode($mensagem, JSON_UNESCAPED_UNICODE) . '); history.back();</script>';
+    exit;
 }
 
-if(($verifica_mae[0]['id'] >= 1) || ($verifica_mae_terceiro[0]['id'] >= 1) || ($verifica_chip[0]['id'] >= 1)){
-  echo "aqui2";
-if($verifica_mae[0]['id'] > 0){ $id_mae = $verifica_mae[0]['id']; $terceiro = 0; }
-if($verifica_mae_terceiro[0]['id'] > 0){ $id_mae = $verifica_mae_terceiro[0]['id']; $terceiro = 1; }
-if($verifica_chip[0]['id'] > 0){ $id_mae = $verifica_chip[0]['id']; $terceiro = 0; }
+$idLote = filter_var($_GET['id_lote'] ?? 0, FILTER_VALIDATE_INT);
+$nomeMae = trim((string)($_POST['mae'] ?? ''));
 
-echo "aqui3";
-$teste = DBRead('monta_controle', "WHERE id_animal = '$id_mae' AND id_monta = '$id_lote'");
-if($teste[0]['id'] > 0){
-  echo "<script type=\"text/javascript\"> alert(\"Animal já cadastrado no lote. Tente novamente\"); </script>
-  <script language='javascript'>history.back()</script>";
-}else{
-$dados = array(
-	'id_monta'	=> $_GET['id_lote'],
-	'id_animal'	=> $id_mae,
-  'terceiro' => $terceiro,
+if (!$idLote || $nomeMae === '') {
+    voltarCadastroFemeaMonta('Informe uma fêmea válida.');
+}
+
+$idLote = (int)$idLote;
+$idMae = 0;
+$origemTerceiro = 0;
+$idSelecionado = filter_var($_POST['mae_id'] ?? 0, FILTER_VALIDATE_INT);
+$origemSelecionada = $_POST['mae_origem'] ?? '';
+
+if ($idSelecionado && in_array($origemSelecionada, array('rebanho', 'terceiros'), true)) {
+    $tabela = $origemSelecionada === 'terceiros' ? 'terceiros' : 'animais';
+    $idSelecionado = (int)$idSelecionado;
+    $selecionada = DBRead($tabela, "WHERE id = '$idSelecionado' AND sexo = 'Fêmea'") ?: array();
+    if (!empty($selecionada[0]['id'])) {
+        $idMae = (int)$selecionada[0]['id'];
+        $origemTerceiro = $origemSelecionada === 'terceiros' ? 1 : 0;
+    }
+}
+
+// Compatibilidade com formulários antigos que enviam somente nome ou chip.
+if (!$idMae) {
+    $nomeMaeEscapado = DBEscape($nomeMae);
+    $animal = DBRead('animais', "WHERE nome = '$nomeMaeEscapado' AND sexo = 'Fêmea'") ?: array();
+    $terceiro = DBRead('terceiros', "WHERE nome = '$nomeMaeEscapado' AND sexo = 'Fêmea'") ?: array();
+    $animalPorChip = DBRead('animais', "WHERE chip = '$nomeMaeEscapado' AND sexo = 'Fêmea'") ?: array();
+
+    if (!empty($animal[0]['id'])) {
+        $idMae = (int)$animal[0]['id'];
+    } elseif (!empty($terceiro[0]['id'])) {
+        $idMae = (int)$terceiro[0]['id'];
+        $origemTerceiro = 1;
+    } elseif (!empty($animalPorChip[0]['id'])) {
+        $idMae = (int)$animalPorChip[0]['id'];
+    }
+}
+
+if (!$idMae) {
+    voltarCadastroFemeaMonta('Animal não existe. Tente novamente.');
+}
+
+$jaCadastrada = DBRead(
+    'monta_controle',
+    "WHERE id_animal = '$idMae' AND id_monta = '$idLote' AND terceiro = '$origemTerceiro'"
 );
-echo "aqui4";
-DBcreate('monta_controle', $dados);
+if ($jaCadastrada) {
+    voltarCadastroFemeaMonta('Animal já cadastrado no lote. Tente novamente.');
+}
 
+DBCreate('monta_controle', array(
+    'id_monta' => $idLote,
+    'nome' => '',
+    'status_nascimento' => 0,
+    'id_animal' => $idMae,
+    'terceiro' => $origemTerceiro,
+    'ultrassom' => 0
+));
 
-//RANKING MONTA
-$qtd=$ultrassom=$nascimento=0;
-$ultrassom = DBRead('monta_controle', "WHERE id_monta = '$id_lote' AND ultrassom = '1'");
-$nascimento = DBRead('monta_controle', "WHERE id_monta = '$id_lote' AND status_nascimento = '1'");
-$dados = DBRead('monta_controle', "WHERE id_monta = '$id_lote'");
-$qtd = count($dados);
-  if($ultrassom[0]['id'] > 0){
-    $ultrassom = count($ultrassom);
-    $ultrassom = ($ultrassom*100)/$qtd;
-  }else{
-    $ultrassom = 0;
-  }
-  if($nascimento[0]['id'] > 0){
-    $nascimento = count($nascimento);
-    $nascimento = ($nascimento*100)/$qtd;
-  }else{
-    $nascimento = 0;
-  }
-$dados = array(
-  'ultrassom' => $ultrassom,
-  'crias'   =>  $nascimento,
-  'femeas' => $qtd
-);
-DBUpdate('lotes_reproducao', $dados, "id_lote = '$id_lote' AND tipo = '0'");
-//RANKING MONTA FIM
+$controles = DBRead('monta_controle', "WHERE id_monta = '$idLote'") ?: array();
+$positivos = DBRead('monta_controle', "WHERE id_monta = '$idLote' AND ultrassom = '1'") ?: array();
+$nascimentos = DBRead('monta_controle', "WHERE id_monta = '$idLote' AND status_nascimento = '1'") ?: array();
+$total = count($controles);
 
-echo "<META HTTP-EQUIV=REFRESH CONTENT='0; URL=../../geral.php?pg=monta&id_lote=$id_lote'>";
-}}
-?>
+DBUpdate('lotes_reproducao', array(
+    'ultrassom' => $total ? count($positivos) * 100 / $total : 0,
+    'crias' => $total ? count($nascimentos) * 100 / $total : 0,
+    'femeas' => $total
+), "id_lote = '$idLote' AND tipo = '0'");
+
+header('Location: ../../geral.php?pg=monta&id_lote=' . $idLote);
+exit;

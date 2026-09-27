@@ -1,6 +1,7 @@
 <?php
 //ini_set('display_errors', 0);
 include "_config.php";
+require_once __DIR__ . '/includes/busca_animais.php';
 $user = DBRead('admin');
 $id_user = $user[0]['id'];
 $login_user = $_SESSION['login'];
@@ -44,6 +45,7 @@ $data_expira2 = $data;
   <link rel="stylesheet" href="dist/css/AdminLTE.min.css">
   <link rel="stylesheet" href="dist/css/controle-status.css?v=<?=filemtime(__DIR__ . '/dist/css/controle-status.css')?>">
   <link rel="stylesheet" href="dist/css/confirmacao-exclusao.css?v=<?=filemtime(__DIR__ . '/dist/css/confirmacao-exclusao.css')?>">
+  <link rel="stylesheet" href="dist/css/busca-animais.css?v=<?=filemtime(__DIR__ . '/dist/css/busca-animais.css')?>">
   <!-- AdminLTE Skins. Choose a skin from the css/skins
        folder instead of downloading all of them to reduce the load. -->
   <link rel="stylesheet" href="dist/css/skins/_all-skins.css">
@@ -132,17 +134,19 @@ $data_expira2 = $data;
     <!-- sidebar: style can be found in sidebar.less -->
     <section class="sidebar">
       <!-- search form -->
-        <form action="chip/animal/_pesquisar_animal.php" method="post" class="sidebar-form" style="position:relative; overflow:visible;">
-        <div class="input-group">
-          <input type="text" name="animal" id="pesquisa_animal_menu" class="form-control" placeholder="Pesquisar animal..." autocomplete="off" oninput="pesquisar_animal(this.value)">
-          <span class="input-group-btn">
-                <button type="submit" name="search" id="search-btn" class="btn btn-flat"><i class="fa fa-search"></i>
-                </button>
-              </span>
-        </div>
-        <div id="lista_animal" style="border:1px solid #bab1b4; position:absolute; left:0; top:100%; z-index:99999; background:#fff; color:#2d2c2c; width:530px; max-width:calc(100vw - 40px); max-height:70vh; overflow-y:auto; display:none; margin-top:6px; font-size:14px; line-height:1.42857143;">
-        </div>
-      </form>
+        <form action="chip/animal/_pesquisar_animal.php" method="post" class="sidebar-form" style="overflow:visible;">
+          <?php renderBuscaAnimais(array(
+              'id' => 'pesquisa_animal_menu',
+              'name' => 'animal',
+              'label' => 'Pesquisar animal',
+              'tipo' => 'todos',
+              'placeholder' => 'Pesquisar animal...',
+              'exibir_label' => false,
+              'botao_busca' => true,
+              'limite_origem' => 5,
+              'classe' => 'sob-busca-animais--menu'
+          )); ?>
+        </form>
 
       <!-- /.search form -->
       <!-- sidebar menu: : style can be found in sidebar.less -->
@@ -300,6 +304,7 @@ $data_expira2 = $data;
 <script src="bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
 <?php require __DIR__ . '/includes/confirmacao_exclusao.php'; ?>
 <script src="dist/js/confirmacao-exclusao.js?v=<?=filemtime(__DIR__ . '/dist/js/confirmacao-exclusao.js')?>"></script>
+<script src="dist/js/busca-animais.js?v=<?=filemtime(__DIR__ . '/dist/js/busca-animais.js')?>"></script>
 <!-- Morris.js charts -->
 <script src="bower_components/raphael/raphael.min.js"></script>
 <script src="bower_components/morris.js/morris.min.js"></script>
@@ -539,6 +544,15 @@ $(function () {
   $('#valor').priceFormat();
 })
 
+document.addEventListener('buscaanimais:selecionado', function (evento) {
+  var componente = evento.target;
+  if (!componente.classList.contains('sob-busca-animais--menu')) { return; }
+  var animal = evento.detail || {};
+  if (!animal.id) { return; }
+  var pagina = animal.origem === 'terceiros' ? 'terceiro' : 'animal';
+  window.location.href = 'geral.php?pg=' + pagina + '&id_animal=' + encodeURIComponent(animal.id);
+});
+
 function somenteNumeros(num) {
         var er = /[^0-9.]/;
         er.lastIndex = 0;
@@ -546,36 +560,6 @@ function somenteNumeros(num) {
         if (er.test(campo.value)) {
           campo.value = "";
         }
-}
-
-function pesquisar_animal(nome){
-if(window.XMLHttpRequest) { PP = new XMLHttpRequest();} else if(window.ActiveXObject) { PP = new ActiveXObject("Microsoft.XMLHTTP"); }
-// Arquivo PHP juntamente com o valor digitado no campo (método GET)
-var url = "animal/lista_animal.php?nome="+encodeURIComponent(nome);
-// Chamada do método open para processar a requisição
-PP.open("Get", url, true);
-// Quando o objeto recebe o retorno, chamamos a seguinte função;
-PP.onreadystatechange = function() {
-if (PP.readyState == 4) {
-resposta = PP.responseText;
-document.getElementById("lista_animal").innerHTML = resposta;
-if (document.activeElement === document.getElementById("pesquisa_animal_menu")) {
-  document.getElementById("lista_animal").style.display = 'block';
-}
-}
-}
-PP.send(null);
-}
-
-function linkar_animal(id){
-  window.location.href = "geral.php?pg=animal&id_animal="+id;
-}
-
-function linkar_terceiro(id){
-  window.location.href = "geral.php?pg=terceiro&id_animal="+id;
-}
-function fechar_lista_animal(){
-  document.getElementById("lista_animal").style.display = 'none';
 }
 
 function pesquisar_pai(nome){
@@ -607,7 +591,7 @@ function linkar_pai(nome){
 }
 
 document.addEventListener('click', function(event) {
-  [['lista_animal', 'pesquisa_animal_menu'], ['lista_mae', 'mae'], ['lista_pai', 'pai'], ['lista_pai_2', 'macho_complementar']].forEach(function(par) {
+  [['lista_mae', 'mae'], ['lista_pai', 'pai'], ['lista_pai_2', 'macho_complementar']].forEach(function(par) {
     var lista = document.getElementById(par[0]);
     var campo = document.getElementById(par[1]);
     if (lista && event.target !== campo && !lista.contains(event.target)) {

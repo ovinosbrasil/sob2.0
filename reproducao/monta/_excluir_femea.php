@@ -1,46 +1,35 @@
-<?
-include "../../_config.php";
+<?php
+require_once __DIR__ . '/../../_config.php';
 
-$id_mae = $_GET['id_mae'];
-$id_lote = $_GET['id_lote'];
+$idLote = filter_var($_GET['id_lote'] ?? 0, FILTER_VALIDATE_INT);
+$idControle = filter_var($_GET['id_controle'] ?? 0, FILTER_VALIDATE_INT);
 
-DBDelete('monta_controle', "id_animal = '$id_mae' AND id_monta = '$id_lote'");
+if (!$idLote) {
+    header('Location: ../../geral.php?pg=lista_monta');
+    exit;
+}
+$idLote = (int)$idLote;
 
-//RANKING MONTA
-$qtd=0;
-$dados = DBRead('monta_controle', "WHERE id_monta = '$id_lote'");
-$qtd = count($dados);
-$dados = array(
-  'femeas' => $qtd
-);
-DBUpdate('lotes_reproducao', $dados, "id_lote = '$id_lote' AND tipo = '0'");
-//RANKING MONTA FIM
+if ($idControle) {
+    DBDelete('monta_controle', "id = '" . (int)$idControle . "' AND id_monta = '$idLote'");
+} else {
+    // Compatibilidade com links antigos.
+    $idMae = filter_var($_GET['id_mae'] ?? 0, FILTER_VALIDATE_INT);
+    if ($idMae) {
+        DBDelete('monta_controle', "id_animal = '" . (int)$idMae . "' AND id_monta = '$idLote'");
+    }
+}
 
-//RANKING MONTA
-$qtd=$ultrassom=$nascimento=0;
-$ultrassom = DBRead('monta_controle', "WHERE id_monta = '$id_lote' AND ultrassom = '1'");
-$nascimento = DBRead('monta_controle', "WHERE id_monta = '$id_lote' AND status_nascimento = '1'");
-$dados = DBRead('monta_controle', "WHERE id_monta = '$id_lote'");
-$qtd = count($dados);
-  if($ultrassom[0]['id'] > 0){
-    $ultrassom = count($ultrassom);
-    $ultrassom = ($ultrassom*100)/$qtd;
-  }else{
-    $ultrassom = 0;
-  }
-  if($nascimento[0]['id'] > 0){
-    $nascimento = count($nascimento);
-    $nascimento = ($nascimento*100)/$qtd;
-  }else{
-    $nascimento = 0;
-  }
-$dados = array(
-  'ultrassom' => $ultrassom,
-  'crias'   =>  $nascimento,
-  'femeas' => $qtd
-);
-DBUpdate('lotes_reproducao', $dados, "id_lote = '$id_lote' AND tipo = '0'");
-//RANKING MONTA FIM
+$controles = DBRead('monta_controle', "WHERE id_monta = '$idLote'") ?: array();
+$positivos = DBRead('monta_controle', "WHERE id_monta = '$idLote' AND ultrassom = '1'") ?: array();
+$nascimentos = DBRead('monta_controle', "WHERE id_monta = '$idLote' AND status_nascimento = '1'") ?: array();
+$total = count($controles);
 
-echo "<META HTTP-EQUIV=REFRESH CONTENT='0; URL=../../geral.php?pg=monta&id_lote=$id_lote'>";
-?>
+DBUpdate('lotes_reproducao', array(
+    'ultrassom' => $total ? count($positivos) * 100 / $total : 0,
+    'crias' => $total ? count($nascimentos) * 100 / $total : 0,
+    'femeas' => $total
+), "id_lote = '$idLote' AND tipo = '0'");
+
+header('Location: ../../geral.php?pg=monta&id_lote=' . $idLote);
+exit;

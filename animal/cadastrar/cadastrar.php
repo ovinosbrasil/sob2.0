@@ -132,32 +132,6 @@ function ativar_terceiros(){
   if(saida){ return false; }else{ return true; }
 }
 
-function pesquisar_mae(nome){
-if(window.XMLHttpRequest) { PP = new XMLHttpRequest();} else if(window.ActiveXObject) { PP = new ActiveXObject("Microsoft.XMLHTTP"); }
-// Arquivo PHP juntamente com o valor digitado no campo (método GET)
-var url = "reproducao/te/lista_mae.php?nome="+nome;
-// Chamada do método open para processar a requisição
-PP.open("Get", url, true);
-// Quando o objeto recebe o retorno, chamamos a seguinte função;
-PP.onreadystatechange = function() {
-if (PP.readyState == 4) {
-resposta = PP.responseText;
-document.getElementById("lista_mae").innerHTML = resposta;
-if (document.activeElement === document.getElementById("mae")) {
-  document.getElementById("lista_mae").style.display = 'block';
-}
-}
-}
-PP.send(null);
-}
-
-function fechar_lista_mae(){
-  document.getElementById("lista_mae").style.display = 'none';
-}
-
-function linkar_mae_te(nome){
-  window.location.href = "geral.php?pg=lista_te&mae="+nome;
-}
 </script>
 
 <section class="content-header">
@@ -186,7 +160,7 @@ function linkar_mae_te(nome){
         </div>
         <div class="col-sm-6 col-md-3">
           <h4 style="font-size:14px; margin-top:5px;"><strong>Nascimento</strong></h4>
-          <p class="text-muted">Utilize para registrar nascimentos. Os pais precisam estar vinculados a um lote de reprodução: monta natural, inseminação artificial ou transplante de embriões.</p>
+          <p class="text-muted">Utilize para registrar nascimentos. Os pais precisam estar vinculados a um lote de reprodução: monta natural, inseminação artificial ou transplante de embriões. Pesquise pelo nome da mãe e data de nascimento da cria.</p>
         </div>
         <div class="col-sm-6 col-md-3">
           <h4 style="font-size:14px; margin-top:5px;"><strong>Terceiros</strong></h4>
@@ -291,29 +265,29 @@ function linkar_mae_te(nome){
                </div>
       </div>
       <div class="col-sm-6 col-md-4">
-<div class="form-group" style="position:relative;">
-                 <label for="pai">Pai<span style="color:#F00;">*</span></label>
-      <div class="input-group">
-        <input type="text" class="form-control" id="pai" name="pai" value="" onKeyUp="pesquisar_pai(this.value)">
-        <span class="input-group-btn">
-          <a class="btn btn-success" href="geral.php?pg=cadastrar_animal&amp;tipo=2" target="_blank" rel="noopener" title="Cadastrar animal em nova aba">Novo</a>
-        </span>
-      </div>
-                 <div id="lista_pai" style="border-style:solid; border-width:thin; height:auto; border-color: #bab1b4; position:absolute; z-index:99999; background:#fff; width:100%; display:none; margin-top:1%;">
-                 </div>
+<div class="form-group">
+                 <?php renderBuscaAnimais(array(
+                     'id' => 'pai',
+                     'name' => 'pai',
+                     'label' => 'Pai',
+                     'tipo' => 'machos',
+                     'required' => true,
+                     'limite_origem' => 5,
+                     'novo_url' => 'geral.php?pg=cadastrar_animal&tipo=2'
+                 )); ?>
                </div>
       </div>
       <div class="col-sm-6 col-md-4">
-<div class="form-group" style="position:relative;">
-                 <label for="mae">Mãe<span style="color:#F00;">*</span></label>
-      <div class="input-group">
-        <input type="text" class="form-control" id="mae" name="mae" value="" onKeyUp="pesquisar_mae(this.value)">
-        <span class="input-group-btn">
-          <a class="btn btn-success" href="geral.php?pg=cadastrar_animal&amp;tipo=2" target="_blank" rel="noopener" title="Cadastrar animal em nova aba">Novo</a>
-        </span>
-      </div>
-                 <div id="lista_mae" style="border-style:solid; border-width:thin; height:auto; border-color: #bab1b4; position:absolute; z-index:99999; background:#fff; width:100%; display:none; margin-top:1%;">
-                 </div>
+<div class="form-group">
+                 <?php renderBuscaAnimais(array(
+                     'id' => 'mae',
+                     'name' => 'mae',
+                     'label' => 'Mãe',
+                     'tipo' => 'femeas',
+                     'required' => true,
+                     'limite_origem' => 5,
+                     'novo_url' => 'geral.php?pg=cadastrar_animal&tipo=2'
+                 )); ?>
                </div>
       </div>
       <div class="col-sm-6 col-md-4">
@@ -407,29 +381,29 @@ function linkar_mae_te(nome){
                </div>
       </div>
       <div class="col-sm-6 col-md-4">
-<div class="form-group" style="position:relative;">
-                 <label for="pai">Pai<span style="color:#F00;">*</span></label>
-      <div class="input-group">
-        <input type="text" class="form-control" id="pai" name="pai" value="" onKeyUp="pesquisar_pai(this.value)">
-        <span class="input-group-btn">
-          <a class="btn btn-success" href="geral.php?pg=cadastrar_animal&amp;tipo=2" target="_blank" rel="noopener" title="Cadastrar animal em nova aba">Novo</a>
-        </span>
-      </div>
-                 <div id="lista_pai" style="border-style:solid; border-width:thin; height:auto; border-color: #bab1b4; position:absolute; z-index:99999; background:#fff; width:100%; display:none; margin-top:1%;">
-                 </div>
+<div class="form-group">
+                 <?php renderBuscaAnimais(array(
+                     'id' => 'pai',
+                     'name' => 'pai',
+                     'label' => 'Pai',
+                     'tipo' => 'machos',
+                     'required' => true,
+                     'limite_origem' => 5,
+                     'novo_url' => 'geral.php?pg=cadastrar_animal&tipo=2'
+                 )); ?>
                </div>
       </div>
       <div class="col-sm-6 col-md-4">
-<div class="form-group" style="position:relative;">
-                 <label for="mae">Mãe<span style="color:#F00;">*</span></label>
-      <div class="input-group">
-        <input type="text" class="form-control" id="mae" name="mae" value="" onKeyUp="pesquisar_mae(this.value)">
-        <span class="input-group-btn">
-          <a class="btn btn-success" href="geral.php?pg=cadastrar_animal&amp;tipo=2" target="_blank" rel="noopener" title="Cadastrar animal em nova aba">Novo</a>
-        </span>
-      </div>
-                 <div id="lista_mae" style="border-style:solid; border-width:thin; height:auto; border-color: #bab1b4; position:absolute; z-index:99999; background:#fff; width:100%; display:none; margin-top:1%;">
-                 </div>
+<div class="form-group">
+                 <?php renderBuscaAnimais(array(
+                     'id' => 'mae',
+                     'name' => 'mae',
+                     'label' => 'Mãe',
+                     'tipo' => 'femeas',
+                     'required' => true,
+                     'limite_origem' => 5,
+                     'novo_url' => 'geral.php?pg=cadastrar_animal&tipo=2'
+                 )); ?>
                </div>
       </div>
       <div class="col-sm-12">
@@ -460,10 +434,14 @@ $dataNascimentoValida = $dataNascimentoValidada && $dataNascimentoValidada->form
           <div class="col-sm-4">
             <!-- general form elements -->
               <div class="form-group">
-                <label for="mae">Selecionar matriz:</label>
-                <input type="text" class="form-control" id="mae" name="mae" onKeyUp="pesquisar_mae(this.value)" value="<?=htmlspecialchars($nome_mae, ENT_QUOTES, 'UTF-8')?>">
-                <div id="lista_mae" style="border-style:solid; border-width:thin; height:auto; border-color: #bab1b4; position:absolute; z-index:99999; background:#fff; width:250%; display:none; margin-top:1%;">
-                </div>
+                <?php renderBuscaAnimais(array(
+                    'id' => 'mae',
+                    'name' => 'mae',
+                    'label' => 'Selecionar matriz:',
+                    'tipo' => 'femeas',
+                    'value' => $nome_mae,
+                    'limite_origem' => 5
+                )); ?>
               </div>
           </div>
 
@@ -495,7 +473,7 @@ $dataNascimentoValida = $dataNascimentoValidada && $dataNascimentoValidada->form
   </div>
   <div class="box" style="border-top:0;">
     <div class="box-body">
-            <? if(!$nome_mae){ ?>
+            <? { ?>
             <h3 class="box-title" style="font-size:16px; margin:0 0 15px;">Últimos nascimentos cadastrados</h3>
           <div class="table-responsive">
           <table class="table table-bordered table-striped">
@@ -555,13 +533,22 @@ $dataNascimentoValida = $dataNascimentoValidada && $dataNascimentoValidada->form
             </tbody>
             </table>
           </div>
-          <? }elseif (!$dataNascimentoValida){ ?>
+          <? } ?>
+          <? if($nome_mae && !$dataNascimentoValida){ ?>
             <p role="alert">Informe uma data de nascimento válida no formato dia/mês/ano para consultar os lotes da matriz.</p>
-          <? }else{ ?>
-
-          Lotes de reprodução da matriz
-          <table class="table table-bordered" id="tabela_padrao">
-            <tr>
+          <? }elseif ($nome_mae){ ?>
+          <div class="modal fade" id="modal-lotes-reproducao" tabindex="-1" role="dialog" aria-labelledby="titulo-lotes-reproducao">
+            <div class="modal-dialog modal-lg" role="document" style="width:95%; max-width:1200px;">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Fechar"><span aria-hidden="true">&times;</span></button>
+                  <h4 class="modal-title" id="titulo-lotes-reproducao">Lotes de reprodução da matriz</h4>
+                </div>
+                <div class="modal-body">
+                  <? ob_start(); ?>
+                  <div class="table-responsive">
+                    <table class="table table-bordered table-striped">
+                      <thead><tr>
               <th>Tipo</th>
               <th>Lote</th>
               <th>Macho</th>
@@ -569,7 +556,8 @@ $dataNascimentoValida = $dataNascimentoValidada && $dataNascimentoValidada->form
               <th>Previsão de parto</th>
               <th>Receptora</th>
               <th>Cadastrar</th>
-            </tr>
+            </tr></thead>
+            <tbody>
             <?
             $mae = DBRead('animais', "WHERE nome = '$nome_mae'");
             if($mae[0]['id'] <= 0){
@@ -1005,10 +993,31 @@ $dataNascimentoValida = $dataNascimentoValidada && $dataNascimentoValidada->form
            </select></td>
           </tr>
         <? } } } ?>
-      </table>
-    <div class="col-md-12" style="margin-left:0.2%; margin-top:-1%;">
-      <span style="color: green;">Legenda: Cria cadastrada (verde) </span>
-    </div>
+            </tbody>
+          </table>
+                  </div>
+                  <?
+                  $tabelaLotes = ob_get_clean();
+                  $possuiLotes = substr_count($tabelaLotes, "<tr") > 1;
+                  if ($possuiLotes) {
+                    echo $tabelaLotes;
+                  } else {
+                  ?>
+                  <div class="alert alert-warning" role="alert" style="margin-bottom:0;">
+                    <h4 style="margin-top:0;"><i class="fa fa-exclamation-triangle" aria-hidden="true"></i> Nenhum lote encontrado</h4>
+                    A fêmea <strong><?=htmlspecialchars($nome_mae, ENT_QUOTES, "UTF-8")?></strong> não foi cadastrada em nenhum lote com previsão de nascimento para a data <strong><?=htmlspecialchars($dataNascimentoInformada, ENT_QUOTES, "UTF-8")?></strong>.
+                  </div>
+                  <? } ?>
+                </div>
+                <div class="modal-footer"><button type="button" class="btn btn-default" data-dismiss="modal">Fechar</button></div>
+              </div>
+            </div>
+          </div>
+          <script>
+          document.addEventListener("DOMContentLoaded", function () {
+              jQuery("#modal-lotes-reproducao").modal("show");
+          });
+          </script>
 <? } } ?>
 <!-- FIM NASCIMENTO -->
 
@@ -1041,14 +1050,24 @@ $dataNascimentoValida = $dataNascimentoValidada && $dataNascimentoValidada->form
       </div>
       <div class="col-sm-6 col-md-4">
         <div class="form-group">
-                 <label for="pai">Pai</label>
-                 <input type="text" class="form-control" id="pai" name="pai" value="" onKeyUp="pesquisar_pai(this.value)">
+                 <?php renderBuscaAnimais(array(
+                     'id' => 'pai',
+                     'name' => 'pai',
+                     'label' => 'Pai',
+                     'tipo' => 'machos',
+                     'limite_origem' => 5
+                 )); ?>
                          </div>
       </div>
       <div class="col-sm-6 col-md-4">
         <div class="form-group">
-                 <label for="mae">Mãe</label>
-                 <input type="text" class="form-control" id="mae" name="mae" value="" onKeyUp="pesquisar_mae(this.value)">
+                 <?php renderBuscaAnimais(array(
+                     'id' => 'mae',
+                     'name' => 'mae',
+                     'label' => 'Mãe',
+                     'tipo' => 'femeas',
+                     'limite_origem' => 5
+                 )); ?>
                         </div>
       </div>
       <div class="col-sm-6 col-md-4">

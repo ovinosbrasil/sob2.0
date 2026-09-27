@@ -112,6 +112,44 @@ function fechar_excluir_lote(){
 function ativar_excluir_lote(id_lote){
     window.location.href = "reproducao/monta/_excluir_lote.php?id_lote="+id_lote;
 }
+
+document.addEventListener('buscaanimais:selecionado', function (evento) {
+  if (!evento.target.classList.contains('busca-femea-monta')) { return; }
+  var formulario = document.getElementById('form-adicionar-femea-monta');
+  if (!formulario) { return; }
+  if (typeof formulario.requestSubmit === 'function') {
+    formulario.requestSubmit();
+  } else if (ativar_femea()) {
+    formulario.submit();
+  }
+});
+
+function abrirFemeaMonta(id, terceiro) {
+  var pagina = terceiro ? 'terceiro' : 'animal';
+  window.location.href = 'geral.php?pg=' + pagina + '&id_animal=' + encodeURIComponent(id);
+}
+
+function confirmarExclusaoFemeaMonta(botao) {
+  confirmarExclusao({
+    titulo: 'Excluir fêmea do lote?',
+    nome: botao.getAttribute('data-nome'),
+    descricao: 'A fêmea será removida deste lote de monta natural.',
+    aoConfirmar: function () {
+      window.location.href = 'reproducao/monta/_excluir_femea.php?id_controle=' + encodeURIComponent(botao.getAttribute('data-id-controle')) + '&id_lote=<?=(int)$id_lote?>';
+    }
+  });
+}
+
+function confirmarExclusaoLoteMontaDetalhe(botao) {
+  confirmarExclusao({
+    titulo: 'Excluir lote de monta natural?',
+    nome: botao.getAttribute('data-nome'),
+    descricao: 'Confirme se deseja excluir este lote. Esta ação não pode ser desfeita.',
+    aoConfirmar: function () {
+      window.location.href = 'reproducao/monta/_excluir_lote.php?id_lote=<?=(int)$id_lote?>';
+    }
+  });
+}
 </script>
 
 <?
@@ -156,183 +194,174 @@ $data_final = $data;
 
 
 <section class="content-header">
-  <h1>
-    Exibir Monta natural
-  </h1>
+  <h1>Exibir Monta natural</h1>
   <ol class="breadcrumb">
-    <li><a href="#"><i class="fa fa-venus-mars"></i> Reprodução</a></li>
-    <li><a href="#">Exibir Monta natural</a></li>
+    <li><i class="fa fa-venus-mars"></i> Reprodução</li>
+    <li class="active">Exibir Monta natural</li>
   </ol>
 </section>
 
-  <!-- Main content -->
-  <section class="content">
-    <div class="row">
-      <div class="col-md-3">
-				<div class="box box-success">
-          <form method="post" action="reproducao/monta/_alterar.php?id_lote=<?=$id_lote?>" onsubmit="return validar_montar()">
-          <!-- /.box-header -->
-          <div class="box-body">
+<section class="content">
+  <div class="box" style="border-top:0;">
+    <form method="post" action="reproducao/monta/_alterar.php?id_lote=<?=(int)$id_lote?>" onsubmit="return validar_montar()">
+      <div class="box-body">
+        <div class="row" style="display:flex; flex-wrap:wrap; align-items:flex-end;">
+          <div class="col-sm-6 col-md-4">
             <div class="form-group">
-                <label for="exampleInputPassword1">Lote<span style="color:#F00;">*</span></label>
-                <input type="text" class="form-control" id="lote" name="lote" value="<?=$monta[0]['codigo']?>">
+              <label for="lote">Lote<span class="text-danger">*</span></label>
+              <input type="text" class="form-control" id="lote" name="lote" value="<?=htmlspecialchars($monta[0]['codigo'], ENT_QUOTES, 'UTF-8')?>">
             </div>
-
-
+          </div>
+          <div class="col-sm-6 col-md-4">
             <div class="form-group">
-                <label for="exampleInputPassword1">Data inicial<span style="color:#F00;">*</span></label>
-                <div class="input-group date">
-                  <div class="input-group-addon">
-                    <i class="fa fa-calendar"></i>
-                  </div>
-                  <input type="text" class="form-control pull-right" id="data_inicial" name="data_inicial" value="<?=$data_inicial?>">
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label for="exampleInputPassword1">Data final<span style="color:#F00;">*</span></label>
-                <div class="input-group date">
-                  <div class="input-group-addon">
-                    <i class="fa fa-calendar"></i>
-                  </div>
-                  <input type="text" class="form-control pull-right" id="data_final" name="data_final" value="<?=$data_final?>">
-                </div>
-            </div>
-
-            <div class="form-group">
-              <label for="exampleInputPassword1">Macho<span style="color:#F00;">*</span>
-                <a href="geral.php?pg=cadastrar_animal&tipo=2" target="_blank"><span style="font-size:11px; color:green;">Novo</span></a></label>
-              <input type="text" class="form-control" id="pai" name="macho" onKeyUp="pesquisar_pai(this.value)" value="<?=$macho[0]['nome']?>">
-              <div id="lista_pai" style="border-style:solid; border-width:thin; height:auto; border-color: #bab1b4; position:absolute; z-index:99999; background:#fff; width:150%; display:none; margin-top:1%;">
+              <label for="data_inicial">Data inicial<span class="text-danger">*</span></label>
+              <div class="input-group date">
+                <div class="input-group-addon"><i class="fa fa-calendar"></i></div>
+                <input type="text" class="form-control pull-right" id="data_inicial" name="data_inicial" value="<?=$data_inicial?>">
               </div>
             </div>
-
-
+          </div>
+          <div class="col-sm-6 col-md-4">
             <div class="form-group">
-              <label for="exampleInputPassword1">Raça<span style="color:#F00;">*</span></label>
+              <label for="data_final">Data final<span class="text-danger">*</span></label>
+              <div class="input-group date">
+                <div class="input-group-addon"><i class="fa fa-calendar"></i></div>
+                <input type="text" class="form-control pull-right" id="data_final" name="data_final" value="<?=$data_final?>">
+              </div>
+            </div>
+          </div>
+          <div class="col-sm-6 col-md-4">
+            <div class="form-group" style="position:relative;">
+              <label for="pai">Macho<span class="text-danger">*</span>
+                <a href="geral.php?pg=cadastrar_animal&amp;tipo=2" target="_blank" rel="noopener"><span style="font-size:11px; color:green;">Novo</span></a>
+              </label>
+              <input type="text" class="form-control" id="pai" name="macho" onkeyup="pesquisar_pai(this.value)" value="<?=htmlspecialchars($macho[0]['nome'] ?? '', ENT_QUOTES, 'UTF-8')?>">
+              <div id="lista_pai" style="border:1px solid #bab1b4; position:absolute; z-index:99999; background:#fff; width:100%; display:none; margin-top:1%;"></div>
+            </div>
+          </div>
+          <div class="col-sm-6 col-md-4">
+            <div class="form-group">
+              <label for="raca">Raça<span class="text-danger">*</span></label>
               <select class="form-control select" id="raca" name="raca">
-                <option value="<?=$monta[0]['raca']?>"><?=$monta[0]['raca']?></option>
-                <option></option>
-                <?
-                $raca = DBRead('raca', "ORDER BY nome asc");
-                foreach ($raca as $raca_) { ?>
-                  <option value="<?=$raca_['nome']?>"><?=$raca_['nome']?></option>
-                <? } ?>
+                <option value="<?=htmlspecialchars($monta[0]['raca'], ENT_QUOTES, 'UTF-8')?>"><?=htmlspecialchars($monta[0]['raca'], ENT_QUOTES, 'UTF-8')?></option>
+                <?php $racas = DBRead('raca', 'ORDER BY nome ASC') ?: array(); foreach ($racas as $raca_): ?>
+                <option value="<?=htmlspecialchars($raca_['nome'], ENT_QUOTES, 'UTF-8')?>"><?=htmlspecialchars($raca_['nome'], ENT_QUOTES, 'UTF-8')?></option>
+                <?php endforeach; ?>
               </select>
             </div>
-
+          </div>
+          <div class="col-sm-6 col-md-4">
             <div class="form-group">
-              <label for="exampleInputPassword1">Notificação<span style="color:#F00;">*</span></label>
+              <label for="notificacao">Notificação<span class="text-danger">*</span></label>
               <select class="form-control select" id="notificacao" name="notificacao">
-                <option value="<?=$monta[0]['notificacao']?>"><?=$monta[0]['notificacao']?></option>
-                <option></option>
+                <option value="<?=htmlspecialchars($monta[0]['notificacao'], ENT_QUOTES, 'UTF-8')?>"><?=htmlspecialchars($monta[0]['notificacao'], ENT_QUOTES, 'UTF-8')?></option>
                 <option value="PO">PO</option>
                 <option value="PC">PC</option>
               </select>
             </div>
+          </div>
+          <div class="col-sm-12 text-right">
+            <button type="submit" class="btn btn-warning">Alterar lote</button>
+            <button type="button" class="btn btn-danger" data-nome="<?=htmlspecialchars('Lote ' . $monta[0]['codigo'], ENT_QUOTES, 'UTF-8')?>" onclick="confirmarExclusaoLoteMontaDetalhe(this)"><i class="fa fa-trash-o" aria-hidden="true"></i> Excluir lote</button>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
 
+  <div class="box" style="border-top:0;">
+    <div class="box-body">
+      <form id="form-adicionar-femea-monta" method="post" action="reproducao/monta/_cadastrar_femea.php?id_lote=<?=(int)$id_lote?>" onsubmit="return ativar_femea()">
+        <div class="row" style="display:flex; flex-wrap:wrap; align-items:flex-end;">
+          <div class="col-sm-12 col-md-6">
             <div class="form-group">
-              <button type="submit" class="btn btn-warning" style="width:100%; margin-top:4%;">Alterar lote</button>
-              <a href="reproducao/monta/_imprimir.php?id_lote=<?=$id_lote?>" target="_blank"><button type="button" class="btn btn-primary" style="width:100%; margin-top:4%;">Imprimir lote</button></a>
-              <a onclick="excluir_lote()"><button type="button" class="btn btn-danger" style="width:100%; margin-top:4%;">Excluir lote</button></a>
+              <?php renderBuscaAnimais(array(
+                  'id' => 'mae',
+                  'name' => 'mae',
+                  'label' => 'Adicionar fêmea',
+                  'tipo' => 'femeas',
+                  'required' => true,
+                  'limite_origem' => 5,
+                  'classe' => 'busca-femea-monta'
+              )); ?>
             </div>
-
+          </div>
         </div>
       </form>
-			</div>
-      <!-- /.col -->
-    </div>
 
-    <div class="col-md-9">
-      <div class="box box-success">
-        <!-- /.box-header -->
-        <div class="box-body">
-          <form method="post" action="reproducao/monta/_cadastrar_femea.php?id_lote=<?=$id_lote?>" onsubmit="return ativar_femea()">
-          <div class="col-md-3">
-            <div class="form-group">
-                <label for="exampleInputPassword1">Adicionar fêmea<span style="color:#F00;">*</span></label>
-                <input type="text" class="form-control" id="mae" name="mae" value="<?=$mae[0]['nome']?>" onKeyUp="pesquisar_mae(this.value)">
-                <div id="lista_mae" style="border-style:solid; border-width:thin; height:auto; border-color: #bab1b4; position:absolute; z-index:99999; background:#fff; width:150%; display:none; margin-top:1%;">
-                </div>
-            </div>
-          </div>
-
-          <div class="col-md-3">
-            <div class="form-group">
-              <button type="submit" class="btn btn-success" style="width:100%; margin-top:8%;">Adicionar fêmea</button>
-            </div>
-          </div>
-        </form>
-
-
-          <table class="table table-bordered" id="tabela_padrao">
-            <tr>
-              <th>Nº</th>
-              <th>Fêmea</th>
-              <th>Tipo</th>
-              <th style="width:20%;">Ultrassom</th>
-              <th style="width:20%;">Nascimento</th>
-              <th style="width:3%;">Excluir</th>
-            </tr>
-            <?
-            $monta_controle = DBRead('monta_controle', "WHERE id_monta = '$id_lote'");
-            foreach ($monta_controle as $monta_controle_){
-              $x++;
-              $id_animal = $monta_controle_['id_animal'];
-              $id_monta_controle = $monta_controle_['id'];
-              if(!$monta_controle_['terceiro']){
-                $femea = DBRead('animais', "WHERE id = '$id_animal'");
-              }else{
-                $femea = DBRead('terceiros', "WHERE id = '$id_animal'");
-              }
-            ?>
-            <tr>
-              <td><?=$x?></td>
-              <td onclick="abrir_animal(<?=$femea[0]['id']?>)" style="cursor:pointer;" ><?=$femea[0]['nome']?></td>
-              <td><?=$femea[0]['tipo']?></td>
-              <td>
-
-              <? if($monta_controle_['ultrassom'] == 1){ ?>
-                <select class="form-control select" id="tipo_parto" name="tipo_parto" onchange="cadastrar_ultrassom(this.value, <?=$id_monta_controle?>)" style="color:green;">
-                  <option value="1">Positivo</option>
-              <? } ?>
-              <? if($monta_controle_['ultrassom'] == 2){ ?>
-                <select class="form-control select" id="tipo_parto" name="tipo_parto" onchange="cadastrar_ultrassom(this.value, <?=$id_monta_controle?>)" style="color:red;">
-                  <option value="1">Negativo</option>
-              <? } ?>
-              <? if($monta_controle_['ultrassom'] == 0){ ?>
-                <select class="form-control select" id="tipo_parto" name="tipo_parto" onchange="cadastrar_ultrassom(this.value, <?=$id_monta_controle?>)">
-                  <option value="1">Selecionar</option>
-              <? } ?>
-             <option value=""></option>
-             <option value="1">Positivo</option>
-             <option value="2">Negativo</option>
-           </select></td>
-              <td>
-                <? if($monta_controle_['status_nascimento']){ ?>
-                  <select class="form-control select" id="tipo_parto" name="tipo_parto" onchange="cadastrar_monta(this.value, <?=$id_monta_controle?>, '1')" style="color:green;">
-                    <option value="">Cria cadastrada</option>
-                <? } ?>
-
-                <? if($monta_controle_['status_nascimento'] == 0){ ?>
-                  <select class="form-control select" id="tipo_parto" name="tipo_parto" onchange="cadastrar_monta(this.value, <?=$id_monta_controle?>, '1')">
-                    <option value="">Selecionar</option>
-                <? } ?>
-               <option value=""></option>
-               <option value="1">Parto simples</option>
-               <option value="2">Parto duplo</option>
-               <option value="3">Parto triplo</option>
-             </select></td>
-              <td><button type="button" class="btn btn-danger" style="padding:0%; padding-left:5%; padding-right:5%; height:20px;" onclick="excluir_femea(<?=$femea[0]['id']?>)">X</button></td>
-              </tr>
-            <? } ?>
-            </table>
-        </div>
-        <!-- /.box-body -->
+      <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; margin:5px 0 15px;">
+        <h3 class="box-title" style="font-size:16px; margin:0;">Fêmeas do lote</h3>
+        <a href="reproducao/monta/_imprimir.php?id_lote=<?=(int)$id_lote?>" target="_blank" rel="noopener" class="btn btn-primary"><i class="fa fa-file-pdf-o" aria-hidden="true"></i> Gerar PDF</a>
       </div>
-    <!-- /.col -->
+      <div class="table-responsive">
+        <table class="table table-bordered table-striped">
+          <thead><tr>
+            <th style="width:45px;">Nº</th>
+            <th>Fêmea</th>
+            <th>Tipo</th>
+            <th style="width:20%;">Ultrassom</th>
+            <th style="width:20%;">Nascimento</th>
+            <th style="width:1%;"><span class="sr-only">Ações</span></th>
+          </tr></thead>
+          <tbody>
+          <?php
+          $controlesMonta = DBRead('monta_controle', "WHERE id_monta = '" . (int)$id_lote . "' ORDER BY id ASC") ?: array();
+          if (!$controlesMonta): ?>
+            <tr><td colspan="6" class="text-center">Nenhuma fêmea adicionada ao lote.</td></tr>
+          <?php endif; ?>
+          <?php foreach ($controlesMonta as $indice => $controle):
+            $idAnimal = (int)$controle['id_animal'];
+            $ehTerceiro = !empty($controle['terceiro']);
+            $cadastroFemea = DBRead($ehTerceiro ? 'terceiros' : 'animais', "WHERE id = '$idAnimal'") ?: array();
+            if (!$cadastroFemea) { continue; }
+            $femea = $cadastroFemea[0];
+          ?>
+            <tr>
+              <td><?=$indice + 1?></td>
+              <td onclick="abrirFemeaMonta(<?=$idAnimal?>, <?=$ehTerceiro ? 1 : 0?>)" style="cursor:pointer;" title="Abrir animal"><?=htmlspecialchars($femea['nome'], ENT_QUOTES, 'UTF-8')?><?=$ehTerceiro ? ' (Terceiro)' : ''?></td>
+              <td><?=htmlspecialchars($femea['tipo'] ?? '--', ENT_QUOTES, 'UTF-8')?></td>
+              <td>
+                <?php
+                $ultrassomPositivo = (int)$controle['ultrassom'] === 1;
+                $ultrassomNegativo = (int)$controle['ultrassom'] === 2;
+                $proximoUltrassom = $ultrassomPositivo ? 2 : 1;
+                $textoUltrassom = $ultrassomPositivo ? 'Positivo' : ($ultrassomNegativo ? 'Negativo' : 'Não informado');
+                $iconeUltrassom = $ultrassomPositivo ? 'fa-check' : ($ultrassomNegativo ? 'fa-times' : 'fa-minus');
+                $corUltrassom = $ultrassomPositivo ? '#008d4c' : ($ultrassomNegativo ? '#dd4b39' : '#777');
+                ?>
+                <div class="sob-controle-status">
+                  <button type="button"
+                          class="sob-interruptor"
+                          role="switch"
+                          aria-checked="<?=$ultrassomPositivo ? 'true' : 'false'?>"
+                          aria-label="Ultrassom de <?=htmlspecialchars($femea['nome'], ENT_QUOTES, 'UTF-8')?>: <?=$textoUltrassom?>"
+                          title="Alterar para <?=$proximoUltrassom === 1 ? 'positivo' : 'negativo'?>"
+                          onclick="cadastrar_ultrassom(<?=$proximoUltrassom?>, <?=(int)$controle['id']?>)">
+                    <span class="sob-interruptor__indicador"><i class="fa <?=$iconeUltrassom?>" aria-hidden="true"></i></span>
+                  </button>
+                  <span class="sob-controle-status__texto" style="color:<?=$corUltrassom?>;"><?=$textoUltrassom?></span>
+                </div>
+              </td>
+              <td>
+                <?php if ($ultrassomNegativo): ?>
+                  <span class="text-muted">--</span>
+                <?php else: ?>
+                  <select class="form-control" onchange="cadastrar_monta(this.value, <?=(int)$controle['id']?>, '1')" style="<?=$controle['status_nascimento'] ? 'color:green;' : ''?>">
+                    <option value=""><?=$controle['status_nascimento'] ? 'Cria cadastrada' : 'Selecionar'?></option>
+                    <option value="1">Parto simples</option>
+                    <option value="2">Parto duplo</option>
+                    <option value="3">Parto triplo</option>
+                  </select>
+                <?php endif; ?>
+              </td>
+              <td style="white-space:nowrap;">
+                <button type="button" class="text-danger" style="background:none; border:0; padding:0;" data-id-controle="<?=(int)$controle['id']?>" data-nome="<?=htmlspecialchars($femea['nome'], ENT_QUOTES, 'UTF-8')?>" onclick="confirmarExclusaoFemeaMonta(this)" title="Excluir fêmea" aria-label="Excluir fêmea"><i class="fa fa-trash-o" aria-hidden="true"></i></button>
+              </td>
+            </tr>
+          <?php endforeach; ?>
+          </tbody>
+        </table>
+      </div>
     </div>
-
   </div>
 </section>
-  <!-- /.content -->

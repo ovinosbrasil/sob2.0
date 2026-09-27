@@ -1,67 +1,79 @@
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<?
-include "../../_config.php";
+<?php
+require_once __DIR__ . '/../../_config.php';
 
-$data = $_POST['data_inicial'];
-include "../../funcoes_data/data.php";
-$data_inicial = $data;
-$data = $_POST['data_final'];
-include "../../funcoes_data/data.php";
-$data_final = $data;
-// Calcula a diferença em segundos entre as datas
-$diferenca = strtotime($data_final) - strtotime($data_inicial);
-//Calcula a diferença em dias
-$dias = floor($diferenca / (60 * 60 * 24));
-$lote = $_POST['lote'];
-$lote_ = DBRead('monta', "WHERE codigo = '$lote'");
+function voltarCadastroMonta($mensagem)
+{
+    echo '<script>alert(' . json_encode($mensagem, JSON_UNESCAPED_UNICODE) . '); history.back();</script>';
+    exit;
+}
 
-// TESTE LOTE
-if($lote_[0]['id'] > 0){
-  echo "<script type=\"text/javascript\"> alert(\"Lote já existe.Tente novamente\"); </script>
-  <script language='javascript'>history.back()</script>";
-}else{
+function dataCadastroMonta($valor)
+{
+    $valor = trim((string)$valor);
+    $data = DateTimeImmutable::createFromFormat('!d/m/Y', $valor);
+    return $data && $data->format('d/m/Y') === $valor ? $data : null;
+}
 
+$codigo = trim((string)($_POST['lote'] ?? ''));
+$inicio = dataCadastroMonta($_POST['data_inicial'] ?? '');
+$fim = dataCadastroMonta($_POST['data_final'] ?? '');
+$nomeMacho = trim((string)($_POST['macho'] ?? ''));
+$raca = trim((string)($_POST['raca'] ?? ''));
+$notificacao = trim((string)($_POST['notificacao'] ?? ''));
 
-//TESTE DIFERENÇA DE DIAS
-if($dias > 90){
-  echo "<script type=\"text/javascript\"> alert(\"Diferença entre datas é maior que 90 dias. Tente novamente\"); </script>
-  <script language='javascript'>history.back()</script>";
-}else{
+if ($codigo === '' || !$inicio || !$fim || $nomeMacho === '' || $raca === '' || !in_array($notificacao, array('PO', 'PC'), true)) {
+    voltarCadastroMonta('Preencha corretamente todos os campos obrigatórios.');
+}
 
-$macho = $_POST['macho'];
-$verifica_macho = DBRead('animais', "WHERE nome = '$macho' AND sexo = 'Macho'");
-$verifica_macho_terceiro = DBRead('terceiros', "WHERE nome = '$macho' AND sexo = 'Macho'");
+$dias = (int)$inicio->diff($fim)->format('%r%a');
+if ($dias < 0) {
+    voltarCadastroMonta('A data final não pode ser anterior à data inicial.');
+}
+if ($dias > 90) {
+    voltarCadastroMonta('A diferença entre as datas não pode ser maior que 90 dias.');
+}
 
-//TESTE MACHO
-if(($verifica_macho[0]['id'] <= 0) && ($verifica_macho_terceiro[0]['id'] <= 0)){
-  echo "<script type=\"text/javascript\"> alert(\"Animal não existe. Tente novamente\"); </script>
-  <script language='javascript'>history.back()</script>";
-}else{
+$codigoEscapado = DBEscape($codigo);
+if (DBRead('monta', "WHERE codigo = '$codigoEscapado'")) {
+    voltarCadastroMonta('Lote já existe. Tente novamente.');
+}
 
-if($verifica_macho[0]['id'] > 0){ $id_macho = $verifica_macho[0]['id']; $terceiro = 0; }
-if($verifica_macho_terceiro[0]['id'] > 0){ $id_macho = $verifica_macho_terceiro[0]['id']; $terceiro = 1; }
+$nomeMachoEscapado = DBEscape($nomeMacho);
+$machoRebanho = DBRead('animais', "WHERE nome = '$nomeMachoEscapado' AND sexo = 'Macho'") ?: array();
+$machoTerceiro = DBRead('terceiros', "WHERE nome = '$nomeMachoEscapado' AND sexo = 'Macho'") ?: array();
 
-$dados = array(
-	'codigo'	=> $_POST['lote'],
-	'data_inicio'	=> $data_inicial,
-  'data_fim'	=> $data_final,
-  'raca'  => $_POST['raca'],
-  'notificacao'   => $_POST['notificacao'],
-  'terceiro' => $terceiro,
-  'id_animal' => $id_macho
-);
+$idMacho = 0;
+$terceiro = 0;
+if (!empty($machoRebanho[0]['id'])) {
+    $idMacho = (int)$machoRebanho[0]['id'];
+} elseif (!empty($machoTerceiro[0]['id'])) {
+    $idMacho = (int)$machoTerceiro[0]['id'];
+    $terceiro = 1;
+}
+if (!$idMacho) {
+    voltarCadastroMonta('Animal não existe. Tente novamente.');
+}
 
-DBcreate('monta', $dados);
-$lote = DBRead('monta', "WHERE codigo = '$lote'");
-$id_lote = $lote[0]['id'];
+$idLote = DBCreate('monta', array(
+    'codigo' => $codigo,
+    'data_inicio' => $inicio->format('Y-m-d'),
+    'data_fim' => $fim->format('Y-m-d'),
+    'macho' => '',
+    'raca' => $raca,
+    'notificacao' => $notificacao,
+    'id_animal' => $idMacho,
+    'terceiro' => $terceiro
+), true);
 
+DBCreate('lotes_reproducao', array(
+    'id_lote' => (int)$idLote,
+    'ultrassom' => 0,
+    'femeas' => 0,
+    'crias' => 0,
+    'mortes' => 0,
+    'tipo' => 0,
+    'vivos' => 0
+));
 
-$dados = array(
-	'id_lote'	=> $id_lote,
-  'tipo'    => 0
-);
-DBcreate('lotes_reproducao', $dados);
-
-echo "<META HTTP-EQUIV=REFRESH CONTENT='0; URL=../../geral.php?pg=monta&id_lote=$id_lote'>";
-}}}
-?>
+header('Location: ../../geral.php?pg=monta&id_lote=' . (int)$idLote);
+exit;

@@ -62,7 +62,8 @@ $id_lote = $_GET['id_lote'];
 
 if($tipo == 1){
   $dados = array(
-  	'status_nascimento'	=> 1
+    'status_nascimento' => 1,
+    'ultrassom' => 1
   );
   DBUpdate('monta_controle', $dados, "id = '$id_lote'");
   $tipo_reproducao = "Monta Natural";
@@ -70,7 +71,8 @@ if($tipo == 1){
 
 if($tipo == 2){
   $dados = array(
-  	'status_nascimento'	=> 1
+    'status_nascimento' => 1,
+    'ultrassom' => 1
   );
   DBUpdate('inseminacao_controle', $dados, "id = '$id_lote'");
   $tipo_reproducao = "Inseminação Artificial";
@@ -118,6 +120,28 @@ if ($tipo == 3) {
   }
 } else {
   $id_animal = DBCreate('animais', $dados, true);
+}
+
+// Um nascimento confirmado implica ultrassom positivo. Atualiza também o
+// percentual consolidado do lote para manter os relatórios consistentes.
+$configuracaoUltrassom = array(
+  1 => array('tabela' => 'monta_controle', 'coluna_lote' => 'id_monta', 'tipo_lote' => 0),
+  2 => array('tabela' => 'inseminacao_controle', 'coluna_lote' => 'id_lote', 'tipo_lote' => 1),
+  3 => array('tabela' => 'transplante_controle', 'coluna_lote' => 'id_lote', 'tipo_lote' => 2),
+);
+$configuracao = $configuracaoUltrassom[(int)$tipo] ?? null;
+if ($configuracao) {
+  $tabelaControle = $configuracao['tabela'];
+  $colunaLote = $configuracao['coluna_lote'];
+  $controleNascimento = DBRead($tabelaControle, "WHERE id = '" . (int)$id_lote . "'");
+  $idLoteReproducao = (int)($controleNascimento[0][$colunaLote] ?? 0);
+  if ($idLoteReproducao > 0) {
+    $controlesLote = DBRead($tabelaControle, "WHERE $colunaLote = '$idLoteReproducao'") ?: array();
+    $ultrassonsPositivos = DBRead($tabelaControle, "WHERE $colunaLote = '$idLoteReproducao' AND ultrassom = '1'") ?: array();
+    $percentualUltrassom = $controlesLote ? count($ultrassonsPositivos) * 100 / count($controlesLote) : 0;
+    DBUpdate('lotes_reproducao', array('ultrassom' => $percentualUltrassom),
+      "id_lote = '$idLoteReproducao' AND tipo = '" . (int)$configuracao['tipo_lote'] . "'");
+  }
 }
 
 //ANIMAL MORTO
