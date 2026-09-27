@@ -8,9 +8,9 @@ $compradores = DBRead('mercado', "WHERE nome LIKE '%$nome%' ORDER BY nome ASC LI
   <div class="text-muted" style="padding:8px;">Nenhum comprador encontrado.</div>
 <?php } ?>
 <?php foreach ($compradores as $comprador_) { ?>
-  <button type="button" onclick="linkar_comprador(this.getAttribute('data-nome'))" data-nome="<?=htmlspecialchars($comprador_['nome'], ENT_QUOTES, 'UTF-8')?>" style="display:block; width:100%; text-align:left; border:0; border-bottom:1px solid #eee; background:#fff; color:#2d2c2c; padding:8px;">
+  <button type="button" onclick="linkar_comprador(this.getAttribute('data-nome'), this.getAttribute('data-id'))" data-id="<?=(int)$comprador_['id']?>" data-nome="<?=htmlspecialchars($comprador_['nome'], ENT_QUOTES, 'UTF-8')?>" class="sob-busca-animais__opcao">
     <strong><?=htmlspecialchars($comprador_['nome'], ENT_QUOTES, 'UTF-8')?></strong><br>
     Cidade: <?=htmlspecialchars($comprador_['cidade'] ?? '', ENT_QUOTES, 'UTF-8')?>
   </button>
 <?php } ?>
-  <button type="button" onclick="fechar_lista_comprador()" class="btn btn-link btn-sm text-danger">Fechar Pesquisa</button>
+  <button type="button" onclick="fechar_lista_comprador()" class="sob-busca-animais__fechar text-danger">Fechar Pesquisa</button>

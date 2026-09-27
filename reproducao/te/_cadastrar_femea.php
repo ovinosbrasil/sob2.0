@@ -10,12 +10,14 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit;
 }
 $nome = isset($_POST['receptora']) && is_string($_POST['receptora']) ? trim($_POST['receptora']) : '';
+$idReceptoraSelecionada = filter_input(INPUT_POST, 'receptora_id', FILTER_VALIDATE_INT);
+$origemReceptora = isset($_POST['receptora_origem']) && is_string($_POST['receptora_origem']) ? trim($_POST['receptora_origem']) : '';
 $token = isset($_POST['csrf_token']) && is_string($_POST['csrf_token']) ? $_POST['csrf_token'] : '';
 $erro = '';
 if (empty($_SESSION['receptora_csrf']) || !hash_equals($_SESSION['receptora_csrf'], $token)) {
     $erro = 'Sua sessão expirou. Atualize a página e tente novamente.';
-} elseif ($nome === '' || !preg_match('//u', $nome) || preg_match_all('/./us', $nome) > 50) {
-    $erro = 'Informe um nome válido com até 50 caracteres.';
+} elseif (!$idReceptoraSelecionada || $idReceptoraSelecionada < 1 || $origemReceptora !== 'receptora') {
+    $erro = 'Selecione uma receptora ativa na lista de pesquisa.';
 } else {
     mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
     $link = DBConnect();
@@ -27,15 +29,19 @@ if (empty($_SESSION['receptora_csrf']) || !hash_equals($_SESSION['receptora_csrf
         if (!mysqli_num_rows($lote)) {
             throw new DomainException('Lote não encontrado.');
         }
-        $stmt = mysqli_prepare($link, 'INSERT INTO receptora (nome, ativo) VALUES (?, 1) ON DUPLICATE KEY UPDATE id = LAST_INSERT_ID(id)');
-        mysqli_stmt_bind_param($stmt, 's', $nome);
+        $stmt = mysqli_prepare($link, 'SELECT id, nome, ativo FROM receptora WHERE id = ? FOR UPDATE');
+        mysqli_stmt_bind_param($stmt, 'i', $idReceptoraSelecionada);
         mysqli_stmt_execute($stmt);
-        $idReceptora = mysqli_insert_id($link);
+        $resultadoReceptora = mysqli_stmt_get_result($stmt);
+        $receptora = mysqli_fetch_assoc($resultadoReceptora);
         mysqli_stmt_close($stmt);
-        $receptora = mysqli_fetch_assoc(mysqli_query($link, 'SELECT nome, ativo FROM receptora WHERE id = ' . $idReceptora . ' FOR UPDATE'));
+        if (!$receptora) {
+            throw new DomainException('Receptora não encontrada. Faça a pesquisa novamente.');
+        }
         if (!$receptora['ativo']) {
             throw new DomainException('Essa receptora está inativa. Ative-a no cadastro de receptoras antes de adicioná-la.');
         }
+        $idReceptora = (int)$receptora['id'];
         $nome = $receptora['nome'];
         $stmt = mysqli_prepare($link, 'SELECT id FROM transplante_controle WHERE id_lote = ? AND (id_receptora = ? OR TRIM(receptora) = ?) LIMIT 1');
         mysqli_stmt_bind_param($stmt, 'iis', $id_lote, $idReceptora, $nome);

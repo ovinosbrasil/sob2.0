@@ -1,54 +1,92 @@
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<?
-include "../../_config.php";
+<?php
+require_once __DIR__ . '/../../_config.php';
 
-$data = $_POST['data_inicial'];
-include "../../funcoes_data/data.php";
-$data = $data;
+function voltarCadastroInseminacao($mensagem)
+{
+    echo '<script>alert(' . json_encode($mensagem, JSON_UNESCAPED_UNICODE) . '); history.back();</script>';
+    exit;
+}
 
-$lote = $_POST['lote'];
-$lote_ = DBRead('inseminacao', "WHERE codigo = '$lote'");
+function dataCadastroInseminacao($valor)
+{
+    $valor = trim((string)$valor);
+    $data = DateTimeImmutable::createFromFormat('!d/m/Y', $valor);
+    return $data && $data->format('d/m/Y') === $valor ? $data : null;
+}
 
-// TESTE LOTE
-if($lote_[0]['id'] > 0){
-  echo "<script type=\"text/javascript\"> alert(\"Lote já existe.Tente novamente\"); </script>
-  <script language='javascript'>history.back()</script>";
-}else{
+$codigo = trim((string)($_POST['lote'] ?? ''));
+$data = dataCadastroInseminacao($_POST['data_inicial'] ?? '');
+$nomeMacho = trim((string)($_POST['macho'] ?? ''));
+$raca = trim((string)($_POST['raca'] ?? ''));
+$semen = trim((string)($_POST['semen'] ?? ''));
+$notificacao = trim((string)($_POST['notificacao'] ?? ''));
 
-$macho = $_POST['macho'];
-$verifica_macho = DBRead('animais', "WHERE nome = '$macho' AND sexo = 'Macho'");
-$verifica_macho_terceiro = DBRead('terceiros', "WHERE nome = '$macho' AND sexo = 'Macho'");
+if (
+    $codigo === '' || !$data || $nomeMacho === '' || $raca === '' ||
+    !in_array($semen, array('A fresco', 'Congelado', 'Refrigerado'), true) ||
+    !in_array($notificacao, array('PO', 'PC'), true)
+) {
+    voltarCadastroInseminacao('Preencha corretamente todos os campos obrigatórios.');
+}
 
-//TESTE MACHO
-if(($verifica_macho[0]['id'] <= 0) && ($verifica_macho_terceiro[0]['id'] <= 0)){
-  echo "<script type=\"text/javascript\"> alert(\"Animal não existe. Tente novamente\"); </script>
-  <script language='javascript'>history.back()</script>";
-}else{
+$codigoEscapado = DBEscape($codigo);
+if (DBRead('inseminacao', "WHERE codigo = '$codigoEscapado'")) {
+    voltarCadastroInseminacao('Lote já existe. Tente novamente.');
+}
 
-if($verifica_macho[0]['id'] > 0){ $id_macho = $verifica_macho[0]['id']; $terceiro = 0; }
-if($verifica_macho_terceiro[0]['id'] > 0){ $id_macho = $verifica_macho_terceiro[0]['id']; $terceiro = 1; }
+$idMacho = 0;
+$terceiro = 0;
+$idSelecionado = filter_var($_POST['macho_id'] ?? 0, FILTER_VALIDATE_INT);
+$origemSelecionada = $_POST['macho_origem'] ?? '';
 
-$dados = array(
-	'codigo'	=> $_POST['lote'],
-	'data'	=> $data,
-  'semen'	=> $_POST['semen'],
-  'raca'  => $_POST['raca'],
-  'notificacao'   => $_POST['notificacao'],
-  'terceiro' => $terceiro,
-  'id_macho' => $id_macho
-);
+if ($idSelecionado && in_array($origemSelecionada, array('rebanho', 'terceiros'), true)) {
+    $tabela = $origemSelecionada === 'terceiros' ? 'terceiros' : 'animais';
+    $idSelecionado = (int)$idSelecionado;
+    $selecionado = DBRead($tabela, "WHERE id = '$idSelecionado' AND sexo = 'Macho'") ?: array();
+    if (!empty($selecionado[0]['id'])) {
+        $idMacho = (int)$selecionado[0]['id'];
+        $terceiro = $origemSelecionada === 'terceiros' ? 1 : 0;
+    }
+}
 
-DBcreate('inseminacao', $dados);
-$lote = DBRead('inseminacao', "WHERE codigo = '$lote'");
-$id_lote = $lote[0]['id'];
+// Mantém compatibilidade com formulários antigos que enviam somente o nome.
+if (!$idMacho) {
+    $nomeMachoEscapado = DBEscape($nomeMacho);
+    $machoRebanho = DBRead('animais', "WHERE nome = '$nomeMachoEscapado' AND sexo = 'Macho'") ?: array();
+    $machoTerceiro = DBRead('terceiros', "WHERE nome = '$nomeMachoEscapado' AND sexo = 'Macho'") ?: array();
 
-//RANKING IA
-$dados = array(
-	'id_lote'	=> $id_lote,
-  'tipo'    => 1
-);
-DBcreate('lotes_reproducao', $dados);
-//FIM RANKING IA
-echo "<META HTTP-EQUIV=REFRESH CONTENT='0; URL=../../geral.php?pg=inseminacao&id_lote=$id_lote'>";
-}}
-?>
+    if (!empty($machoRebanho[0]['id'])) {
+        $idMacho = (int)$machoRebanho[0]['id'];
+    } elseif (!empty($machoTerceiro[0]['id'])) {
+        $idMacho = (int)$machoTerceiro[0]['id'];
+        $terceiro = 1;
+    }
+}
+
+if (!$idMacho) {
+    voltarCadastroInseminacao('Animal não existe. Tente novamente.');
+}
+
+$idLote = DBCreate('inseminacao', array(
+    'codigo' => $codigo,
+    'data' => $data->format('Y-m-d'),
+    'semen' => $semen,
+    'raca' => $raca,
+    'macho' => '',
+    'notificacao' => $notificacao,
+    'terceiro' => $terceiro,
+    'id_macho' => $idMacho
+), true);
+
+DBCreate('lotes_reproducao', array(
+    'id_lote' => (int)$idLote,
+    'ultrassom' => 0,
+    'femeas' => 0,
+    'crias' => 0,
+    'mortes' => 0,
+    'tipo' => 1,
+    'vivos' => 0
+));
+
+header('Location: ../../geral.php?pg=inseminacao&id_lote=' . (int)$idLote);
+exit;

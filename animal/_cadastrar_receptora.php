@@ -9,6 +9,8 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 $nome = isset($_POST['nome']) && is_string($_POST['nome']) ? trim($_POST['nome']) : '';
 $token = isset($_POST['csrf_token']) && is_string($_POST['csrf_token']) ? $_POST['csrf_token'] : '';
 $erro = '';
+$retornoTe = isset($_POST['retorno']) && $_POST['retorno'] === 'te';
+$idLoteRetorno = filter_input(INPUT_POST, 'id_lote', FILTER_VALIDATE_INT);
 if (empty($_SESSION['receptora_csrf']) || !hash_equals($_SESSION['receptora_csrf'], $token)) {
     $erro = 'Sua sessão expirou. Atualize a página e tente novamente.';
 } elseif ($nome === '') {
@@ -38,9 +40,15 @@ if (empty($_SESSION['receptora_csrf']) || !hash_equals($_SESSION['receptora_csrf
     DBClose($link);
 }
 
-$_SESSION['receptora_flash'] = array(
+$flash = array(
     'erro' => $erro,
     'nome' => $erro !== '' ? $nome : '',
 );
+if ($retornoTe && $idLoteRetorno && $idLoteRetorno > 0) {
+    $_SESSION['te_cadastro_receptora_flash'] = $flash;
+    header('Location: ../geral.php?pg=te&id_lote=' . (int)$idLoteRetorno, true, 303);
+    exit;
+}
+$_SESSION['receptora_flash'] = $flash;
 header('Location: ../geral.php?pg=lista_receptoras', true, 303);
 exit;

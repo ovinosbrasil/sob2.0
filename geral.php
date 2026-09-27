@@ -679,8 +679,10 @@ function fechar_lista_comprador(){
   document.getElementById("lista_comprador").style.display = 'none';
 }
 
-function linkar_comprador(nome){
+function linkar_comprador(nome, id){
   document.getElementById("comprador").value = nome;
+  var campoId = document.getElementById("comprador_id");
+  if (campoId) { campoId.value = id || ''; }
   document.getElementById("lista_comprador").style.display = 'none';
 }
 

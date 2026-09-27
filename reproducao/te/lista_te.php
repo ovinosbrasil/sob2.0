@@ -1,533 +1,242 @@
-<script type="text/javascript">
-function te_lote(id_lote){
-  window.location.href = "geral.php?pg=te&id_lote="+id_lote;
+<?php
+function dataTransplanteLista($valor)
+{
+    $valor = substr((string)$valor, 0, 10);
+    $data = DateTimeImmutable::createFromFormat('!Y-m-d', $valor);
+    return $data && $data->format('Y-m-d') === $valor ? $data : null;
 }
 
-function pesquisar_pai_te(nome){
-if(window.XMLHttpRequest) { PP = new XMLHttpRequest();} else if(window.ActiveXObject) { PP = new ActiveXObject("Microsoft.XMLHTTP"); }
-// Arquivo PHP juntamente com o valor digitado no campo (método GET)
-var url = "reproducao/te/lista_pai.php?nome="+nome;
-// Chamada do método open para processar a requisição
-PP.open("Get", url, true);
-// Quando o objeto recebe o retorno, chamamos a seguinte função;
-PP.onreadystatechange = function() {
-if (PP.readyState == 4) {
-resposta = PP.responseText;
-document.getElementById("lista_pai").innerHTML = resposta;
-if (document.activeElement === document.getElementById("pai")) {
-  document.getElementById("lista_pai").style.display = 'block';
-}
-}
-}
-PP.send(null);
+function filtroAnimalTransplante($nome, $id, $origem, $sexo, $campoId, $campoTerceiro)
+{
+    $nome = trim((string)$nome);
+    $id = filter_var($id, FILTER_VALIDATE_INT);
+    if ($id && in_array($origem, array('rebanho', 'terceiros'), true)) {
+        return array(
+            $campoId . " = '" . (int)$id . "'",
+            $campoTerceiro . " = '" . ($origem === 'terceiros' ? 1 : 0) . "'"
+        );
+    }
+    if ($nome === '') { return array(); }
+
+    $nomeEscapado = DBEscape($nome);
+    $animal = DBRead('animais', "WHERE nome = '$nomeEscapado' AND sexo = '$sexo'") ?: array();
+    $terceiro = 0;
+    if (!$animal) {
+        $animal = DBRead('terceiros', "WHERE nome = '$nomeEscapado' AND sexo = '$sexo'") ?: array();
+        $terceiro = 1;
+    }
+    $idAnimal = (int)($animal[0]['id'] ?? 0);
+    return array($campoId . " = '$idAnimal'", $campoTerceiro . " = '$terceiro'");
 }
 
-function fechar_lista_pai(){
-  document.getElementById("lista_pai").style.display = 'none';
+$pai = isset($_GET['pai']) && is_string($_GET['pai']) ? trim($_GET['pai']) : '';
+$mae = isset($_GET['mae']) && is_string($_GET['mae']) ? trim($_GET['mae']) : '';
+$paiId = $_GET['pai_id'] ?? '';
+$paiOrigem = isset($_GET['pai_origem']) && is_string($_GET['pai_origem']) ? $_GET['pai_origem'] : '';
+$maeId = $_GET['mae_id'] ?? '';
+$maeOrigem = isset($_GET['mae_origem']) && is_string($_GET['mae_origem']) ? $_GET['mae_origem'] : '';
+
+$condicoes = array_merge(
+    filtroAnimalTransplante($pai, $paiId, $paiOrigem, 'Macho', 'id_pai', 'terceiro_pai'),
+    filtroAnimalTransplante($mae, $maeId, $maeOrigem, 'Fêmea', 'id_mae', 'terceiro_mae')
+);
+$where = $condicoes ? 'WHERE ' . implode(' AND ', $condicoes) : '';
+
+$porPagina = filter_var($_GET['por_pagina'] ?? 10, FILTER_VALIDATE_INT);
+if (!in_array($porPagina, array(10, 20, 50, 100), true)) { $porPagina = 10; }
+$contagem = DBRead('transplante', $where, 'COUNT(*) AS total') ?: array();
+$totalLotes = (int)($contagem[0]['total'] ?? 0);
+$totalPaginas = max(1, (int)ceil($totalLotes / $porPagina));
+$paginaInformada = filter_var($_GET['pag'] ?? 1, FILTER_VALIDATE_INT);
+$pagina = min(max(1, $paginaInformada === false ? 1 : $paginaInformada), $totalPaginas);
+$inicio = ($pagina - 1) * $porPagina;
+$lotesPagina = DBRead('transplante', "$where ORDER BY data DESC, id DESC LIMIT $inicio, $porPagina") ?: array();
+$lotesSelecao = DBRead('transplante', 'ORDER BY id DESC') ?: array();
+
+$parametrosPagina = array(
+    'pg' => 'lista_te',
+    'pai' => $pai,
+    'pai_id' => $paiId,
+    'pai_origem' => $paiOrigem,
+    'mae' => $mae,
+    'mae_id' => $maeId,
+    'mae_origem' => $maeOrigem,
+    'por_pagina' => $porPagina
+);
+$urlPagina = 'geral.php?' . htmlspecialchars(http_build_query($parametrosPagina), ENT_QUOTES, 'UTF-8');
+?>
+<script>
+function te_lote(id) {
+    if (/^\d+$/.test(String(id)) && Number(id) > 0) {
+        window.location.href = 'geral.php?pg=te&id_lote=' + encodeURIComponent(id);
+    }
 }
 
-function linkar_pai_te(nome){
-  document.getElementById("pai").value = nome;
-  fechar_lista_pai();
-}
+document.addEventListener('buscaanimais:selecionado', function (evento) {
+    var componente = evento.target;
+    if (!componente.classList.contains('busca-mae-filtro-te') &&
+        !componente.classList.contains('busca-pai-filtro-te')) { return; }
+    document.getElementById('filtros-te').submit();
+});
 
-function pesquisar_mae_te(nome){
-if(window.XMLHttpRequest) { PP = new XMLHttpRequest();} else if(window.ActiveXObject) { PP = new ActiveXObject("Microsoft.XMLHTTP"); }
-// Arquivo PHP juntamente com o valor digitado no campo (método GET)
-var url = "reproducao/te/lista_mae.php?nome="+nome;
-// Chamada do método open para processar a requisição
-PP.open("Get", url, true);
-// Quando o objeto recebe o retorno, chamamos a seguinte função;
-PP.onreadystatechange = function() {
-if (PP.readyState == 4) {
-resposta = PP.responseText;
-document.getElementById("lista_mae").innerHTML = resposta;
-if (document.activeElement === document.getElementById("mae")) {
-  document.getElementById("lista_mae").style.display = 'block';
-}
-}
-}
-PP.send(null);
-}
-
-function fechar_lista_mae(){
-  document.getElementById("lista_mae").style.display = 'none';
-}
-
-function linkar_mae_te(nome){
-  document.getElementById("mae").value = nome;
-  fechar_lista_mae();
-}
-
-function excluir_lote_te(id_lote){
-if(window.XMLHttpRequest) { PP = new XMLHttpRequest();} else if(window.ActiveXObject) { PP = new ActiveXObject("Microsoft.XMLHTTP"); }
-// Arquivo PHP juntamente com o valor digitado no campo (método GET)
-var url = "reproducao/te/palco_excluir_lote.php?id_lote="+id_lote;
-// Chamada do método open para processar a requisição
-PP.open("Get", url, true);
-// Quando o objeto recebe o retorno, chamamos a seguinte função;
-PP.onreadystatechange = function() {
-if (PP.readyState == 4) {
-resposta = PP.responseText;
-document.getElementById("palco_excluir").innerHTML = resposta;
-}
-}
-PP.send(null);
-document.getElementById("transparencia").style.display = 'block';
-document.getElementById("palco_excluir").style.display = 'block';
-}
-
-function fechar_excluir_lote(){
-  document.getElementById("transparencia").style.display = 'none';
-  document.getElementById("palco_excluir").style.display = 'none';
-}
-
-function ativar_excluir_lote(id_lote){
-    window.location.href = "reproducao/te/_excluir_lote.php?id_lote="+id_lote;
+function confirmarExclusaoLoteTe(botao) {
+    var id = botao.getAttribute('data-id');
+    if (!/^\d+$/.test(id) || Number(id) < 1) { return; }
+    confirmarExclusao({
+        titulo: 'Excluir lote de transplante de embriões?',
+        nome: botao.getAttribute('data-nome'),
+        descricao: 'Confirme se deseja excluir este lote. Esta ação não pode ser desfeita.',
+        aoConfirmar: function () {
+            window.location.href = 'reproducao/te/_excluir_lote.php?id_lote=' + encodeURIComponent(id);
+        }
+    });
 }
 </script>
 
-<?
-function addDayIntoDate($date,$days) {
-     $thisyear = substr ( $date, 0, 4 );
-     $thismonth = substr ( $date, 4, 2 );
-     $thisday =  substr ( $date, 6, 2 );
-     $nextdate = mktime ( 0, 0, 0, $thismonth, $thisday + $days, $thisyear );
-     return strftime("%Y%m%d", $nextdate);
-}
-
-$pai = isset($_GET['pai']) && is_string($_GET['pai']) ? $_GET['pai'] : '';
-$mae = isset($_GET['mae']) && is_string($_GET['mae']) ? $_GET['mae'] : '';
-$paginaTe = max(1, (int) filter_input(INPUT_GET, 'pag', FILTER_VALIDATE_INT));
-$porPaginaTe = 15;
-$totalLotesTe = 0;
-$totalPaginasTe = 1;
-$carregarLotesTe = function ($condicao = '', $ordem = 'data DESC, id DESC') use (&$paginaTe, &$totalLotesTe, &$totalPaginasTe, $porPaginaTe) {
-    $contagem = DBRead('transplante', $condicao, 'COUNT(*) AS total');
-    $totalLotesTe = (int) $contagem[0]['total'];
-    $totalPaginasTe = max(1, (int) ceil($totalLotesTe / $porPaginaTe));
-    $paginaTe = min($paginaTe, $totalPaginasTe);
-    $offsetTe = ($paginaTe - 1) * $porPaginaTe;
-    return DBRead('transplante', "$condicao ORDER BY $ordem LIMIT $offsetTe, $porPaginaTe") ?: array();
-};
-$urlPaginaTe = function ($pagina) use ($pai, $mae) {
-    return htmlspecialchars('geral.php?' . http_build_query(array('pg' => 'lista_te', 'pai' => $pai, 'mae' => $mae, 'pag' => $pagina)), ENT_QUOTES, 'UTF-8');
-};
-?>
-
-
 <section class="content-header">
-  <h1>
-    Pesquisar Transplante de embriões
-  </h1>
+  <h1>Transplante de embriões</h1>
   <ol class="breadcrumb">
-    <li><a href="#"><i class="fa fa-venus-mars"></i> Reprodução</a></li>
-    <li><a href="#">Trans. de embriões</a></li>
+    <li><i class="fa fa-venus-mars"></i> Reprodução</li>
+    <li class="active">Transplante de embriões</li>
   </ol>
 </section>
 
-  <!-- Main content -->
-  <section class="content">
-    <div class="row">
-      <div class="col-md-3">
-				<div class="box box-success">
-          <!-- /.box-header -->
-          <div class="box-body">
-            <div class="form-group">
-                <label for="exampleInputPassword1">Lote</label>
-                <select class="form-control select" onchange="te_lote(this.value)" name="profissional" id="profissional">
-                  <option value="">Selecionar</option>
-                  <option value=""></option>
-                  <?
-                  $lote = DBRead('transplante', "ORDER BY id desc");
-                  foreach (($lote ?: array()) as $lote_) {
-                    $id_macho = $lote_['id_pai'];
-                    if($lote_['terceiro_pai']){
-                      $macho = DBRead('terceiros', "WHERE id = '$id_macho'");
-                    }else{
-                      $macho = DBRead('animais', "WHERE id = '$id_macho'");
-                    }
-
-                    $id_femea = $lote_['id_mae'];
-                    if($lote_['terceiro_mae']){
-                      $femea = DBRead('terceiros', "WHERE id = '$id_femea'");
-                    }else{
-                      $femea = DBRead('animais', "WHERE id = '$id_femea'");
-                    }
-                  ?>
-                    <option value="<?=$lote_['id']?>"><?=$lote_['codigo']?> - <?=$macho[0]['nome']?> - <?=$femea[0]['nome']?></option>
-                  <?}?>
-                </select>
-            </div>
-
-
-            <form method="get" action="geral.php">
-              <input type="hidden" name="pg" value="lista_te">
-            <div class="form-group" style="position:relative;">
-                <label for="exampleInputPassword1">Mãe</label>
-                <input type="text" class="form-control" id="mae" name="mae" value="<?=htmlspecialchars($mae, ENT_QUOTES, 'UTF-8')?>" oninput="pesquisar_mae_te(this.value)">
-                <div id="lista_mae" style="border-style:solid; border-width:thin; height:auto; border-color: #bab1b4; position:absolute; z-index:99999; background:#fff; width:100%; display:none; margin-top:1%;">
-            </div>
-          </div>
-
-            <div class="form-group" style="position:relative;">
-                <label for="exampleInputPassword1">Pai</label>
-                <input type="text" class="form-control" id="pai" name="pai" value="<?=htmlspecialchars($pai, ENT_QUOTES, 'UTF-8')?>" oninput="pesquisar_pai_te(this.value)">
-                <div id="lista_pai" style="border-style:solid; border-width:thin; height:auto; border-color: #bab1b4; position:absolute; z-index:99999; background:#fff; width:100%; display:none; margin-top:1%;">
-            </div>
-          </div>
-              <button type="submit" class="btn btn-primary btn-block">Pesquisar</button>
-            </form>
-        </div>
-          <!-- /.box-body -->
-			</div>
-      <!-- /.col -->
-    </div>
-
-
-      <div class="col-md-9">
-        <div class="box box-success">
-          <!-- /.box-header -->
-          <div class="box-body">
-            <div class="form-group">
-              <a href="geral.php?pg=cadastrar_te" > <button type="submit" class="btn btn-success" style="float:right; margin-bottom:1%;">Adicionar novo lote</button> </a>
-            </div>
-            <?
-
-            //SEM BUSCA
-            if((!$pai) && (!$mae)){
-            ?>
-            Últimos lotes cadastrados
-            <table class="table table-bordered" id="tabela_padrao">
-              <tr>
-                <th>Lote</th>
-                <th>Macho</th>
-                <th>Macho complementar</th>
-                <th>Fêmea</th>
-                <th>Data</th>
-                <th>Previsão</th>
-                <th>Excluir</th>
-              </tr>
-              <?
-                $lote = $carregarLotesTe();
-                foreach (($lote ?: array()) as $lote_){
-                  $id_pai_2 = (int)($lote_['id_pai_2'] ?? 0);
-                  $macho_complementar = $id_pai_2 > 0
-                    ? DBRead(empty($lote_['terceiro_pai_2']) ? 'animais' : 'terceiros', "WHERE id = '$id_pai_2'")
-                    : [];
-
-                  $id_macho = $lote_['id_pai'];
-                  if($lote_['terceiro_pai']){
-                    $macho = DBRead('terceiros', "WHERE id = '$id_macho'");
-                  }else{
-                    $macho = DBRead('animais', "WHERE id = '$id_macho'");
-                  }
-
-                  $id_femea = $lote_['id_mae'];
-                  if($lote_['terceiro_mae']){
-                    $femea = DBRead('terceiros', "WHERE id = '$id_femea'");
-                  }else{
-                    $femea = DBRead('animais', "WHERE id = '$id_femea'");
-                  }
-
-                $data = $lote_['data'];
-                $data_atual = $data;
-                $data = '0';
-                $data['0'] = $data_atual['8'];
-                $data['1'] = $data_atual['9'];
-                $data['2'] = "/";
-                $data['3'] = $data_atual['5'];
-                $data['4'] = $data_atual['6'];
-                $data['5'] = "/";
-                $data['6'] = $data_atual['0'];
-                $data['7'] = $data_atual['1'];
-                $data['8'] = $data_atual['2'];
-                $data['9'] = $data_atual['3'];
-                $data_te = $data;
-
-
-                $data = explode("/", $data);
-                list($dia, $mes, $ano) = $data;
-                $data = "$ano$mes$dia";
-                $nextdate = addDayIntoDate($data,146);
-                $data[0] = $nextdate[6];
-                $data[1] = $nextdate[7];
-                $data[2] = "/";
-                $data[3] = $nextdate[4];
-                $data[4] = $nextdate[5];
-                $data[5] = "/";
-                $data[6] = $nextdate[0];
-                $data[7] = $nextdate[1];
-                $data[8] = $nextdate[2];
-                $data[9] = $nextdate[3];
-                $data_previsao1 = $data;
-
-                $data = explode("/", $data_te);
-                list($dia, $mes, $ano) = $data;
-                $data = "$ano$mes$dia";
-                $nextdate = addDayIntoDate($data,161);
-                $data[0] = $nextdate[6];
-                $data[1] = $nextdate[7];
-                $data[2] = "/";
-                $data[3] = $nextdate[4];
-                $data[4] = $nextdate[5];
-                $data[5] = "/";
-                $data[6] = $nextdate[0];
-                $data[7] = $nextdate[1];
-                $data[8] = $nextdate[2];
-                $data[9] = $nextdate[3];
-                $data_previsao2 = $data;
-                ?>
-                <tr>
-                    <td onclick="te_lote(<?=$lote_['id']?>)" style="cursor:pointer;" ><?=$lote_['codigo']?></td>
-                    <td onclick="te_lote(<?=$lote_['id']?>)" style="cursor:pointer;" ><?=$macho[0]['nome']?></td>
-                    <td onclick="te_lote(<?=$lote_['id']?>)" style="cursor:pointer;" ><?=htmlspecialchars($macho_complementar[0]['nome'] ?? '-', ENT_QUOTES, 'UTF-8')?></td>
-                    <td onclick="te_lote(<?=$lote_['id']?>)" style="cursor:pointer;" ><?=$femea[0]['nome']?></td>
-                    <td onclick="te_lote(<?=$lote_['id']?>)" style="cursor:pointer;" >Inicial: <?=$data_te?></td>
-                    <td onclick="te_lote(<?=$lote_['id']?>)" style="cursor:pointer;" ><?=$data_previsao1?> até <?=$data_previsao2?></td>
-                    <td><button type="button" class="btn btn-danger" style="padding:0%; padding-left:5%; padding-right:5%; height:20px;" onclick="excluir_lote_te(<?=$lote_['id']?>)">X</button></td>
-                  </tr>
-                <? } ?>
-                </table>
-              <? }
-
-
-              //BUSCA PAI
-              if($pai){
+<section class="content">
+  <div class="box" style="border-top:0;">
+    <div class="box-body">
+      <form id="filtros-te" action="geral.php" method="get">
+        <input type="hidden" name="pg" value="lista_te">
+        <input type="hidden" name="por_pagina" value="<?=$porPagina?>">
+        <div class="row" style="display:flex; flex-wrap:wrap; align-items:flex-end;">
+          <div class="form-group col-sm-6 col-md-3">
+            <label for="lote-te">Lote</label>
+            <select class="form-control" id="lote-te" onchange="te_lote(this.value)">
+              <option value="">Selecionar</option>
+              <?php foreach ($lotesSelecao as $loteSelecao):
+                $rotulo = $loteSelecao['codigo'] . ' - ' . ($loteSelecao['pai'] ?: '--') . ' - ' . ($loteSelecao['mae'] ?: '--');
               ?>
-              <table class="table table-bordered" id="tabela_padrao">
-                <tr>
-                  <th>Lote</th>
-                  <th>Macho</th>
-                  <th>Macho complementar</th>
-                  <th>Fêmea</th>
-                  <th>Data</th>
-                  <th>Previsão</th>
-                  <th>Excluir</th>
-                </tr>
-                <?
-                  $filtroMae = '';
-                  if ($mae !== '') {
-                    $maeSelecionada = DBRead('animais', "WHERE nome = '" . DBEscape($mae) . "'");
-                    $terceiroMae = 0;
-                    if (empty($maeSelecionada[0]['id'])) {
-                      $maeSelecionada = DBRead('terceiros', "WHERE nome = '" . DBEscape($mae) . "'");
-                      $terceiroMae = 1;
-                    }
-                    $idMaeSelecionada = (int)($maeSelecionada[0]['id'] ?? 0);
-                    $filtroMae = " AND id_mae = '$idMaeSelecionada' AND terceiro_mae = '$terceiroMae'";
-                  }
-                  $pai_ = DBRead('animais', "WHERE nome = '" . DBEscape($pai) . "'");
-                  if(!empty($pai_[0]['id'])){
-                    $id_macho = (int)($pai_[0]['id'] ?? 0);
-                    $lote = $carregarLotesTe("WHERE id_pai = '$id_macho' AND terceiro_pai = '0'" . $filtroMae);
-                  }else{
-                    $pai_ = DBRead('terceiros', "WHERE nome = '" . DBEscape($pai) . "'");
-                    $id_macho = (int)($pai_[0]['id'] ?? 0);
-                    $lote = $carregarLotesTe("WHERE id_pai = '$id_macho' AND terceiro_pai = '1'" . $filtroMae);
-                  }
-
-
-
-                  foreach (($lote ?: array()) as $lote_){
-                    $id_pai_2 = (int)($lote_['id_pai_2'] ?? 0);
-                    $macho_complementar = $id_pai_2 > 0
-                      ? DBRead(empty($lote_['terceiro_pai_2']) ? 'animais' : 'terceiros', "WHERE id = '$id_pai_2'")
-                      : [];
-
-                  $id_femea = $lote_['id_mae'];
-                  if($lote_['terceiro_mae']){
-                    $femea = DBRead('terceiros', "WHERE id = '$id_femea'");
-                  }else{
-                    $femea = DBRead('animais', "WHERE id = '$id_femea'");
-                  }
-
-                  $data = $lote_['data'];
-                  $data_atual = $data;
-                  $data = '0';
-                  $data['0'] = $data_atual['8'];
-                  $data['1'] = $data_atual['9'];
-                  $data['2'] = "/";
-                  $data['3'] = $data_atual['5'];
-                  $data['4'] = $data_atual['6'];
-                  $data['5'] = "/";
-                  $data['6'] = $data_atual['0'];
-                  $data['7'] = $data_atual['1'];
-                  $data['8'] = $data_atual['2'];
-                  $data['9'] = $data_atual['3'];
-                  $data_te = $data;
-
-
-                  $data = explode("/", $data);
-                  list($dia, $mes, $ano) = $data;
-                  $data = "$ano$mes$dia";
-                  $nextdate = addDayIntoDate($data,146);
-                  $data[0] = $nextdate[6];
-                  $data[1] = $nextdate[7];
-                  $data[2] = "/";
-                  $data[3] = $nextdate[4];
-                  $data[4] = $nextdate[5];
-                  $data[5] = "/";
-                  $data[6] = $nextdate[0];
-                  $data[7] = $nextdate[1];
-                  $data[8] = $nextdate[2];
-                  $data[9] = $nextdate[3];
-                  $data_previsao1 = $data;
-
-                  $data = explode("/", $data_te);
-                  list($dia, $mes, $ano) = $data;
-                  $data = "$ano$mes$dia";
-                  $nextdate = addDayIntoDate($data,161);
-                  $data[0] = $nextdate[6];
-                  $data[1] = $nextdate[7];
-                  $data[2] = "/";
-                  $data[3] = $nextdate[4];
-                  $data[4] = $nextdate[5];
-                  $data[5] = "/";
-                  $data[6] = $nextdate[0];
-                  $data[7] = $nextdate[1];
-                  $data[8] = $nextdate[2];
-                  $data[9] = $nextdate[3];
-                  $data_previsao2 = $data;
-                  ?>
-                  <tr>
-                      <td onclick="te_lote(<?=$lote_['id']?>)" style="cursor:pointer;" ><?=$lote_['codigo']?></td>
-                      <td onclick="te_lote(<?=$lote_['id']?>)" style="cursor:pointer;" ><?=$pai_[0]['nome']?></td>
-                      <td onclick="te_lote(<?=$lote_['id']?>)" style="cursor:pointer;" ><?=htmlspecialchars($macho_complementar[0]['nome'] ?? '-', ENT_QUOTES, 'UTF-8')?></td>
-                      <td onclick="te_lote(<?=$lote_['id']?>)" style="cursor:pointer;" ><?=$femea[0]['nome']?></td>
-                      <td onclick="te_lote(<?=$lote_['id']?>)" style="cursor:pointer;" >Inicial: <?=$data_te?></td>
-                      <td onclick="te_lote(<?=$lote_['id']?>)" style="cursor:pointer;" ><?=$data_previsao1?> até <?=$data_previsao2?></td>
-                      <td><button type="button" class="btn btn-danger" style="padding:0%; padding-left:5%; padding-right:5%; height:20px;" onclick="excluir_lote_te(<?=$lote_['id']?>)">X</button></td>
-                    </tr>
-                  <? } ?>
-                  </table>
-                <? }
-
-
-                //BUSCA MAE
-                if($mae && !$pai){
-                ?>
-                <table class="table table-bordered" id="tabela_padrao">
-                  <tr>
-                    <th>Lote</th>
-                    <th>Macho</th>
-                    <th>Macho complementar</th>
-                    <th>Fêmea</th>
-                    <th>Data</th>
-                    <th>Previsão</th>
-                    <th>Excluir</th>
-                  </tr>
-                  <?
-                    $mae_ = DBRead('animais', "WHERE nome = '" . DBEscape($mae) . "'");
-                    if(!empty($mae_[0]['id'])){
-                      $id_mae = (int)($mae_[0]['id'] ?? 0);
-                      $lote = $carregarLotesTe("WHERE id_mae = '$id_mae' AND terceiro_mae = '0'", 'id DESC');
-                    }else{
-                      $mae_ = DBRead('terceiros', "WHERE nome = '" . DBEscape($mae) . "'");
-                      $id_mae = (int)($mae_[0]['id'] ?? 0);
-                      $lote = $carregarLotesTe("WHERE id_mae = '$id_mae' AND terceiro_mae = '1'", 'id DESC');
-                    }
-                    foreach (($lote ?: array()) as $lote_){
-                      $id_pai_2 = (int)($lote_['id_pai_2'] ?? 0);
-                      $macho_complementar = $id_pai_2 > 0
-                        ? DBRead(empty($lote_['terceiro_pai_2']) ? 'animais' : 'terceiros', "WHERE id = '$id_pai_2'")
-                        : [];
-
-                    $id_macho = $lote_['id_pai'];
-                    if($lote_['terceiro_pai']){
-                      $macho = DBRead('terceiros', "WHERE id = '$id_macho'");
-                    }else{
-                      $macho = DBRead('animais', "WHERE id = '$id_macho'");
-                    }
-
-                    $data = $lote_['data'];
-                    $data_atual = $data;
-                    $data = '0';
-                    $data['0'] = $data_atual['8'];
-                    $data['1'] = $data_atual['9'];
-                    $data['2'] = "/";
-                    $data['3'] = $data_atual['5'];
-                    $data['4'] = $data_atual['6'];
-                    $data['5'] = "/";
-                    $data['6'] = $data_atual['0'];
-                    $data['7'] = $data_atual['1'];
-                    $data['8'] = $data_atual['2'];
-                    $data['9'] = $data_atual['3'];
-                    $data_te = $data;
-
-                    $data = explode("/", $data_te);
-                    list($dia, $mes, $ano) = $data;
-                    $data = "$ano$mes$dia";
-                    $nextdate = addDayIntoDate($data,146);
-                    $data[0] = $nextdate[6];
-                    $data[1] = $nextdate[7];
-                    $data[2] = "/";
-                    $data[3] = $nextdate[4];
-                    $data[4] = $nextdate[5];
-                    $data[5] = "/";
-                    $data[6] = $nextdate[0];
-                    $data[7] = $nextdate[1];
-                    $data[8] = $nextdate[2];
-                    $data[9] = $nextdate[3];
-                    $data_previsao1 = $data;
-
-                    $data = explode("/", $data_te);
-                    list($dia, $mes, $ano) = $data;
-                    $data = "$ano$mes$dia";
-                    $nextdate = addDayIntoDate($data,161);
-                    $data[0] = $nextdate[6];
-                    $data[1] = $nextdate[7];
-                    $data[2] = "/";
-                    $data[3] = $nextdate[4];
-                    $data[4] = $nextdate[5];
-                    $data[5] = "/";
-                    $data[6] = $nextdate[0];
-                    $data[7] = $nextdate[1];
-                    $data[8] = $nextdate[2];
-                    $data[9] = $nextdate[3];
-                    $data_previsao2 = $data;
-                    ?>
-                    <tr>
-                        <td onclick="te_lote(<?=$lote_['id']?>)" style="cursor:pointer;" ><?=$lote_['codigo']?></td>
-                        <td onclick="te_lote(<?=$lote_['id']?>)" style="cursor:pointer;" ><?=$macho[0]['nome']?></td>
-                        <td onclick="te_lote(<?=$lote_['id']?>)" style="cursor:pointer;" ><?=htmlspecialchars($macho_complementar[0]['nome'] ?? '-', ENT_QUOTES, 'UTF-8')?></td>
-                        <td onclick="te_lote(<?=$lote_['id']?>)" style="cursor:pointer;" ><?=$mae_[0]['nome']?></td>
-                        <td onclick="te_lote(<?=$lote_['id']?>)" style="cursor:pointer;" >Inicial: <?=$data_te?></td>
-                        <td onclick="te_lote(<?=$lote_['id']?>)" style="cursor:pointer;" ><?=$data_previsao1?> até <?=$data_previsao2?></td>
-                        <td><button type="button" class="btn btn-danger" style="padding:0%; padding-left:5%; padding-right:5%; height:20px;" onclick="excluir_lote_te(<?=$lote_['id']?>)">X</button></td>
-                      </tr>
-                    <? } ?>
-                    </table>
-                  <? } ?>
-            <?php if ($totalLotesTe === 0): ?>
-              <p>Nenhum lote encontrado.</p>
-            <?php endif; ?>
-            <div class="box-footer clearfix">
-              <span><?= $totalLotesTe ?> lote(s) — Página <?= $paginaTe ?> de <?= $totalPaginasTe ?></span>
-              <?php if ($totalPaginasTe > 1): ?>
-                <nav class="pull-right" aria-label="Paginação dos lotes de transplante">
-                  <ul class="pagination pagination-sm no-margin">
-                    <?php if ($paginaTe > 1): ?>
-                      <li><a href="<?= $urlPaginaTe(1) ?>" aria-label="Primeira página">&laquo;</a></li>
-                      <li><a href="<?= $urlPaginaTe($paginaTe - 1) ?>">Anterior</a></li>
-                    <?php endif; ?>
-                    <?php for ($numeroTe = max(1, $paginaTe - 2); $numeroTe <= min($totalPaginasTe, $paginaTe + 2); $numeroTe++): ?>
-                      <li<?= $numeroTe === $paginaTe ? ' class="active"' : '' ?>><a href="<?= $urlPaginaTe($numeroTe) ?>"<?= $numeroTe === $paginaTe ? ' aria-current="page"' : '' ?>><?= $numeroTe ?></a></li>
-                    <?php endfor; ?>
-                    <?php if ($paginaTe < $totalPaginasTe): ?>
-                      <li><a href="<?= $urlPaginaTe($paginaTe + 1) ?>">Próxima</a></li>
-                      <li><a href="<?= $urlPaginaTe($totalPaginasTe) ?>" aria-label="Última página">&raquo;</a></li>
-                    <?php endif; ?>
-                  </ul>
-                </nav>
-              <?php endif; ?>
-            </div>
+              <option value="<?=(int)$loteSelecao['id']?>"><?=htmlspecialchars($rotulo, ENT_QUOTES, 'UTF-8')?></option>
+              <?php endforeach; ?>
+            </select>
           </div>
-          <!-- /.box-body -->
+          <div class="form-group col-sm-6 col-md-3">
+            <?php renderBuscaAnimais(array(
+                'id' => 'filtro-mae-te',
+                'name' => 'mae',
+                'name_id' => 'mae_id',
+                'name_origem' => 'mae_origem',
+                'label' => 'Mãe',
+                'tipo' => 'femeas',
+                'value' => $mae,
+                'limite_origem' => 5,
+                'classe' => 'busca-mae-filtro-te'
+            )); ?>
+          </div>
+          <div class="form-group col-sm-6 col-md-3">
+            <?php renderBuscaAnimais(array(
+                'id' => 'filtro-pai-te',
+                'name' => 'pai',
+                'name_id' => 'pai_id',
+                'name_origem' => 'pai_origem',
+                'label' => 'Pai',
+                'tipo' => 'machos',
+                'value' => $pai,
+                'limite_origem' => 5,
+                'classe' => 'busca-pai-filtro-te'
+            )); ?>
+          </div>
+          <div class="form-group col-sm-6 col-md-3">
+            <button type="submit" class="btn btn-primary">Pesquisar</button>
+            <a class="btn btn-default" href="geral.php?pg=lista_te">Limpar</a>
+          </div>
         </div>
-      <!-- /.col -->
+      </form>
     </div>
-    <!-- /.row -->
+  </div>
+
+  <div class="box" style="border-top:0;">
+    <div class="box-body">
+      <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:15px;">
+        <h3 class="box-title" style="font-size:16px; margin:0;"><?=$pai !== '' || $mae !== '' ? 'Resultado da pesquisa' : 'Últimos lotes cadastrados'?></h3>
+        <a href="geral.php?pg=cadastrar_te" class="btn btn-success"><i class="fa fa-plus" aria-hidden="true"></i> Adicionar novo lote</a>
+      </div>
+      <div class="table-responsive">
+        <table class="table table-bordered table-striped">
+          <thead><tr>
+            <th>Lote</th>
+            <th>Macho</th>
+            <th>Macho complementar</th>
+            <th>Fêmea</th>
+            <th>Data</th>
+            <th>Previsão</th>
+            <th style="width:1%;"><span class="sr-only">Ações</span></th>
+          </tr></thead>
+          <tbody>
+          <?php if (!$lotesPagina): ?><tr><td colspan="7" class="text-center">Nenhum lote encontrado.</td></tr><?php endif; ?>
+          <?php foreach ($lotesPagina as $lote):
+              $idPai = (int)$lote['id_pai'];
+              $pais = DBRead(!empty($lote['terceiro_pai']) ? 'terceiros' : 'animais', "WHERE id = '$idPai'") ?: array();
+              $nomePai = $pais[0]['nome'] ?? ($lote['pai'] ?: '--');
+
+              $idPaiComplementar = (int)($lote['id_pai_2'] ?? 0);
+              $paisComplementares = $idPaiComplementar
+                  ? (DBRead(!empty($lote['terceiro_pai_2']) ? 'terceiros' : 'animais', "WHERE id = '$idPaiComplementar'") ?: array())
+                  : array();
+              $nomePaiComplementar = $paisComplementares[0]['nome'] ?? '-';
+
+              $idMaeLote = (int)$lote['id_mae'];
+              $maes = DBRead(!empty($lote['terceiro_mae']) ? 'terceiros' : 'animais', "WHERE id = '$idMaeLote'") ?: array();
+              $nomeMae = $maes[0]['nome'] ?? ($lote['mae'] ?: '--');
+
+              $data = dataTransplanteLista($lote['data']);
+              $dataFormatada = $data ? $data->format('d/m/Y') : '--';
+              $previsaoInicio = $data ? $data->modify('+146 days')->format('d/m/Y') : '--';
+              $previsaoFim = $data ? $data->modify('+161 days')->format('d/m/Y') : '--';
+          ?>
+            <tr>
+              <td onclick="te_lote(<?=(int)$lote['id']?>)" style="cursor:pointer;"><?=htmlspecialchars($lote['codigo'], ENT_QUOTES, 'UTF-8')?></td>
+              <td onclick="te_lote(<?=(int)$lote['id']?>)" style="cursor:pointer;"><?=htmlspecialchars($nomePai, ENT_QUOTES, 'UTF-8')?></td>
+              <td onclick="te_lote(<?=(int)$lote['id']?>)" style="cursor:pointer;"><?=htmlspecialchars($nomePaiComplementar, ENT_QUOTES, 'UTF-8')?></td>
+              <td onclick="te_lote(<?=(int)$lote['id']?>)" style="cursor:pointer;"><?=htmlspecialchars($nomeMae, ENT_QUOTES, 'UTF-8')?></td>
+              <td onclick="te_lote(<?=(int)$lote['id']?>)" style="cursor:pointer;">Inicial: <?=$dataFormatada?></td>
+              <td onclick="te_lote(<?=(int)$lote['id']?>)" style="cursor:pointer;"><?=$previsaoInicio?> até <?=$previsaoFim?></td>
+              <td style="white-space:nowrap;">
+                <button type="button" class="text-primary" style="background:none; border:0; padding:0; margin-right:10px;" onclick="te_lote(<?=(int)$lote['id']?>)" title="Abrir lote" aria-label="Abrir lote"><i class="fa fa-search" aria-hidden="true"></i></button>
+                <a href="reproducao/te/_imprimir.php?id_lote=<?=(int)$lote['id']?>" target="_blank" rel="noopener" class="text-muted" style="margin-right:10px;" title="Gerar PDF" aria-label="Gerar PDF"><i class="fa fa-print" aria-hidden="true"></i></a>
+                <button type="button" class="text-danger" style="background:none; border:0; padding:0;" data-id="<?=(int)$lote['id']?>" data-nome="<?=htmlspecialchars('Lote ' . $lote['codigo'], ENT_QUOTES, 'UTF-8')?>" onclick="confirmarExclusaoLoteTe(this)" title="Excluir lote" aria-label="Excluir lote"><i class="fa fa-trash-o" aria-hidden="true"></i></button>
+              </td>
+            </tr>
+          <?php endforeach; ?>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="box-footer" style="display:flex; flex-wrap:wrap; align-items:center; justify-content:center; gap:16px;">
+        <form action="geral.php" method="get" style="display:flex; align-items:center; gap:8px; margin:0;">
+          <?php foreach ($parametrosPagina as $nomeParametro => $valorParametro): if ($nomeParametro === 'por_pagina') { continue; } ?>
+          <input type="hidden" name="<?=htmlspecialchars($nomeParametro, ENT_QUOTES, 'UTF-8')?>" value="<?=htmlspecialchars((string)$valorParametro, ENT_QUOTES, 'UTF-8')?>">
+          <?php endforeach; ?>
+          <label for="por-pagina-te" style="margin:0; font-weight:normal;">Por página</label>
+          <select id="por-pagina-te" name="por_pagina" class="form-control input-sm" style="width:auto;" onchange="this.form.submit()">
+            <?php foreach (array(10, 20, 50, 100) as $quantidade): ?><option value="<?=$quantidade?>" <?=$porPagina === $quantidade ? 'selected' : ''?>><?=$quantidade?></option><?php endforeach; ?>
+          </select>
+        </form>
+        <span class="text-muted">Exibindo <?=$totalLotes ? $inicio + 1 : 0?> a <?=min($inicio + $porPagina, $totalLotes)?> de <?=$totalLotes?> lotes</span>
+        <?php if ($totalPaginas > 1):
+          $visiveis = array(1, $totalPaginas);
+          for ($n = max(1, $pagina - 1); $n <= min($totalPaginas, $pagina + 1); $n++) { $visiveis[] = $n; }
+          $visiveis = array_values(array_unique($visiveis)); sort($visiveis); $anterior = 0;
+        ?>
+        <nav aria-label="Paginação dos lotes"><ul class="pagination pagination-sm no-margin">
+          <li class="<?=$pagina === 1 ? 'disabled' : ''?>"><a href="<?=$pagina === 1 ? '#' : $urlPagina . '&amp;pag=' . ($pagina - 1)?>">&laquo;</a></li>
+          <?php foreach ($visiveis as $n): ?>
+            <?php if ($anterior && $n > $anterior + 1): ?><li class="disabled"><span>&hellip;</span></li><?php endif; ?>
+            <li class="<?=$n === $pagina ? 'active' : ''?>"><a href="<?=$urlPagina?>&amp;pag=<?=$n?>"><?=$n?></a></li>
+          <?php $anterior = $n; endforeach; ?>
+          <li class="<?=$pagina === $totalPaginas ? 'disabled' : ''?>"><a href="<?=$pagina === $totalPaginas ? '#' : $urlPagina . '&amp;pag=' . ($pagina + 1)?>">&raquo;</a></li>
+        </ul></nav>
+        <?php endif; ?>
+      </div>
+    </div>
   </div>
 </section>
-  <!-- /.content -->

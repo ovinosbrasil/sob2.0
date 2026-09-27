@@ -1,128 +1,109 @@
-<script type="text/javascript">
-function validar_montar(){
-  saida = 0;
-  if(!document.getElementById("lote").value){
-    document.getElementById("lote").style.border = "1px solid red";
-    saida = 1;
-  }else{document.getElementById("lote").style.border = "1px solid green";}
-
-  if(!document.getElementById("data_inicial").value){
-    document.getElementById("data_inicial").style.border = "1px solid red";
-    saida = 1;
-  }else{document.getElementById("data_inicial").style.border = "1px solid green";}
-
-  if(!document.getElementById("semen").value){
-    document.getElementById("semen").style.border = "1px solid red";
-    saida = 1;
-  }else{document.getElementById("semen").style.border = "1px solid green";}
-
-  if(!document.getElementById("pai").value){
-    document.getElementById("pai").style.border = "1px solid red";
-    saida = 1;
-  }else{document.getElementById("pai").style.border = "1px solid green";}
-
-  if(!document.getElementById("raca").value){
-    document.getElementById("raca").style.border = "1px solid red";
-    saida = 1;
-  }else{document.getElementById("raca").style.border = "1px solid green";}
-
-  if(!document.getElementById("notificacao").value){
-    document.getElementById("notificacao").style.border = "1px solid red";
-    saida = 1;
-  }else{document.getElementById("notificacao").style.border = "1px solid green";}
-
-  if(saida){ return false; }else{ return true; }
+<script>
+function validarCadastroInseminacao() {
+  var ids = ['lote', 'data_inicial', 'pai', 'raca', 'semen', 'notificacao'];
+  var invalido = false;
+  ids.forEach(function (id) {
+    var campo = document.getElementById(id);
+    if (!campo) { return; }
+    var vazio = !campo.value.trim();
+    campo.style.border = vazio ? '1px solid red' : '';
+    if (vazio) { invalido = true; }
+  });
+  return !invalido;
 }
-
 </script>
 
 <section class="content-header">
-  <h1>
-    Cadastrar Inseminação artificial
-  </h1>
+  <h1>Cadastrar Inseminação artificial</h1>
   <ol class="breadcrumb">
-    <li><a href="#"><i class="fa fa-venus-mars"></i> Reprodução</a></li>
-    <li><a href="#">Cadastra Inseminação artificial</a></li>
+    <li><i class="fa fa-venus-mars"></i> Reprodução</li>
+    <li class="active">Cadastrar Inseminação artificial</li>
   </ol>
 </section>
 
-  <!-- Main content -->
-  <section class="content">
-    <div class="row">
-      <div class="col-md-3">
-				<div class="box box-success">
-          <form method="post" action="reproducao/inseminacao/_cadastrar.php" onsubmit="return validar_montar()">
-          <!-- /.box-header -->
-          <div class="box-body">
+<section class="content">
+  <div class="box" style="border-top:0;">
+    <form method="post" action="reproducao/inseminacao/_cadastrar.php" onsubmit="return validarCadastroInseminacao()">
+      <div class="box-body">
+        <div class="row" style="display:flex; flex-wrap:wrap; align-items:flex-end;">
+          <div class="col-sm-6 col-md-4">
             <div class="form-group">
-                <label for="exampleInputPassword1">Lote<span style="color:#F00;">*</span></label>
-                <input type="text" class="form-control" id="lote" name="lote">
+              <label for="lote">Lote<span class="text-danger">*</span></label>
+              <input type="text" class="form-control" id="lote" name="lote">
             </div>
+          </div>
 
-
+          <div class="col-sm-6 col-md-4">
             <div class="form-group">
-                <label for="exampleInputPassword1">Data<span style="color:#F00;">*</span></label>
-                <div class="input-group date">
-                  <div class="input-group-addon">
-                    <i class="fa fa-calendar"></i>
-                  </div>
-                  <input type="text" class="form-control pull-right" id="data_inicial" name="data_inicial">
-                </div>
-            </div>
-
-
-            <div class="form-group">
-              <label for="exampleInputPassword1">Macho<span style="color:#F00;">*</span>
-                <a href="geral.php?pg=cadastrar_animal&tipo=2" target="_blank"><span style="font-size:11px; color:green;">Novo</span></a></label>
-              <input type="text" class="form-control" id="pai" name="macho" onKeyUp="pesquisar_pai(this.value)" value="<?=$user[0]['prefixo']?>">
-              <div id="lista_pai" style="border-style:solid; border-width:thin; height:auto; border-color: #bab1b4; position:absolute; z-index:99999; background:#fff; width:150%; display:none; margin-top:1%;">
+              <label for="data_inicial">Data<span class="text-danger">*</span></label>
+              <div class="input-group date">
+                <div class="input-group-addon"><i class="fa fa-calendar"></i></div>
+                <input type="text" class="form-control pull-right" id="data_inicial" name="data_inicial">
               </div>
             </div>
+          </div>
 
-
+          <div class="col-sm-6 col-md-4">
             <div class="form-group">
-              <label for="exampleInputPassword1">Raça<span style="color:#F00;">*</span></label>
+              <?php renderBuscaAnimais(array(
+                  'id' => 'pai',
+                  'name' => 'macho',
+                  'name_id' => 'macho_id',
+                  'name_origem' => 'macho_origem',
+                  'label' => 'Macho',
+                  'tipo' => 'machos',
+                  'value' => $user[0]['prefixo'] ?? '',
+                  'required' => true,
+                  'limite_origem' => 5,
+                  'novo_url' => 'geral.php?pg=cadastrar_animal&tipo=2'
+              )); ?>
+            </div>
+          </div>
+
+          <div class="col-sm-6 col-md-4">
+            <div class="form-group">
+              <label for="raca">Raça<span class="text-danger">*</span></label>
               <select class="form-control select" id="raca" name="raca">
-                <option value="<?=$user[0]['raca']?>"><?=$user[0]['raca']?></option>
-                <option></option>
-                <?
-                $raca = DBRead('raca', "ORDER BY nome asc");
-                foreach ($raca as $raca_) { ?>
-                  <option value="<?=$raca_['nome']?>"><?=$raca_['nome']?></option>
-                <? } ?>
+                <option value="<?=htmlspecialchars($user[0]['raca'] ?? '', ENT_QUOTES, 'UTF-8')?>"><?=htmlspecialchars($user[0]['raca'] ?? '', ENT_QUOTES, 'UTF-8')?></option>
+                <?php
+                $racas = DBRead('raca', 'ORDER BY nome ASC') ?: array();
+                foreach ($racas as $raca):
+                  if (($raca['nome'] ?? '') === ($user[0]['raca'] ?? '')) { continue; }
+                ?>
+                <option value="<?=htmlspecialchars($raca['nome'], ENT_QUOTES, 'UTF-8')?>"><?=htmlspecialchars($raca['nome'], ENT_QUOTES, 'UTF-8')?></option>
+                <?php endforeach; ?>
               </select>
             </div>
+          </div>
 
+          <div class="col-sm-6 col-md-4">
             <div class="form-group">
-              <label for="exampleInputPassword1">Sêmen<span style="color:#F00;">*</span></label>
+              <label for="semen">Sêmen<span class="text-danger">*</span></label>
               <select class="form-control select" id="semen" name="semen">
                 <option value="">Selecionar</option>
-                <option value=""></option>
                 <option value="A fresco">A fresco</option>
                 <option value="Congelado">Congelado</option>
                 <option value="Refrigerado">Refrigerado</option>
               </select>
             </div>
+          </div>
 
+          <div class="col-sm-6 col-md-4">
             <div class="form-group">
-              <label for="exampleInputPassword1">Notificação<span style="color:#F00;">*</span></label>
+              <label for="notificacao">Notificação<span class="text-danger">*</span></label>
               <select class="form-control select" id="notificacao" name="notificacao">
                 <option value="">Selecionar</option>
-                <option></option>
                 <option value="PO">PO</option>
                 <option value="PC">PC</option>
               </select>
             </div>
+          </div>
 
-            <div class="form-group">
-              <button type="submit" class="btn btn-success" style="width:100%; margin-top:4%;">Cadastrar lote</button>
-            </div>
+          <div class="col-sm-12 text-right">
+            <button type="submit" class="btn btn-success">Cadastrar lote</button>
+          </div>
         </div>
-      </form>
-			</div>
-      <!-- /.col -->
-    </div>
-
+      </div>
+    </form>
   </div>
 </section>
-  <!-- /.content -->

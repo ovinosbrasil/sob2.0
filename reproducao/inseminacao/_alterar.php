@@ -1,4 +1,3 @@
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 <?
 include "../../_config.php";
 
@@ -33,6 +32,7 @@ $dados = array(
 	'data'	=> $data,
   'semen'	=> $_POST['semen'],
   'raca'  => $_POST['raca'],
+  'macho' => '',
   'notificacao'   => $_POST['notificacao'],
   'terceiro' => $terceiro,
   'id_macho' => $id_macho

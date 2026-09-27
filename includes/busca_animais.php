@@ -2,9 +2,9 @@
 /**
  * Renderiza um campo de busca reutilizável para animais e receptoras.
  *
- * Opções: id, name, label, tipo (machos|femeas|receptoras|todos), value,
+ * Opções: id, name, label, tipo (machos|femeas|receptoras|todos), value, value_id, value_origem,
  * required, placeholder, name_id, name_origem, exibir_label, classe,
- * botao_busca, novo_url, novo_texto e limite_origem.
+ * botao_busca, novo_url, novo_modal, novo_texto e limite_origem.
  */
 function renderBuscaAnimais(array $opcoes = array())
 {
@@ -20,14 +20,18 @@ function renderBuscaAnimais(array $opcoes = array())
     $nameOrigem = (string)($opcoes['name_origem'] ?? ($name . '_origem'));
     $label = (string)($opcoes['label'] ?? 'Animal');
     $valor = (string)($opcoes['value'] ?? '');
+    $valorId = filter_var($opcoes['value_id'] ?? 0, FILTER_VALIDATE_INT);
+    $valorId = $valorId && $valorId > 0 ? (int)$valorId : 0;
+    $valorOrigem = in_array(($opcoes['value_origem'] ?? ''), array('rebanho', 'terceiros', 'receptora'), true) ? (string)$opcoes['value_origem'] : '';
     $placeholder = (string)($opcoes['placeholder'] ?? 'Digite para pesquisar');
     $obrigatorio = !empty($opcoes['required']);
     $exibirLabel = !array_key_exists('exibir_label', $opcoes) || $opcoes['exibir_label'];
     $classe = preg_replace('/[^a-zA-Z0-9 _-]/', '', (string)($opcoes['classe'] ?? ''));
     $botaoBusca = !empty($opcoes['botao_busca']);
     $novoUrl = trim((string)($opcoes['novo_url'] ?? ''));
+    $novoModal = trim((string)($opcoes['novo_modal'] ?? ''));
     $novoTexto = (string)($opcoes['novo_texto'] ?? 'Novo');
-    $temAcao = $botaoBusca || $novoUrl !== '';
+    $temAcao = $botaoBusca || $novoUrl !== '' || $novoModal !== '';
     $limiteOrigem = filter_var($opcoes['limite_origem'] ?? 0, FILTER_VALIDATE_INT);
     $limiteOrigem = $limiteOrigem && $limiteOrigem >= 1 && $limiteOrigem <= 10 ? $limiteOrigem : 0;
     ?>
@@ -54,7 +58,9 @@ function renderBuscaAnimais(array $opcoes = array())
              <?=$obrigatorio ? 'required' : ''?>>
       <?php if ($temAcao): ?>
       <span class="input-group-btn">
-        <?php if ($novoUrl !== ''): ?>
+        <?php if ($novoModal !== ''): ?>
+        <button type="button" class="btn btn-success" data-toggle="modal" data-target="<?=htmlspecialchars($novoModal, ENT_QUOTES, 'UTF-8')?>"><?=htmlspecialchars($novoTexto, ENT_QUOTES, 'UTF-8')?></button>
+        <?php elseif ($novoUrl !== ''): ?>
         <a class="btn btn-success" href="<?=htmlspecialchars($novoUrl, ENT_QUOTES, 'UTF-8')?>" target="_blank" rel="noopener" title="Cadastrar animal em nova aba"><?=htmlspecialchars($novoTexto, ENT_QUOTES, 'UTF-8')?></a>
         <?php else: ?>
         <button type="submit" class="btn btn-flat" aria-label="Pesquisar"><i class="fa fa-search" aria-hidden="true"></i></button>
@@ -62,8 +68,8 @@ function renderBuscaAnimais(array $opcoes = array())
       </span>
       </div>
       <?php endif; ?>
-      <input type="hidden" name="<?=htmlspecialchars($nameId, ENT_QUOTES, 'UTF-8')?>" data-busca-animais-id>
-      <input type="hidden" name="<?=htmlspecialchars($nameOrigem, ENT_QUOTES, 'UTF-8')?>" data-busca-animais-origem>
+      <input type="hidden" name="<?=htmlspecialchars($nameId, ENT_QUOTES, 'UTF-8')?>" value="<?=$valorId ?: ''?>" data-busca-animais-id>
+      <input type="hidden" name="<?=htmlspecialchars($nameOrigem, ENT_QUOTES, 'UTF-8')?>" value="<?=htmlspecialchars($valorOrigem, ENT_QUOTES, 'UTF-8')?>" data-busca-animais-origem>
       <div class="sob-busca-animais__resultados"
            id="<?=$id?>-resultados"
            role="listbox"

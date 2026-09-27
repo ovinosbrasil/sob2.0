@@ -55,44 +55,12 @@ function monta_lote(id) {
         window.location.href = 'geral.php?pg=monta&id_lote=' + encodeURIComponent(id);
     }
 }
-function pesquisar_pai_monta(nome) {
-    nome = nome.trim();
-    if (!nome) { fechar_lista_pai(); document.getElementById('lista_pai').innerHTML = ''; return; }
-    var requisicao = new XMLHttpRequest();
-    requisicao.open('GET', 'reproducao/monta/lista_pai.php?nome=' + encodeURIComponent(nome), true);
-    requisicao.onreadystatechange = function () {
-        if (requisicao.readyState === 4) {
-            document.getElementById('lista_pai').innerHTML = requisicao.responseText;
-            document.getElementById('lista_pai').style.display = 'block';
-        }
-    };
-    requisicao.send(null);
-}
-function pesquisar_mae_monta(nome) {
-    nome = nome.trim();
-    if (!nome) { fechar_lista_mae(); document.getElementById('lista_mae').innerHTML = ''; return; }
-    var requisicao = new XMLHttpRequest();
-    requisicao.open('GET', 'reproducao/monta/lista_mae.php?nome=' + encodeURIComponent(nome), true);
-    requisicao.onreadystatechange = function () {
-        if (requisicao.readyState === 4) {
-            document.getElementById('lista_mae').innerHTML = requisicao.responseText;
-            document.getElementById('lista_mae').style.display = 'block';
-        }
-    };
-    requisicao.send(null);
-}
-function fechar_lista_pai() { document.getElementById('lista_pai').style.display = 'none'; }
-function fechar_lista_mae() { document.getElementById('lista_mae').style.display = 'none'; }
-function linkar_pai_monta(nome) {
-    document.getElementById('pai').value = nome;
-    fechar_lista_pai();
+document.addEventListener('buscaanimais:selecionado', function (evento) {
+    var componente = evento.target;
+    if (!componente.classList.contains('busca-mae-filtro-monta') &&
+        !componente.classList.contains('busca-pai-filtro-monta')) { return; }
     document.getElementById('filtros-monta').submit();
-}
-function linkar_mae_monta(nome) {
-    document.getElementById('mae').value = nome;
-    fechar_lista_mae();
-    document.getElementById('filtros-monta').submit();
-}
+});
 function confirmarExclusaoLoteMonta(botao) {
     var id = botao.getAttribute('data-id');
     if (!/^\d+$/.test(id) || Number(id) < 1) { return; }
@@ -132,15 +100,31 @@ function confirmarExclusaoLoteMonta(botao) {
               <?php endforeach; ?>
             </select>
           </div>
-          <div class="form-group col-sm-6 col-md-3" style="position:relative;">
-            <label for="mae">Mãe</label>
-            <input type="text" class="form-control" id="mae" name="mae" value="<?=htmlspecialchars($mae, ENT_QUOTES, 'UTF-8')?>" onkeyup="pesquisar_mae_monta(this.value)">
-            <div id="lista_mae" class="animal-search-dropdown" style="display:none;"></div>
+          <div class="form-group col-sm-6 col-md-3">
+            <?php renderBuscaAnimais(array(
+                'id' => 'filtro-mae-monta',
+                'name' => 'mae',
+                'name_id' => 'mae_id',
+                'name_origem' => 'mae_origem',
+                'label' => 'Mãe',
+                'tipo' => 'femeas',
+                'value' => $mae,
+                'limite_origem' => 5,
+                'classe' => 'busca-mae-filtro-monta'
+            )); ?>
           </div>
-          <div class="form-group col-sm-6 col-md-3" style="position:relative;">
-            <label for="pai">Pai</label>
-            <input type="text" class="form-control" id="pai" name="pai" value="<?=htmlspecialchars($pai, ENT_QUOTES, 'UTF-8')?>" onkeyup="pesquisar_pai_monta(this.value)">
-            <div id="lista_pai" class="animal-search-dropdown" style="display:none;"></div>
+          <div class="form-group col-sm-6 col-md-3">
+            <?php renderBuscaAnimais(array(
+                'id' => 'filtro-pai-monta',
+                'name' => 'pai',
+                'name_id' => 'pai_id',
+                'name_origem' => 'pai_origem',
+                'label' => 'Pai',
+                'tipo' => 'machos',
+                'value' => $pai,
+                'limite_origem' => 5,
+                'classe' => 'busca-pai-filtro-monta'
+            )); ?>
           </div>
           <div class="form-group col-sm-6 col-md-3">
             <button type="submit" class="btn btn-primary">Pesquisar</button>
