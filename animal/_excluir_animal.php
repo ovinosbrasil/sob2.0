@@ -14,9 +14,7 @@ if (!$animal) {
   exit;
 }
 DBDelete('animais', "id = '$id_animal'");
-DBDelete('acasalamento', "id_animal = '$id_animal'");
 if($animal[0]['sexo'] == "Fêmea"){
-  DBDelete('acasalamento_controle', "id_femea = '$id_animal'");
   DBDelete('matriz', "id_femea = '$id_animal'");
 }else{
   DBDelete('reprodutor', "id_macho = '$id_animal'");

@@ -5,7 +5,8 @@ $id_lote = $_GET['id_lote'];
 $status = $_GET['status'];
 
 $dados = array(
-  'ultrassom' => $status
+  'ultrassom' => $status,
+  'data_ultrassom' => (new DateTimeImmutable('now', new DateTimeZone('America/Bahia')))->format('Y-m-d')
 );
 
 DBUpdate('inseminacao_controle', $dados, "id = '$id_lote'");

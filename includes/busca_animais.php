@@ -11,7 +11,7 @@ function renderBuscaAnimais(array $opcoes = array())
     static $sequencia = 0;
     $sequencia++;
 
-    $tipos = array('machos', 'femeas', 'receptoras', 'todos');
+    $tipos = array('machos', 'femeas', 'femeas_receptoras', 'receptoras', 'rebanho', 'todos');
     $tipo = in_array($opcoes['tipo'] ?? '', $tipos, true) ? $opcoes['tipo'] : 'todos';
     $idOriginal = $opcoes['id'] ?? ('busca-animais-' . $sequencia);
     $id = preg_replace('/[^a-zA-Z0-9_-]/', '-', (string)$idOriginal);

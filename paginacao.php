@@ -110,6 +110,10 @@ switch ($_GET['pg']){
 		case 'lista_ultrassom';
 		include "reproducao/ultrassom/lista_ultrassom.php";
 		break;
+
+		case 'cadastrar_ultrassom';
+		include "reproducao/ultrassom/cadastrar_ultrassom.php";
+		break;
 		//FIM ULTRASSOM
 
 		//RELATORIOS

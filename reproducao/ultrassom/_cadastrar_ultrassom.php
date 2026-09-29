@@ -1,91 +1,17 @@
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<?
-include "../../_config.php";
-
-$id_lote = $_GET['id_lote'];
-$status = $_GET['status'];
-$id_lote2 = $_GET['id_lote2'];
-$reproducao = $_GET['reproducao'];
-$tipo = $_GET['tipo'];
-$id_animal = $_GET['id_animal'];
-$terceiro = $_GET['terceiro'];
-
-$dados = array(
-  'ultrassom' => $status
-);
-if($reproducao == 0){
-  DBUpdate('monta_controle', $dados, "id = '$id_lote'");
+<?php
+require_once __DIR__ . '/../../_config.php';
+function inteiroUltrassom($nome) { $valor=filter_input(INPUT_GET,$nome,FILTER_VALIDATE_INT); return $valor===false||$valor===null?0:(int)$valor; }
+$controleId=inteiroUltrassom('id_lote'); $loteId=inteiroUltrassom('id_lote2'); $reproducao=inteiroUltrassom('reproducao'); $status=inteiroUltrassom('status');
+$tipo=isset($_GET['tipo'])&&(string)$_GET['tipo']==='1'?1:0; $idAnimal=inteiroUltrassom('id_animal'); $terceiro=isset($_GET['terceiro'])&&(string)$_GET['terceiro']==='1'?1:0;
+$mapa=array(0=>array('tabela'=>'monta_controle','fk'=>'id_monta'),1=>array('tabela'=>'inseminacao_controle','fk'=>'id_lote'),2=>array('tabela'=>'transplante_controle','fk'=>'id_lote'));
+if($controleId>0&&$loteId>0&&isset($mapa[$reproducao])&&in_array($status,array(1,2),true)){
+  $config=$mapa[$reproducao];
+  DBUpdate($config['tabela'],array('ultrassom'=>$status,'data_ultrassom'=>(new DateTimeImmutable('now',new DateTimeZone('America/Bahia')))->format('Y-m-d')),"id = '{$controleId}' AND {$config['fk']} = '{$loteId}'");
+  $todos=DBRead($config['tabela'],"WHERE {$config['fk']} = '{$loteId}'"); $todos=is_array($todos)?$todos:array(); $positivos=0;
+  foreach($todos as $registro) if((int)($registro['ultrassom']??0)===1)$positivos++;
+  $percentual=count($todos)?($positivos*100)/count($todos):0;
+  DBUpdate('lotes_reproducao',array('ultrassom'=>$percentual),"id_lote = '{$loteId}' AND tipo = '{$reproducao}'");
 }
-if($reproducao == 1){
-  DBUpdate('inseminacao_controle', $dados, "id = '$id_lote'");
-  echo "a";
-}
-if($reproducao == 2){
-  DBUpdate('transplante_controle', $dados, "id = '$id_lote'");
-}
-
-
-//RANKING MONTA
-if($reproducao == 0){
-$qtd=$ultrassom=$nascimento=0;
-$ultrassom = DBRead('monta_controle', "WHERE id_monta = '$id_lote2' AND ultrassom = '1'");
-$dados = DBRead('monta_controle', "WHERE id_monta = '$id_lote2'");
-$qtd = count($dados);
-  if($ultrassom[0]['id'] > 0){
-    $ultrassom = count($ultrassom);
-    $ultrassom = ($ultrassom*100)/$qtd;
-  }else{
-    $ultrassom = 0;
-  }
-$dados = array(
-  'ultrassom' => $ultrassom
-);
-DBUpdate('lotes_reproducao', $dados, "id_lote = '$id_lote2' AND tipo = '0'");
-}
-//RANKING MONTA FIM
-
-//RANKING IA
-if($reproducao == 1){
-$qtd=$ultrassom=$nascimento=0;
-$ultrassom = DBRead('inseminacao_controle', "WHERE id_lote = '$id_lote2' AND ultrassom = '1'");
-$dados = DBRead('inseminacao_controle', "WHERE id_lote = '$id_lote2'");
-$qtd = count($dados);
-  if($ultrassom[0]['id'] > 0){
-    $ultrassom = count($ultrassom);
-    $ultrassom = ($ultrassom*100)/$qtd;
-  }else{
-    $ultrassom = 0;
-  }
-$dados = array(
-  'ultrassom' => $ultrassom
-);
-DBUpdate('lotes_reproducao', $dados, "id_lote = '$id_lote2' AND tipo = '1'");
-}
-//RANKING IA FIM
-
-//RANKING TE
-if($reproducao == 2){
-$qtd=$ultrassom=$nascimento=0;
-$ultrassom = DBRead('transplante_controle', "WHERE id_lote = '$id_lote2' AND ultrassom = '1'");
-$dados = DBRead('transplante_controle', "WHERE id_lote = '$id_lote2'");
-$qtd = count($dados);
-  if($ultrassom[0]['id'] > 0){
-    $ultrassom = count($ultrassom);
-    $ultrassom = ($ultrassom*100)/$qtd;
-  }else{
-    $ultrassom = 0;
-  }
-$dados = array(
-  'ultrassom' => $ultrassom
-);
-DBUpdate('lotes_reproducao', $dados, "id_lote = '$id_lote2' AND tipo = '2'");
-}
-//RANKING TE FIM
-
-if($tipo){
-  echo "<META HTTP-EQUIV=REFRESH CONTENT='0; URL=../../geral.php?pg=lista_ultrassom&id_lote=$id_lote2&reproducao=$reproducao+&tipo=1'>";
-}else{
-  echo "<META HTTP-EQUIV=REFRESH CONTENT='0; URL=../../geral.php?pg=lista_ultrassom&id_animal=$id_animal&tipo=0&terceiro=$terceiro'>";
-}
-
-?>
+$parametros=array('pg'=>'lista_ultrassom','tipo'=>$tipo);
+if($tipo===1){$parametros['id_lote']=$loteId;$parametros['reproducao']=$reproducao;}else{$parametros['id_animal']=$idAnimal;$parametros['terceiro']=$terceiro;}
+header('Location: ../../geral.php?'.http_build_query($parametros),true,303); exit;

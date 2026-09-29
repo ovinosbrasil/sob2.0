@@ -16,7 +16,7 @@ if (!$controle) {
 }
 
 $idLote = (int)$controle[0]['id_monta'];
-DBUpdate('monta_controle', array('ultrassom' => $status), "id = '$idControle'");
+DBUpdate('monta_controle', array('ultrassom' => $status, 'data_ultrassom' => (new DateTimeImmutable('now', new DateTimeZone('America/Bahia')))->format('Y-m-d')), "id = '$idControle'");
 
 $controles = DBRead('monta_controle', "WHERE id_monta = '$idLote'") ?: array();
 $positivos = DBRead('monta_controle', "WHERE id_monta = '$idLote' AND ultrassom = '1'") ?: array();

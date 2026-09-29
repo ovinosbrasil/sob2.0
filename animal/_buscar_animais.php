@@ -3,7 +3,7 @@ require __DIR__ . '/../_config.php';
 
 header('Content-Type: application/json; charset=utf-8');
 
-$tipos = array('machos', 'femeas', 'receptoras', 'todos');
+$tipos = array('machos', 'femeas', 'femeas_receptoras', 'receptoras', 'rebanho', 'todos');
 $tipo = $_GET['tipo'] ?? 'todos';
 $termo = trim((string)($_GET['q'] ?? ''));
 $limiteOrigem = filter_var($_GET['limite_origem'] ?? 0, FILTER_VALIDATE_INT);
@@ -112,17 +112,28 @@ try {
         }
         mysqli_stmt_close($stmt);
     } else {
-        $sexo = $tipo === 'machos' ? 'Macho' : ($tipo === 'femeas' ? 'Fêmea' : null);
-        $resultados = array_merge(
-            consultarBuscaAnimais($link, 'animais', $termoLike, $sexo, $limiteOrigem ?: 15),
-            consultarBuscaAnimais($link, 'terceiros', $termoLike, $sexo, $limiteOrigem ?: 15)
-        );
+        $sexo = $tipo === 'machos' ? 'Macho' : (in_array($tipo, array('femeas', 'femeas_receptoras'), true) ? 'Fêmea' : null);
+        $resultados = consultarBuscaAnimais($link, 'animais', $termoLike, $sexo, $limiteOrigem ?: 15);
+        if ($tipo !== 'rebanho') {
+            $resultados = array_merge($resultados, consultarBuscaAnimais($link, 'terceiros', $termoLike, $sexo, $limiteOrigem ?: 15));
+        }
         if (!$limiteOrigem) {
             usort($resultados, function ($a, $b) {
                 return strcasecmp($a['nome'], $b['nome']);
             });
         }
         $resultados = array_slice($resultados, 0, $limiteOrigem ? $limiteOrigem * 2 : 10);
+        if ($tipo === 'femeas_receptoras') {
+            $stmt = mysqli_prepare($link, "SELECT id, nome FROM receptora WHERE ativo = 1 AND nome LIKE ? ESCAPE '!' ORDER BY nome ASC LIMIT 10");
+            mysqli_stmt_bind_param($stmt, 's', $termoLike);
+            mysqli_stmt_execute($stmt);
+            $consulta = mysqli_stmt_get_result($stmt);
+            while ($registro = mysqli_fetch_assoc($consulta)) {
+                $resultados[] = array('id'=>(int)$registro['id'], 'nome'=>$registro['nome'], 'origem'=>'receptora', 'sexo'=>'Fêmea', 'nascimento'=>'--', 'situacao'=>'Ativa');
+            }
+            mysqli_stmt_close($stmt);
+            usort($resultados, function ($a, $b) { return strcasecmp($a['nome'], $b['nome']); });
+        }
     }
 
     echo json_encode(array('resultados' => $resultados), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);

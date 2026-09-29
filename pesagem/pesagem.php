@@ -39,94 +39,118 @@ function validar(){
   if(saida){ return false; }else{ return true; }
 }
 
-function excluir_peso(id_peso){
-if(window.XMLHttpRequest) { PP = new XMLHttpRequest();} else if(window.ActiveXObject) { PP = new ActiveXObject("Microsoft.XMLHTTP"); }
-// Arquivo PHP juntamente com o valor digitado no campo (método GET)
-var url = "pesagem/palco_excluir_peso.php?id_peso="+id_peso;
-// Chamada do método open para processar a requisição
-PP.open("Get", url, true);
-// Quando o objeto recebe o retorno, chamamos a seguinte função;
-PP.onreadystatechange = function() {
-if (PP.readyState == 4) {
-resposta = PP.responseText;
-document.getElementById("palco_excluir").innerHTML = resposta;
-}
-}
-PP.send(null);
-document.getElementById("transparencia").style.display = 'block';
-document.getElementById("palco_excluir").style.display = 'block';
-}
+document.addEventListener('buscaanimais:selecionado', function (evento) {
+  if (!evento.target.classList.contains('busca-animal-pesagem')) { return; }
+  var animal = evento.detail || {};
+  if (animal.id && animal.origem === 'rebanho') {
+    window.location.href = 'geral.php?pg=pesagem&id_animal=' + encodeURIComponent(animal.id);
+  }
+});
 
-function fechar_excluir_peso(){
-  document.getElementById("transparencia").style.display = 'none';
-  document.getElementById("palco_excluir").style.display = 'none';
-}
-
-function ativar_excluir_peso(id_peso){
-    window.location.href = "pesagem/_excluir_peso.php?id_peso="+id_peso+"&id_animal=<?=$id_animal?>";
+function excluir_peso(botao) {
+  confirmarExclusao({
+    titulo: 'Excluir pesagem?',
+    nome: botao.getAttribute('data-descricao'),
+    descricao: 'Esta ação não pode ser desfeita.',
+    aoConfirmar: function () {
+      window.location.href = 'pesagem/_excluir_peso.php?id_peso=' +
+        encodeURIComponent(botao.getAttribute('data-id')) + '&id_animal=<?=$id_animal?>';
+    }
+  });
 }
 </script>
 
 <section class="content-header">
-  <h1>
-    Pesagem individual
-  </h1>
+  <h1>Pesagem individual</h1>
   <ol class="breadcrumb">
-    <li><a href="#"><i class="fa fa-eyedropper"></i> Pesagem</a></li>
-    <li><a href="#">Pesquisa</a></li>
+    <li><i class="fa fa-eyedropper"></i> Pesagem</li>
+    <li class="active">Individual</li>
   </ol>
 </section>
 
-  <!-- Main content -->
-  <section class="content">
-    <div class="row">
-      <div class="col-md-3">
-				<div class="box box-success">
-          <form method="post" action="pesagem/_pesagem.php" onsubmit="return validar()">
-          <!-- /.box-header -->
-          <div class="box-body">
-            <div class="form-group">
-                  <label for="exampleInputPassword1">Animal<span style="color:#F00;">*</span></label>
-                  <input type="text" name="animal" id="animal" class="form-control" oninput="pesquisar_animal_pesagem(this.value)" value="<?=htmlspecialchars($animal[0]['nome'] ?? '', ENT_QUOTES, 'UTF-8')?>">
-                <div id="lista_animal_peso" style="border-style:solid; border-width:thin; height:auto; border-color: #bab1b4; position:absolute; z-index:99999; background:#fff; width:150%; display:none; margin-top:1%;"></div>
-            </div>
-            <? if($animal){ ?>
-            <div class="form-group">
-                <label for="exampleInputPassword1">Data<span style="color:#F00;">*</span></label>
-                <div class="input-group date">
-                  <div class="input-group-addon">
-                    <i class="fa fa-calendar"></i>
-                  </div>
-                  <input type="text" class="form-control pull-right" id="data" name="data" value="<?=$hoje?>">
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label for="exampleInputPassword1">Peso (kg)<span style="color:#F00;">*</span></label>
-                  <input type="text" class="form-control pull-right" id="valor" name="valor">
-            </div>
-
-            <div class="form-group">
-              <button type="submit" class="btn btn-success" style="margin-top:6%; width:100%;">Cadastrar peso</button>
-            </div>
-          <? } ?>
-			   </div>
-       </form>
+<section class="content">
+  <div class="box" style="border-top:0;">
+    <div class="box-header with-border">
+      <h3 class="box-title">Cadastrar pesagem</h3>
     </div>
-
-
-    <div class="box box-success">
-      <form method="post" action="pesagem/_pesagem.php" onsubmit="return validar()">
-      <!-- /.box-header -->
+    <form method="post" action="pesagem/_pesagem.php" onsubmit="return validar()">
       <div class="box-body">
-        <table class="table table-bordered" id="tabela_padrao" >
-          <tr>
-            <th>Data</th>
-            <th>Peso</th>
-            <th>Gmd - Dias</th>
-            <th>&nbsp;</th>
-          </tr>
-          <?
+        <div class="row" style="display:flex; flex-wrap:wrap; align-items:flex-end;">
+          <div class="col-sm-6 col-md-4">
+            <div class="form-group">
+              <?php renderBuscaAnimais(array(
+                'id' => 'animal',
+                'name' => 'animal',
+                'label' => 'Animal',
+                'tipo' => 'rebanho',
+                'required' => true,
+                'value' => $animal[0]['nome'] ?? '',
+                'value_id' => $animal ? $id_animal : 0,
+                'value_origem' => $animal ? 'rebanho' : '',
+                'classe' => 'busca-animal-pesagem'
+              )); ?>
+            </div>
+          </div>
+          <div class="col-sm-6 col-md-4">
+            <div class="form-group">
+              <label for="data">Data<span class="text-danger">*</span></label>
+              <div class="input-group date">
+                <div class="input-group-addon"><i class="fa fa-calendar" aria-hidden="true"></i></div>
+                <input type="text" class="form-control" id="data" name="data" value="<?=$hoje?>" required <?=$animal ? '' : 'disabled'?>>
+              </div>
+            </div>
+          </div>
+          <div class="col-sm-6 col-md-4">
+            <div class="form-group">
+              <label for="valor">Peso (kg)<span class="text-danger">*</span></label>
+              <input type="text" class="form-control" id="valor" name="valor" required <?=$animal ? '' : 'disabled'?>>
+            </div>
+          </div>
+          <div class="col-sm-12 text-right">
+            <button type="submit" class="btn btn-success" <?=$animal ? '' : 'disabled'?>>Cadastrar peso</button>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <div class="box" style="border-top:0;">
+    <div class="box-header with-border">
+      <h3 class="box-title">Histórico e evolução de peso</h3>
+    </div>
+    <div class="box-body">
+      <div class="row">
+        <div class="col-sm-6 col-md-4">
+          <div class="form-group">
+            <?php renderBuscaAnimais(array(
+              'id' => 'animal-historico-pesagem',
+              'name' => 'animal_historico',
+              'label' => 'Pesquisar animal',
+              'placeholder' => 'Digite o nome do animal',
+              'tipo' => 'rebanho',
+              'value' => $animal[0]['nome'] ?? '',
+              'value_id' => $animal ? $id_animal : 0,
+              'value_origem' => $animal ? 'rebanho' : '',
+              'classe' => 'busca-animal-pesagem'
+            )); ?>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-md-5">
+          <h4 style="font-size:16px; margin:5px 0 15px;">Pesagens cadastradas</h4>
+          <div class="table-responsive">
+            <table class="table table-bordered table-striped">
+              <thead>
+                <tr>
+                  <th>Data</th>
+                  <th>Peso (kg)</th>
+                  <th><abbr title="Ganho médio diário">GMD</abbr> / Dias</th>
+                  <th style="width:1%;"><span class="sr-only">Ações</span></th>
+                </tr>
+              </thead>
+              <tbody>
+              <?php
           $dataBase = null;
           $pesoBase = null;
           if (!$peso) { ?>
@@ -148,45 +172,32 @@ function ativar_excluir_peso(id_peso){
             }
           ?>
 
-        <? if($gmd < 0){?>  <tr style="color:red;"> <? } else{ ?> <tr style="color:green;"> <? } ?>
-            <td><?=$data?></td>
-            <td><?=$peso_['peso']?> kg</td>
-            <td><?=$gmd === null ? '—' : number_format($gmd, 2, ',', '.') . ' g - ' . $dias . ' dias'?></td>
-            <td><button type="button" class="btn btn-danger" style="padding:0%; padding-left:5%; padding-right:5%; height:20px;" onclick="excluir_peso(<?=$peso_['id']?>)">X</button></td>
-            </tr>
-          <? } ?>
-          </table>
-     </div>
-   </form>
-  </div>
-</div>
-
-
-      <div class="col-md-9">
-        <div class="box box-success">
-          <!-- /.box-header -->
-          <div class="box-body">
-            <div class="form-group">
-            </div>
-            Gráfico de evolução
-              <div class="box-header with-border">
-                <div class="box-tools pull-right">
-                  <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
-                  </button>
-                  <button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
-                </div>
-              </div>
-              <div class="box-body chart-responsive">
-                <?php if (!$dadosGraficoPesagem) { ?><p class="text-muted">Nenhuma pesagem disponível para o gráfico.</p><?php } ?>
-                <div class="chart" id="line-chart" style="height: 300px;"></div>
-              </div>
-              <!-- /.box-body -->
+                <tr>
+                  <td><?=$data?></td>
+                  <td><?=htmlspecialchars((string)$peso_['peso'], ENT_QUOTES, 'UTF-8')?> kg</td>
+                  <td class="<?=$gmd === null ? 'text-muted' : ($gmd < 0 ? 'text-danger' : 'text-success')?>"><?=$gmd === null ? '—' : number_format($gmd, 2, ',', '.') . ' g / ' . $dias . ' dias'?></td>
+                  <td>
+                    <button type="button" class="btn btn-link text-danger" style="padding:0; color:#dd4b39;"
+                            data-id="<?=(int)$peso_['id']?>"
+                            data-descricao="<?=htmlspecialchars($data . ' — ' . $peso_['peso'] . ' kg', ENT_QUOTES, 'UTF-8')?>"
+                            onclick="excluir_peso(this)" title="Excluir pesagem" aria-label="Excluir pesagem">
+                      <i class="fa fa-trash-o" aria-hidden="true"></i>
+                    </button>
+                  </td>
+                </tr>
+              <?php } ?>
+              </tbody>
+            </table>
           </div>
-          <!-- /.box-body -->
         </div>
-      <!-- /.col -->
+        <div class="col-md-7">
+          <h4 style="font-size:16px; margin:5px 0 15px;">Gráfico de evolução</h4>
+          <?php if (!$dadosGraficoPesagem): ?>
+            <p class="text-muted"><?=$animal ? 'Nenhuma pesagem disponível para o gráfico.' : 'Selecione um animal para visualizar a evolução de peso.'?></p>
+          <?php endif; ?>
+          <div class="chart" id="line-chart" style="height:300px;" role="img" aria-label="Gráfico de evolução do peso em quilogramas; valores disponíveis na tabela de pesagens."></div>
+        </div>
+      </div>
     </div>
-    <!-- /.row -->
   </div>
 </section>
-  <!-- /.content -->

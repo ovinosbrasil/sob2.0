@@ -7,7 +7,8 @@ $status = $_GET['status'];
 $id_controle = $_GET['id_controle'];
 
 $dados = array(
-  'ultrassom' => $status
+  'ultrassom' => $status,
+  'data_ultrassom' => (new DateTimeImmutable('now', new DateTimeZone('America/Bahia')))->format('Y-m-d')
 );
 
 DBUpdate('transplante_controle', $dados, "id = '$id_controle'");

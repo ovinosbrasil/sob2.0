@@ -174,7 +174,7 @@ $data_expira2 = $data;
 
         <? if(($pg == 'lista_monta') || ($pg == 'monta') || ($pg == 'cadastrar_monta') || ($pg == 'lista_inseminacao') || ($pg == 'inseminacao') || ($pg == 'cadastrar_inseminacao') || ($pg == 'lista_te') ||
         ($pg == 'te') || ($pg == 'cadastrar_te') || ($pg == 'lista_te')
-        || ($pg == 'lista_ultrassom') || ($pg == 'embrioes') || ($pg == 'vendas_embriao') || ($pg == 'semen') || ($pg == 'vender_semen')
+        || ($pg == 'lista_ultrassom') || ($pg == 'cadastrar_ultrassom') || ($pg == 'embrioes') || ($pg == 'vendas_embriao') || ($pg == 'semen') || ($pg == 'vender_semen')
         || ($pg == 'relatorio_arco')){ ?> <li class="active treeview"> <? }else{ ?> <li class="treeview">
         <? } ?>
           <a href="#">
@@ -192,7 +192,6 @@ $data_expira2 = $data;
             <li><a href="geral.php?pg=embrioes"><i class="fa fa-gg-circle"></i> Banco de embriões</a></li>
             <li><a href="geral.php?pg=lista_ultrassom"><i class="fa fa-qq"></i> Ultrassom</a></li>
             <li><a href="geral.php?pg=relatorio_arco"><i class="fa fa-print"></i> Relatório ARCO</a></li>
-            <li><a href=""><i class="fa fa-venus-mars"></i> Acasalamento</a></li>
           </ul>
         </li>
 
