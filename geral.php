@@ -264,6 +264,10 @@ $data_expira2 = $data;
           <a href="geral.php?pg=cadastrar_chip"><i class="fa fa-magic"></i> <span>Cadastrar chip</span></a>
         </li>
 
+        <li<?= $pg == 'atualizar_rebanho' ? ' class="active"' : '' ?>>
+          <a href="geral.php?pg=atualizar_rebanho"><i class="fa fa-upload"></i> <span>Atualizar Rebanho</span></a>
+        </li>
+
 
       </ul>
     </section>
@@ -540,7 +544,13 @@ $(function () {
 $(function () {
   $('#valor_faturamento').priceFormat();
   $('#valor_debito').priceFormat();
-  $('#valor').priceFormat();
+  $('#valor').each(function () {
+    $(this).priceFormat({
+      centsLimit: Number($(this).attr('data-casas-decimais')) || 2,
+      centsSeparator: $(this).attr('data-separador-decimal') || '.',
+      thousandsSeparator: $(this).attr('data-separador-milhar') || ','
+    });
+  });
 })
 
 document.addEventListener('buscaanimais:selecionado', function (evento) {

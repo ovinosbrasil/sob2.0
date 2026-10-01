@@ -58,7 +58,7 @@ class RelatorioArcoPDF extends FPDF
     {
         $this->AddPage(); $larguras=$this->cabecalhoTabela(); $this->SetFont('Arial','',6.3); $this->SetTextColor(75,75,75);
         foreach($animais as $item){
-            $valores=array($item['fbb'],$item['nome'],$item['tatuagem'],$item['sexo'],$item['nascimento'],'',$item['pai_nome'],$item['pai_fbb'],$item['mae_nome'],$item['mae_fbb']);
+            $valores=array($item['fbb'],$item['nome'],$item['tatuagem'],$item['sexo'],$item['nascimento'],$item['cod']??'',$item['pai_nome'],$item['pai_fbb'],$item['mae_nome'],$item['mae_fbb']);
             $this->SetX(10);
             foreach($valores as $i=>$valor){ $valor=trim((string)$valor)===''?'':$valor; $this->Cell($larguras[$i],4.6,$this->texto($valor),1,0,'C'); }
             $this->Ln();

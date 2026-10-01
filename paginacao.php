@@ -28,6 +28,10 @@ switch ($_GET['pg']){
 		include "animal/cadastrar/cadastrar_nascimento.php";
 		break;
 
+		case 'atualizar_rebanho';
+		include "animal/atualizar_rebanho.php";
+		break;
+
 		case 'lista_rebanho';
 		include "animal/lista_rebanho.php";
 		break;

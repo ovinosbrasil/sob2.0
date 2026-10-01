@@ -103,7 +103,7 @@ function excluir_peso(botao) {
           <div class="col-sm-6 col-md-4">
             <div class="form-group">
               <label for="valor">Peso (kg)<span class="text-danger">*</span></label>
-              <input type="text" class="form-control" id="valor" name="valor" required <?=$animal ? '' : 'disabled'?>>
+              <input type="text" class="form-control" id="valor" name="valor" data-casas-decimais="3" data-separador-decimal="," data-separador-milhar="." inputmode="decimal" placeholder="Ex.: 2,675" required <?=$animal ? '' : 'disabled'?>>
             </div>
           </div>
           <div class="col-sm-12 text-right">
@@ -174,12 +174,12 @@ function excluir_peso(botao) {
 
                 <tr>
                   <td><?=$data?></td>
-                  <td><?=htmlspecialchars((string)$peso_['peso'], ENT_QUOTES, 'UTF-8')?> kg</td>
+                  <td><?=number_format((float)$peso_['peso'], 3, ',', '.')?> kg</td>
                   <td class="<?=$gmd === null ? 'text-muted' : ($gmd < 0 ? 'text-danger' : 'text-success')?>"><?=$gmd === null ? '—' : number_format($gmd, 2, ',', '.') . ' g / ' . $dias . ' dias'?></td>
                   <td>
                     <button type="button" class="btn btn-link text-danger" style="padding:0; color:#dd4b39;"
                             data-id="<?=(int)$peso_['id']?>"
-                            data-descricao="<?=htmlspecialchars($data . ' — ' . $peso_['peso'] . ' kg', ENT_QUOTES, 'UTF-8')?>"
+                            data-descricao="<?=htmlspecialchars($data . ' — ' . number_format((float)$peso_['peso'], 3, ',', '.') . ' kg', ENT_QUOTES, 'UTF-8')?>"
                             onclick="excluir_peso(this)" title="Excluir pesagem" aria-label="Excluir pesagem">
                       <i class="fa fa-trash-o" aria-hidden="true"></i>
                     </button>

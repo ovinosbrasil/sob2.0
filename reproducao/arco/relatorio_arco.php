@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/_codigo_nascimento.php';
 function arcoH($valor) { return htmlspecialchars((string)$valor, ENT_QUOTES, 'UTF-8'); }
 function arcoData($valor) {
     $valor=trim((string)$valor);
@@ -76,7 +77,7 @@ $racas=DBRead('raca','ORDER BY nome ASC')?:array();
     <div class="table-responsive"><table class="table table-bordered table-striped"><thead><tr><th>Fbb</th><th>Nome</th><th>Tat.</th><th>Sexo</th><th>Nascimento</th><th>COD.IRREG(*)</th><th>Pai</th><th>Fbb</th><th>Mãe</th><th>Fbb</th></tr></thead><tbody>
       <?php if(!$animais): ?><tr><td colspan="10" class="text-center"><?=$pesquisou?'Nenhum animal encontrado.':'Informe os filtros para pesquisar.'?></td></tr><?php endif; ?>
       <?php foreach($animais as $animal): $pai=arcoRegistroAnimal($animal['pai']??0,!empty($animal['terceiro_pai'])); $mae=arcoRegistroAnimal($animal['mae']??0,!empty($animal['terceiro_mae'])); ?>
-      <tr><td><?=arcoH($animal['fbb']??'')?></td><td onclick="abrir_animal(<?=(int)$animal['id']?>)" style="cursor:pointer;"><?=arcoH($animal['nome']??'')?></td><td><?=arcoH($animal['tatuagem']??'')?></td><td><?=arcoH($animal['sexo']??'')?></td><td><?=arcoH(($data=DateTimeImmutable::createFromFormat('!Y-m-d',substr((string)($animal['data_de_nascimento']??''),0,10)))?$data->format('d/m/Y'):'--')?></td><td></td><td><?=arcoH($pai['nome']??'--')?></td><td><?=arcoH($pai['fbb']??'')?></td><td><?=arcoH($mae['nome']??'--')?></td><td><?=arcoH($mae['fbb']??'')?></td></tr>
+      <tr><td><?=arcoH($animal['fbb']??'')?></td><td onclick="abrir_animal(<?=(int)$animal['id']?>)" style="cursor:pointer;"><?=arcoH($animal['nome']??'')?></td><td><?=arcoH($animal['tatuagem']??'')?></td><td><?=arcoH($animal['sexo']??'')?></td><td><?=arcoH(($data=DateTimeImmutable::createFromFormat('!Y-m-d',substr((string)($animal['data_de_nascimento']??''),0,10)))?$data->format('d/m/Y'):'--')?></td><td><?=arcoH(codigoNascimentoArco($animal))?></td><td><?=arcoH($pai['nome']??'--')?></td><td><?=arcoH($pai['fbb']??'')?></td><td><?=arcoH($mae['nome']??'--')?></td><td><?=arcoH($mae['fbb']??'')?></td></tr>
       <?php endforeach; ?>
     </tbody></table></div>
     <?php if($pesquisou): ?><div class="box-footer" style="display:flex; flex-wrap:wrap; align-items:center; justify-content:center; gap:16px;">

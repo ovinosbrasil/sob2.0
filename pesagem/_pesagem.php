@@ -4,7 +4,8 @@ $animal = $_POST['animal'];
 $data = $_POST['data'];
 include "../funcoes_data/data.php";
 $peso = $_POST['valor'];
-$peso = str_replace("," , "" , $peso);
+$peso = str_replace(".", "", $peso);
+$peso = str_replace(",", ".", $peso);
 
 $animal = DBRead('animais', "WHERE nome = '$animal'");
 if($animal[0]['id'] < 1){
