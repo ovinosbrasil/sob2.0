@@ -1,178 +1,149 @@
-<?
-$data_inicial = $_POST['data_inicial'];
-$data_final = $_POST['data_final'];
-
-if ($data_inicial) {
-  $data = $data_inicial;
-  $data_atual = $data;
-  $data = '0';
-  $data['0'] = $data_atual['6'];
-  $data['1'] = $data_atual['7'];
-  $data['2'] = $data_atual['8'];
-  $data['3'] = $data_atual['9'];
-  $data['4'] = "-";
-  $data['5'] = $data_atual['3'];
-  $data['6'] = $data_atual['4'];
-  $data['7'] = "-";
-  $data['8'] = $data_atual['0'];
-  $data['9'] = $data_atual['1'];
-  $data_inicial_ = $data;
+<?php
+$hNascimentos = function ($valor) { return htmlspecialchars((string)$valor, ENT_QUOTES, 'UTF-8'); };
+$filtrosNascimentos = ($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST' ? $_POST : $_GET;
+$data_inicial = is_string($filtrosNascimentos['data_inicial'] ?? null) ? trim($filtrosNascimentos['data_inicial']) : date('01/m/Y');
+$data_final = is_string($filtrosNascimentos['data_final'] ?? null) ? trim($filtrosNascimentos['data_final']) : date('t/m/Y');
+$lerDataNascimentos = function ($valor) {
+    $data = DateTimeImmutable::createFromFormat('!d/m/Y', $valor);
+    return $data && $data->format('d/m/Y') === $valor ? $data : null;
+};
+$inicioNascimentos = $lerDataNascimentos($data_inicial);
+$fimNascimentos = $lerDataNascimentos($data_final);
+$erroNascimentos = '';
+$nascimentos = array();
+if (!$inicioNascimentos || !$fimNascimentos) {
+    $erroNascimentos = 'Informe datas válidas no formato dd/mm/aaaa.';
+} elseif ($inicioNascimentos > $fimNascimentos) {
+    $erroNascimentos = 'A data final deve ser igual ou posterior à data inicial.';
+} else {
+    $inicioSql = $inicioNascimentos->format('Y-m-d');
+    $fimSql = $fimNascimentos->format('Y-m-d');
+    $nascimentos = DBRead('animais', "WHERE data_de_nascimento >= '$inicioSql' AND data_de_nascimento <= '$fimSql' ORDER BY data_de_nascimento ASC, id ASC") ?: array();
 }
-
-if ($data_final) {
-  $data = $data_final;
-  $data_atual = $data;
-  $data = '0';
-  $data['0'] = $data_atual['6'];
-  $data['1'] = $data_atual['7'];
-  $data['2'] = $data_atual['8'];
-  $data['3'] = $data_atual['9'];
-  $data['4'] = "-";
-  $data['5'] = $data_atual['3'];
-  $data['6'] = $data_atual['4'];
-  $data['7'] = "-";
-  $data['8'] = $data_atual['0'];
-  $data['9'] = $data_atual['1'];
-  $data_final_ = $data;
+$tiposNascimentos = array('Monta Natural', 'Inseminação Artificial', 'Embrionagem', 'Não informado');
+$tipoNascimento = function ($animal) { return trim($animal['tipo_reproducao'] ?? '') ?: 'Não informado'; };
+foreach ($nascimentos as $animalNascimento) {
+    $tipoDisponivel = $tipoNascimento($animalNascimento);
+    if (!in_array($tipoDisponivel, $tiposNascimentos, true)) $tiposNascimentos[] = $tipoDisponivel;
 }
-
-
-$nascimento = DBRead('animais', "WHERE data_de_nascimento >= '$data_inicial_' AND data_de_nascimento <= '$data_final_'");
-$monta=$inseminacao=$trasnplante=$morte=0;
-foreach ($nascimento as $animal){
-  $total++;
-  if($animal['tipo_reproducao'] == 'Monta Natural'){ $monta++;}
-  if($animal['tipo_reproducao'] == 'Inseminação Artificial'){ $inseminacao++;}
-  if($animal['tipo_reproducao'] == 'Embrionagem'){ $transplante++;}
-  if($animal['causa_da_perda'] == 'Nascimento'){ $morte++; }
+$filtroTipoNascimentos = is_string($filtrosNascimentos['tipo'] ?? null) ? trim($filtrosNascimentos['tipo']) : '';
+if ($filtroTipoNascimentos !== '') {
+    if (!in_array($filtroTipoNascimentos, $tiposNascimentos, true)) $tiposNascimentos[] = $filtroTipoNascimentos;
+    $nascimentos = array_values(array_filter($nascimentos, function ($animal) use ($tipoNascimento, $filtroTipoNascimentos) {
+        return $tipoNascimento($animal) === $filtroTipoNascimentos;
+    }));
 }
-
-$monta_ = $total ? ($monta*100)/$total : 0;
-$inseminacao_ = $total ? ($inseminacao*100)/$total : 0;
-$transplante_ = $total ? ($transplante*100)/$total : 0;
-$morte_ = $total ? ($morte*100)/$total : 0;
+$resumoNascimentos = array_fill_keys($tiposNascimentos, 0);
+$mortesNascimento = 0;
+foreach ($nascimentos as $animalNascimento) {
+    $resumoNascimentos[$tipoNascimento($animalNascimento)]++;
+    if (($animalNascimento['causa_da_perda'] ?? '') === 'Nascimento') $mortesNascimento++;
+}
+$totalNascimentos = count($nascimentos);
+$resumoNascimentos = array('Mortes no nascimento' => $mortesNascimento) + $resumoNascimentos;
+$rotuloTipoNascimento = function ($tipo) { return $tipo === 'Embrionagem' ? 'Transferência de embriões' : $tipo; };
+$porPaginaNascimentos = filter_var($filtrosNascimentos['por_pagina'] ?? 10, FILTER_VALIDATE_INT);
+if (!in_array($porPaginaNascimentos, array(10, 20, 50, 100), true)) $porPaginaNascimentos = 10;
+$paginasNascimentos = max(1, (int)ceil($totalNascimentos / $porPaginaNascimentos));
+$paginaNascimentos = min($paginasNascimentos, max(1, (int)($filtrosNascimentos['pag'] ?? 1)));
+$offsetNascimentos = ($paginaNascimentos - 1) * $porPaginaNascimentos;
+$urlNascimentos = function ($pagina) use ($data_inicial, $data_final, $porPaginaNascimentos, $hNascimentos, $filtroTipoNascimentos) {
+    return $hNascimentos('geral.php?' . http_build_query(array('pg' => 'relatorio_nascimentos', 'data_inicial' => $data_inicial, 'data_final' => $data_final, 'por_pagina' => $porPaginaNascimentos, 'pag' => $pagina, 'tipo' => $filtroTipoNascimentos)));
+};
 ?>
-
-
 <section class="content-header">
-  <h1>
-    Relatório de nascimentos
-  </h1>
-  <ol class="breadcrumb">
-    <li><a href="#"><i class="fa fa-book"></i> Relatórios</a></li>
-    <li><a href="#">Nascimentos</a></li>
-  </ol>
+  <h1>Relatório de nascimentos</h1>
+  <ol class="breadcrumb"><li><i class="fa fa-book"></i> Relatórios</li><li class="active">Nascimentos</li></ol>
 </section>
-
-  <!-- Main content -->
-  <section class="content">
-    <div class="row">
-      <div class="col-md-3">
-				<div class="box box-success">
-          <form method="post" action="geral.php?pg=relatorio_nascimentos" onsubmit="return validar_montar()">
-          <!-- /.box-header -->
-          <div class="box-body">
-
-            <div class="form-group">
-                <label for="exampleInputPassword1">Data inicial<span style="color:#F00;">*</span></label>
-                <div class="input-group date">
-                  <div class="input-group-addon">
-                    <i class="fa fa-calendar"></i>
-                  </div>
-                  <input type="text" class="form-control pull-right" id="data_inicial" name="data_inicial" value="<?=$data_inicial?>">
-                </div>
+<section class="content">
+  <div class="box" style="border-top:0;">
+    <div class="box-body">
+      <form id="filtros-nascimentos" action="geral.php" method="get">
+        <input type="hidden" name="pg" value="relatorio_nascimentos">
+        <input type="hidden" name="por_pagina" value="<?=$porPaginaNascimentos?>">
+        <div class="row" style="display:flex; flex-wrap:wrap; align-items:flex-end;">
+          <?php foreach (array('data_inicial' => 'Data inicial', 'data_final' => 'Data final') as $campo => $rotulo): ?>
+          <div class="form-group col-sm-6 col-md-3">
+            <label for="<?=$campo?>"><?=$rotulo?><span class="text-danger">*</span></label>
+            <div class="input-group date">
+              <span class="input-group-addon"><i class="fa fa-calendar" aria-hidden="true"></i></span>
+              <input type="text" class="form-control" id="<?=$campo?>" name="<?=$campo?>" value="<?=$hNascimentos($$campo)?>" placeholder="dd/mm/aaaa" maxlength="10" required>
             </div>
-
-            <div class="form-group">
-                <label for="exampleInputPassword1">Data final<span style="color:#F00;">*</span></label>
-                <div class="input-group date">
-                  <div class="input-group-addon">
-                    <i class="fa fa-calendar"></i>
-                  </div>
-                  <input type="text" class="form-control pull-right" id="data_final" name="data_final" value="<?=$data_final?>">
-                </div>
-            </div>
-
-            <div class="form-group">
-              <button type="submit" class="btn btn-primary" style="width:100%; margin-top:4%;">Pesquisar</button>
-            </div>
-
+          </div>
+          <?php endforeach; ?>
+          <div class="form-group col-sm-6 col-md-3">
+            <label for="tipo-nascimentos">Tipo</label>
+            <select class="form-control" id="tipo-nascimentos" name="tipo">
+              <option value="">Todos</option>
+              <?php foreach ($tiposNascimentos as $opcaoTipo): ?>
+              <option value="<?=$hNascimentos($opcaoTipo)?>" <?=$filtroTipoNascimentos === $opcaoTipo ? 'selected' : ''?>><?=$hNascimentos($rotuloTipoNascimento($opcaoTipo))?></option>
+              <?php endforeach; ?>
+            </select>
+          </div>
+          <div class="form-group col-sm-6 col-md-3">
+            <button type="submit" class="btn btn-primary">Pesquisar</button>
+            <a class="btn btn-default" href="geral.php?pg=relatorio_nascimentos">Limpar</a>
+          </div>
         </div>
       </form>
-			</div>
-      <!-- /.col -->
-
-      <div class="box box-success">
-        <div class="box-body">
-
-
-        <div class="form-group">
-          <label>Nascimento </label> <span class="badge bg-blue"><?=$total?></span>
+    </div>
+  </div>
+  <?php if ($erroNascimentos): ?>
+  <div class="alert alert-warning" role="alert"><?=$hNascimentos($erroNascimentos)?></div>
+  <?php else: ?>
+  <div class="box" style="border-top:0;">
+    <div class="box-header"><h2 class="box-title" style="font-size:16px;">Resumo do período</h2><span class="pull-right text-muted">Total no período: <strong><?=$totalNascimentos?></strong></span></div>
+    <div class="box-body">
+      <div class="row">
+        <?php foreach ($resumoNascimentos as $causa => $quantidade): ?>
+        <div class="col-xs-6 col-sm-4 col-md-2" style="margin-bottom:15px;">
+          <div class="text-muted"><?=$hNascimentos($rotuloTipoNascimento($causa))?></div>
+          <strong><?=$quantidade?></strong> <span class="text-muted">(<?=number_format($totalNascimentos ? $quantidade * 100 / $totalNascimentos : 0, 2, ',', '.')?>%)</span>
         </div>
-        <div class="form-group">
-            <label>Mortes </label>  <span class="badge bg-blue"><?=$morte?></span> <span class="badge bg-green"><?=number_format($morte_, 2, ',', '.')?>%</span>
-        </div>
-        <div class="form-group">
-          <label>Monta natural </label>  <span class="badge bg-blue"><?=$monta?></span> <span class="badge bg-green"><?=number_format($monta_, 2, ',', '.')?>%</span>
-        </div>
-        <div class="form-group">
-          <label>Inseminação artificial </label>  <span class="badge bg-blue"><?=$inseminacao?></span> <span class="badge bg-green"><?=number_format($inseminacao_, 2, ',', '.')?>%</span>
-        </div>
-        <div class="form-group">
-          <label>Trans. de embriões </label>  <span class="badge bg-blue"><?=$transplante?></span> <span class="badge bg-green"><?=number_format($transplante_, 2, ',', '.')?>%</span>
-        </div>
+        <?php endforeach; ?>
       </div>
     </div>
   </div>
-
-    <div class="col-md-9">
-      <div class="box box-success">
-        <!-- /.box-header -->
-        <div class="box-body">
-          <table class="table table-bordered" id="tabela_padrao">
+  <div class="box" style="border-top:0;">
+    <div class="box-body">
+      <div style="display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:12px; margin-bottom:15px;">
+        <h2 class="box-title" style="font-size:16px; margin:0;">Nascimentos no período</h2>
+        <span class="text-muted"><?=$hNascimentos($data_inicial)?> até <?=$hNascimentos($data_final)?></span>
+      </div>
+      <div class="table-responsive">
+        <table class="table table-bordered table-striped">
+          <thead><tr><th style="width:60px;">Nº</th><th>Animal</th><th>Nascimento</th><th>Tipo de reprodução</th><th>Morte no nascimento</th></tr></thead>
+          <tbody>
+            <?php if (!$nascimentos): ?><tr><td colspan="5" class="text-center text-muted" style="padding:30px;">Nenhum nascimento encontrado no período informado. Verifique os filtros selecionados.</td></tr><?php endif; ?>
+            <?php foreach (array_slice($nascimentos, $offsetNascimentos, $porPaginaNascimentos) as $indice => $animalNascimento):
+                $dataNascimento = DateTimeImmutable::createFromFormat('!Y-m-d', substr($animalNascimento['data_de_nascimento'], 0, 10)); ?>
             <tr>
-              <th>Nº</th>
-              <th>Animal</th>
-              <th>Nascimento</th>
-              <th>Tipo de reprodução</th>
-              <th>Morte no nasc.</th>
+              <td><?=$offsetNascimentos + $indice + 1?></td>
+              <td><a style="color:inherit; text-decoration:none;" href="geral.php?pg=animal&amp;id_animal=<?=(int)$animalNascimento['id']?>"><?=$hNascimentos($animalNascimento['nome'])?></a></td>
+              <td style="white-space:nowrap;"><?=$dataNascimento ? $dataNascimento->format('d/m/Y') : 'Não informada'?></td>
+              <td><?=$hNascimentos($rotuloTipoNascimento($tipoNascimento($animalNascimento)))?></td>
+              <td><?=($animalNascimento['causa_da_perda'] ?? '') === 'Nascimento' ? 'Sim' : 'Não'?></td>
             </tr>
-            <?
-            $nascimento = DBRead('animais', "WHERE data_de_nascimento >= '$data_inicial_' AND data_de_nascimento <= '$data_final_' ORDER BY data_de_nascimento asc");
-            foreach ($nascimento as $animal){
-              $x++;
-              $data_atual = $animal['data_de_nascimento'];
-              $data = '0';
-              $data['0'] = $data_atual['8'];
-              $data['1'] = $data_atual['9'];
-              $data['2'] = "/";
-              $data['3'] = $data_atual['5'];
-              $data['4'] = $data_atual['6'];
-              $data['5'] = "/";
-              $data['6'] = $data_atual['0'];
-              $data['7'] = $data_atual['1'];
-              $data['8'] = $data_atual['2'];
-              $data['9'] = $data_atual['3'];
-            ?>
-            <tr>
-              <td><?=$x?></td>
-
-               <? if($animal['status'] == 0){ ?> <td onclick="abrir_animal(<?=$animal['id']?>)" style="cursor:pointer;"> <? }else{ ?>
-                <td onclick="abrir_animal(<?=$animal['id']?>)" style="cursor:pointer; color:red;"> <? } ?> <?=$animal['nome']?></td>
-              <td><?=$data?></td>
-              <td><?=$animal['tipo_reproducao']?></td>
-              <?
-              if($animal['causa_da_perda'] == 'Nascimento'){?> <td style="color:red;"> <? echo 'Sim';}else{ ?> <td> <? echo 'não'; } ?>
-            </td>
-              </tr>
-            <? } ?>
-            </table>
-        </div>
-        <!-- /.box-body -->
+            <?php endforeach; ?>
+          </tbody>
+        </table>
       </div>
-    <!-- /.col -->
+      <div style="display:flex; flex-wrap:wrap; align-items:center; justify-content:center; gap:16px; border-top:1px solid #f4f4f4; padding-top:10px;">
+        <label for="por-pagina-nascimentos" style="margin:0; font-weight:normal;">Por página</label>
+        <select id="por-pagina-nascimentos" class="form-control" style="width:70px;" onchange="var form=document.getElementById('filtros-nascimentos'); form.elements.por_pagina.value=this.value; form.submit();">
+          <?php foreach (array(10, 20, 50, 100) as $limite): ?><option value="<?=$limite?>" <?=$limite === $porPaginaNascimentos ? 'selected' : ''?>><?=$limite?></option><?php endforeach; ?>
+        </select>
+        <span class="text-muted">Exibindo <?=$totalNascimentos ? $offsetNascimentos + 1 : 0?> a <?=min($offsetNascimentos + $porPaginaNascimentos, $totalNascimentos)?> de <?=$totalNascimentos?> registros</span>
+        <nav aria-label="Páginas do relatório de nascimentos"><ul class="pagination pagination-sm" style="margin:0;">
+          <li class="<?=$paginaNascimentos === 1 ? 'disabled' : ''?>"><?php if ($paginaNascimentos > 1): ?><a href="<?=$urlNascimentos($paginaNascimentos - 1)?>" aria-label="Página anterior">«</a><?php else: ?><span>«</span><?php endif; ?></li>
+          <?php for ($p = 1; $p <= $paginasNascimentos; $p++):
+              if ($p !== 1 && $p !== $paginasNascimentos && abs($p - $paginaNascimentos) > 1) { if ($p === 2 || $p === $paginasNascimentos - 1) echo '<li class="disabled"><span>…</span></li>'; continue; } ?>
+          <li class="<?=$p === $paginaNascimentos ? 'active' : ''?>"><a href="<?=$urlNascimentos($p)?>" <?=$p === $paginaNascimentos ? 'aria-current="page"' : ''?>><?=$p?></a></li>
+          <?php endfor; ?>
+          <li class="<?=$paginaNascimentos === $paginasNascimentos ? 'disabled' : ''?>"><?php if ($paginaNascimentos < $paginasNascimentos): ?><a href="<?=$urlNascimentos($paginaNascimentos + 1)?>" aria-label="Próxima página">»</a><?php else: ?><span>»</span><?php endif; ?></li>
+        </ul></nav>
+      </div>
     </div>
-
   </div>
+  <?php endif; ?>
 </section>
-  <!-- /.content -->

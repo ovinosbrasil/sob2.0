@@ -1,316 +1,127 @@
-<?  $filtro = $_GET['filtro']; ?>
-<script type="text/javascript">
-function atualizar(filtro){
-    window.location.href = "geral.php?pg=relatorio_tipificacao&filtro="+filtro;
+<?php
+require_once __DIR__ . '/../includes/busca_animais.php';
+require_once __DIR__ . '/reprodutor/indicadores_reprodutores.php';
+require_once __DIR__ . '/matriz/indicadores_matrizes.php';
+$hTip = function ($valor) { return htmlspecialchars((string)$valor, ENT_QUOTES, 'UTF-8'); };
+$grupoTip = ($_GET['filtro'] ?? '') === 'Matrizes' ? 'Matrizes' : 'Reprodutores';
+$matrizesTip = $grupoTip === 'Matrizes';
+$camposTip = array('qtd_avaliadas'=>'Crias avaliadas', 'tamanho'=>'Pesagem', 'cabeca'=>'Cabeça', 'pescoco'=>'Pescoço', 'quarto_anterior'=>'Quarto anterior', 'barril'=>'Barril', 'quarto_posterior'=>'Quarto posterior', 'comprimento'=>'Comprimento', 'orgao'=>'Órgão sexual', 'distribuicao'=>'Gordura', 'cobertura'=>'Cobertura', 'cor'=>'Cor', 'conformacao'=>'Conformação');
+$ordemTip = filter_var($_GET['tipo'] ?? 1, FILTER_VALIDATE_INT);
+if (!$ordemTip || $ordemTip < 1 || $ordemTip > count($camposTip)) $ordemTip = 1;
+$campoOrdemTip = array_keys($camposTip)[$ordemTip - 1];
+$pesquisaTip = is_string($_GET['animal'] ?? null) ? trim($_GET['animal']) : '';
+$idTip = max(0, (int)filter_var($_GET['animal_id'] ?? 0, FILTER_VALIDATE_INT));
+$origemTip = is_string($_GET['animal_origem'] ?? null) ? $_GET['animal_origem'] : '';
+$situacaoTip = is_string($_GET['situacao'] ?? null) ? $_GET['situacao'] : 'Todos';
+if (!in_array($situacaoTip, array('Todos','Rebanho','Mortos/Vendidos'), true)) $situacaoTip = 'Todos';
+$porPaginaTip = filter_var($_GET['por_pagina'] ?? 10, FILTER_VALIDATE_INT);
+if (!in_array($porPaginaTip, array(10,20,50,100), true)) $porPaginaTip = 10;
+$avaliacoesTip = $matrizesTip ? consultarTipificacaoMatrizes() : consultarTipificacaoReprodutores();
+$cadastrosTip = DBRead('animais', '', 'id, nome, status') ?: array();
+$cadastrosTip = array_column($cadastrosTip, null, 'id');
+$registrosTip = array();
+foreach ($avaliacoesTip as $itemTip) {
+    $idAnimalTip = (int)$itemTip[$matrizesTip ? 'id_femea' : 'id_macho'];
+    if (!isset($cadastrosTip[$idAnimalTip])) continue;
+    $registrosTip[] = array_merge($itemTip, $cadastrosTip[$idAnimalTip]);
 }
-function atualizar2(tipo){
-    window.location.href = "geral.php?pg=relatorio_tipificacao&filtro=<?=$filtro?>&tipo="+tipo;
+$mediasTip = array();
+foreach ($camposTip as $campoTip => $rotuloTip) {
+    $valoresTip = array();
+    foreach ($registrosTip as $itemTip) if ((int)$itemTip['status'] === 0 && isset($itemTip[$campoTip])) $valoresTip[] = (float)$itemTip[$campoTip];
+    $mediasTip[$campoTip] = $valoresTip ? array_sum($valoresTip) / count($valoresTip) : null;
 }
-</script>
-
+$registrosTip = array_values(array_filter($registrosTip, function ($item) use ($pesquisaTip, $idTip, $origemTip, $situacaoTip) {
+    if ((int)$item['qtd_avaliadas'] < 3) return false;
+    if ($idTip && ($origemTip !== 'rebanho' || (int)$item['id'] !== $idTip)) return false;
+    if (!$idTip && $pesquisaTip !== '' && mb_stripos($item['nome'], $pesquisaTip, 0, 'UTF-8') === false) return false;
+    return $situacaoTip === 'Todos' || ($situacaoTip === 'Rebanho' ? (int)$item['status'] === 0 : (int)$item['status'] >= 1);
+}));
+usort($registrosTip, function ($a, $b) use ($campoOrdemTip) {
+    if (!isset($a[$campoOrdemTip]) || !isset($b[$campoOrdemTip])) return (!isset($a[$campoOrdemTip])) <=> (!isset($b[$campoOrdemTip]));
+    return ((float)$b[$campoOrdemTip] <=> (float)$a[$campoOrdemTip]) ?: ((int)$a['id'] <=> (int)$b['id']);
+});
+$totalTip = count($registrosTip);
+$paginasTip = max(1, (int)ceil($totalTip / $porPaginaTip));
+$paginaTip = min($paginasTip, max(1, (int)($_GET['pag'] ?? 1)));
+$offsetTip = ($paginaTip - 1) * $porPaginaTip;
+$urlTip = function ($pagina, $ordem = null) use ($hTip, $grupoTip, $ordemTip, $pesquisaTip, $idTip, $origemTip, $situacaoTip, $porPaginaTip) {
+    return $hTip('geral.php?' . http_build_query(array('pg'=>'relatorio_tipificacao', 'filtro'=>$grupoTip, 'tipo'=>$ordem ?? $ordemTip, 'animal'=>$pesquisaTip, 'animal_id'=>$idTip, 'animal_origem'=>$origemTip, 'situacao'=>$situacaoTip, 'por_pagina'=>$porPaginaTip, 'pag'=>$pagina)));
+};
+$situacoesTip = array(0=>array('Rebanho','#777'),1=>array($matrizesTip ? 'Morta' : 'Morto','#dd4b39'),2=>array($matrizesTip ? 'Vendida' : 'Vendido','#008d4c'),3=>array('Empréstimo','#777'),4=>array('Doação','#777'),5=>array('Abate','#dd4b39'));
+?>
 <section class="content-header">
-  <h1>
-    Relatório de tipificação das crias
-  </h1>
-  <ol class="breadcrumb">
-    <li><a href="#"><i class="fa fa-book"></i> Relatórios</a></li>
-    <li><a href="#">Tipificação</a></li>
-  </ol>
+  <h1>Relatório de tipificação das crias</h1>
+  <ol class="breadcrumb"><li><i class="fa fa-book"></i> Relatórios</li><li class="active">Tipificação</li></ol>
 </section>
-
-  <!-- Main content -->
-  <section class="content">
-    <div class="row">
-      <div class="col-md-12">
-				<div class="box box-success">
-          <form method="post" action="geral.php?pg=relatorio_mortes" onsubmit="return validar_montar()">
-          <!-- /.box-header -->
-          <div class="box-body">
-
-        <div class="col-md-4" style="margin-left:-12px;">
-          <label for="exampleInputPassword1">Filtro</label>
-            <div class="form-group">
-              <select  class="form-control select" onchange="atualizar(this.value)">
-                <?
-                if($filtro){ ?> <option value="<?=$filtro?>"><?=$filtro?></option> <? }else{ ?> <option value="">Selecionar</option><? } ?>
-                <option value=""></option>
-                <option value="Reprodutores">Reprodutores</option>
-                <option value="Matrizes">Matrizes</option>
-              </select>
-            </div>
+<section class="content">
+  <div class="box" style="border-top:0;"><div class="box-body">
+    <form id="filtros-tipificacao" action="geral.php" method="get">
+      <input type="hidden" name="pg" value="relatorio_tipificacao">
+      <input type="hidden" name="tipo" value="<?=$ordemTip?>">
+      <input type="hidden" name="por_pagina" value="<?=$porPaginaTip?>">
+      <div class="row" style="display:flex; flex-wrap:wrap; align-items:flex-end;">
+        <div class="form-group col-sm-6 col-md-3">
+          <label for="grupo-tipificacao">Grupo</label>
+          <select class="form-control" id="grupo-tipificacao" name="filtro" onchange="this.form.elements.animal.value=''; this.form.elements.animal_id.value=''; this.form.elements.animal_origem.value=''; this.form.submit();">
+            <?php foreach (array('Reprodutores','Matrizes') as $grupo): ?><option <?=$grupoTip === $grupo ? 'selected' : ''?>><?=$grupo?></option><?php endforeach; ?>
+          </select>
         </div>
-
-
-<? if($filtro == 'Matrizes'){ ?>
-        <div class="form-group" style="margin-top:2%; color:red;">
-          Obs.: Lista de matrizes com 3 ou mais crias avaliadas.
+        <div class="form-group col-sm-6 col-md-3">
+          <label for="situacao-tipificacao">Situação</label>
+          <select class="form-control" id="situacao-tipificacao" name="situacao"><?php foreach (array('Todos','Rebanho','Mortos/Vendidos') as $situacao): ?><option <?=$situacaoTip === $situacao ? 'selected' : ''?>><?=$situacao?></option><?php endforeach; ?></select>
         </div>
-
-<table class="table table-bordered" id="tabela_padrao">
-  <tr>
-    <th>Matriz</th>
-    <th onclick="atualizar2(1)" style="cursor:pointer;">Crias Avaliadas</th>
-    <th onclick="atualizar2(2)" style="cursor:pointer;">Pesagem</th>
-    <th onclick="atualizar2(3)" style="cursor:pointer;">Cabeça</th>
-    <th onclick="atualizar2(4)" style="cursor:pointer;">Pescoço</th>
-    <th onclick="atualizar2(5)" style="cursor:pointer;">Quarto anterior</th>
-    <th onclick="atualizar2(6)" style="cursor:pointer;">Barril</th>
-    <th onclick="atualizar2(7)" style="cursor:pointer;">Quarto posterior</th>
-    <th onclick="atualizar2(8)" style="cursor:pointer;">Comprimento</th>
-    <th onclick="atualizar2(9)" style="cursor:pointer;">Orgão sexual</th>
-    <th onclick="atualizar2(10)" style="cursor:pointer;">Gordura</th>
-    <th onclick="atualizar2(11)" style="cursor:pointer;">Cobertura</th>
-    <th onclick="atualizar2(12)" style="cursor:pointer;">Cor</th>
-    <th onclick="atualizar2(13)" style="cursor:pointer;">Conformação</th>
-  </tr>
-
-<?
-$media = DBRead('matriz');
-foreach ($media as $media_){
-  if($media_['cabeca'] > 0){
-    $pesagem = $pesagem+$media_['pesagem'];
-    $cabeca = $cabeca+$media_['cabeca'];
-    $pescoco = $pescoco+$media_['pescoco'];
-    $quarto_anterior = $quarto_anterior+$media_['quarto_anterior'];
-    $barril = $barril+$media_['barril'];
-    $quarto_posterior = $quarto_posterior+$media_['quarto_posterior'];
-    $comprimento = $comprimento+$media_['comprimento'];
-    $orgao = $orgao+$media_['orgao'];
-    $gordura = $gordura+$media_['gordura'];
-    $cobertura = $cobertura+$media_['cobertura'];
-    $conformacao = $conformacao+$media_['conformacao'];
-    $qtd++;
-  }
-}
-$pesagem = $pesagem/$qtd;
-$cabeca = $cabeca/$qtd;
-$pescoco = $pescoco/$qtd;
-$quarto_anterior = $quarto_anterior/$qtd;
-$barril = $barril/$qtd;
-$quarto_posterior = $quarto_posterior/$qtd;
-$comprimento = $comprimento/$qtd;
-$orgao = $orgao/$qtd;
-$gordura = $gordura/$qtd;
-$cobertura = $cobertura/$qtd;
-$conformacao = $conformacao/$qtd;
-
-
-$tipo = $_GET['tipo'];
-if(!$tipo){ $matriz_ = DBRead('matriz', "WHERE qtd_avaliadas >= 3"); }
-if($tipo == 1){ $matriz_ = DBRead('matriz', "WHERE qtd_avaliadas >= '3' ORDER BY qtd_avaliadas desc"); }
-if($tipo == 2){ $matriz_ = DBRead('matriz', "WHERE qtd_avaliadas >= '3' ORDER BY pesagem desc"); }
-if($tipo == 3){ $matriz_ = DBRead('matriz', "WHERE qtd_avaliadas >= '3' ORDER BY cabeca desc"); }
-if($tipo == 4){ $matriz_ = DBRead('matriz', "WHERE qtd_avaliadas >= '3' ORDER BY pescoco desc"); }
-if($tipo == 5){ $matriz_ = DBRead('matriz', "WHERE qtd_avaliadas >= '3' ORDER BY quarto_anterior desc"); }
-if($tipo == 6){ $matriz_ = DBRead('matriz', "WHERE qtd_avaliadas >= '3' ORDER BY barril desc"); }
-if($tipo == 7){ $matriz_ = DBRead('matriz', "WHERE qtd_avaliadas >= '3' ORDER BY quarto_posterior desc"); }
-if($tipo == 8){ $matriz_ = DBRead('matriz', "WHERE qtd_avaliadas >= '3' ORDER BY comprimento desc"); }
-if($tipo == 9){ $matriz_ = DBRead('matriz', "WHERE qtd_avaliadas >= '3' ORDER BY orgao desc"); }
-if($tipo == 10){ $matriz_ = DBRead('matriz', "WHERE qtd_avaliadas >= '3' ORDER BY gordura desc"); }
-if($tipo == 11){ $matriz_ = DBRead('matriz', "WHERE qtd_avaliadas >= '3' ORDER BY cobertura desc"); }
-if($tipo == 12){ $matriz_ = DBRead('matriz', "WHERE qtd_avaliadas >= '3' ORDER BY cor desc"); }
-if($tipo == 13){ $matriz_ = DBRead('matriz', "WHERE qtd_avaliadas >= '3' ORDER BY conformacao desc"); }
-
-foreach ($matriz_ as $matriz) {
-$id_matriz = $matriz['id_femea'];
-$femea = DBRead('animais', "WHERE id = '$id_matriz'");
-
-?>
-
-  <tr>
-    <? if($femea[0]['status'] == 0){ ?> <td> <?}else{?> <td style="color:red;"> <? } ?><?=$femea[0]['nome']?></td>
-    <td ><?=$matriz['qtd_avaliadas']?></td>
-    <td>
-      <? if($matriz['pesagem'] > $pesagem){?> <span style="color:green;"> <? }else{ ?> <span style="color:red;"> <? } ?>
-      <?=number_format($matriz['pesagem'], 2, ',', '.')?></span>
-    </td>
-    <td>
-      <? if($matriz['cabeca'] > $cabeca){?> <span style="color:green;"> <? }else{ ?> <span style="color:red;"> <? } ?>
-      <?=number_format($matriz['cabeca'], 2, ',', '.')?></span>
-    </td>
-    <td>
-      <? if($matriz['pescoco'] > $pescoco){?> <span style="color:green;"> <? }else{ ?> <span style="color:red;"> <? } ?>
-      <?=number_format($matriz['pescoco'], 2, ',', '.')?></span>
-    </td>
-    <td>
-      <? if($matriz['quarto_anterior'] > $quarto_anterior){?> <span style="color:green;"> <? }else{ ?> <span style="color:red;"> <? } ?>
-      <?=number_format($matriz['quarto_anterior'], 2, ',', '.')?></span>
-    </td>
-    <td>
-      <? if($matriz['barril'] > $barril){?> <span style="color:green;"> <? }else{ ?> <span style="color:red;"> <? } ?>
-      <?=number_format($matriz['barril'], 2, ',', '.')?></span>
-    </td>
-    <td>
-      <? if($matriz['quarto_posterior'] > $quarto_posterior){?> <span style="color:green;"> <? }else{ ?> <span style="color:red;"> <? } ?>
-      <?=number_format($matriz['quarto_posterior'], 2, ',', '.')?></span>
-    </td>
-    <td>
-      <? if($matriz['comprimento'] > $comprimento){?> <span style="color:green;"> <? }else{ ?> <span style="color:red;"> <? } ?>
-      <?=number_format($matriz['comprimento'], 2, ',', '.')?></span>
-    </td>
-    <td>
-      <? if($matriz['orgao'] > $orgao){?> <span style="color:green;"> <? }else{ ?> <span style="color:red;"> <? } ?>
-      <?=number_format($matriz['orgao'], 2, ',', '.')?></span>
-    </td>
-    <td>
-      <? if($matriz['gordura'] > $gordura){?> <span style="color:green;"> <? }else{ ?> <span style="color:red;"> <? } ?>
-      <?=number_format($matriz['gordura'], 2, ',', '.')?></span>
-    </td>
-    <td>
-      <? if($matriz['cobertura'] > $cobertura){?> <span style="color:green;"> <? }else{ ?> <span style="color:red;"> <? } ?>
-      <?=number_format($matriz['cobertura'], 2, ',', '.')?></span>
-    </td>
-    <td>
-      <? if($matriz['cor'] > $cor){?> <span style="color:green;"> <? }else{ ?> <span style="color:red;"> <? } ?>
-      <?=number_format($matriz['cor'], 2, ',', '.')?></span>
-    </td>
-    <td>
-      <? if($matriz['conformacao'] > $conformacao){?> <span style="color:green;"> <? }else{ ?> <span style="color:red;"> <? } ?>
-      <?=number_format($matriz['conformacao'], 2, ',', '.')?></span>
-    </td>
-    </tr>
-  <? } ?>
-  </table>
-<? } ?>
-
-
-<? if($filtro == 'Reprodutores'){ ?>
-        <div class="form-group" style="margin-top:2%; color:red;">
-          Obs.: Lista de reprodutores com 3 ou mais crias avaliadas.
+        <div class="form-group col-sm-6 col-md-3">
+          <?php renderBuscaAnimais(array('id'=>'animal-tipificacao','name'=>'animal','label'=>$matrizesTip ? 'Fêmea' : 'Macho','tipo'=>$matrizesTip ? 'femeas' : 'machos','value'=>$pesquisaTip,'value_id'=>$idTip,'value_origem'=>$origemTip,'limite_origem'=>5,'classe'=>'busca-tipificacao')); ?>
         </div>
-
-<table class="table table-bordered" id="tabela_padrao">
-  <tr>
-    <th>Reprodutor</th>
-    <th onclick="atualizar2(1)" style="cursor:pointer;">Crias Avaliadas</th>
-    <th onclick="atualizar2(2)" style="cursor:pointer;">Pesagem</th>
-    <th onclick="atualizar2(3)" style="cursor:pointer;">Cabeça</th>
-    <th onclick="atualizar2(4)" style="cursor:pointer;">Pescoço</th>
-    <th onclick="atualizar2(5)" style="cursor:pointer;">Quarto anterior</th>
-    <th onclick="atualizar2(6)" style="cursor:pointer;">Barril</th>
-    <th onclick="atualizar2(7)" style="cursor:pointer;">Quarto posterior</th>
-    <th onclick="atualizar2(8)" style="cursor:pointer;">Comprimento</th>
-    <th onclick="atualizar2(9)" style="cursor:pointer;">Orgão sexual</th>
-    <th onclick="atualizar2(10)" style="cursor:pointer;">Gordura</th>
-    <th onclick="atualizar2(11)" style="cursor:pointer;">Cobertura</th>
-    <th onclick="atualizar2(12)" style="cursor:pointer;">Cor</th>
-    <th onclick="atualizar2(13)" style="cursor:pointer;">Conformação</th>
-  </tr>
-
-<?
-$media = DBRead('reprodutor');
-foreach ($media as $media_){
-  if($media_['cabeca'] > 0){
-    $pesagem = $pesagem+$media_['pesagem'];
-    $cabeca = $cabeca+$media_['cabeca'];
-    $pescoco = $pescoco+$media_['pescoco'];
-    $quarto_anterior = $quarto_anterior+$media_['quarto_anterior'];
-    $barril = $barril+$media_['barril'];
-    $quarto_posterior = $quarto_posterior+$media_['quarto_posterior'];
-    $comprimento = $comprimento+$media_['comprimento'];
-    $orgao = $orgao+$media_['orgao'];
-    $gordura = $gordura+$media_['gordura'];
-    $cobertura = $cobertura+$media_['cobertura'];
-    $conformacao = $conformacao+$media_['conformacao'];
-    $qtd++;
-  }
-}
-$pesagem = $pesagem/$qtd;
-$cabeca = $cabeca/$qtd;
-$pescoco = $pescoco/$qtd;
-$quarto_anterior = $quarto_anterior/$qtd;
-$barril = $barril/$qtd;
-$quarto_posterior = $quarto_posterior/$qtd;
-$comprimento = $comprimento/$qtd;
-$orgao = $orgao/$qtd;
-$gordura = $gordura/$qtd;
-$cobertura = $cobertura/$qtd;
-$conformacao = $conformacao/$qtd;
-
-
-$tipo = $_GET['tipo'];
-if(!$tipo){ $reprodutor_ = DBRead('reprodutor', "WHERE qtd_avaliadas >= 3"); }
-if($tipo == 1){ $reprodutor_ = DBRead('reprodutor', "WHERE qtd_avaliadas >= '3' ORDER BY qtd_avaliadas desc"); }
-if($tipo == 2){ $reprodutor_ = DBRead('reprodutor', "WHERE qtd_avaliadas >= '3' ORDER BY pesagem desc"); }
-if($tipo == 3){ $reprodutor_ = DBRead('reprodutor', "WHERE qtd_avaliadas >= '3' ORDER BY cabeca desc"); }
-if($tipo == 4){ $reprodutor_ = DBRead('reprodutor', "WHERE qtd_avaliadas >= '3' ORDER BY pescoco desc"); }
-if($tipo == 5){ $reprodutor_ = DBRead('reprodutor', "WHERE qtd_avaliadas >= '3' ORDER BY quarto_anterior desc"); }
-if($tipo == 6){ $reprodutor_ = DBRead('reprodutor', "WHERE qtd_avaliadas >= '3' ORDER BY barril desc"); }
-if($tipo == 7){ $reprodutor_ = DBRead('reprodutor', "WHERE qtd_avaliadas >= '3' ORDER BY quarto_posterior desc"); }
-if($tipo == 8){ $reprodutor_ = DBRead('reprodutor', "WHERE qtd_avaliadas >= '3' ORDER BY comprimento desc"); }
-if($tipo == 9){ $reprodutor_ = DBRead('reprodutor', "WHERE qtd_avaliadas >= '3' ORDER BY orgao desc"); }
-if($tipo == 10){ $reprodutor_ = DBRead('reprodutor', "WHERE qtd_avaliadas >= '3' ORDER BY gordura desc"); }
-if($tipo == 11){ $reprodutor_ = DBRead('reprodutor', "WHERE qtd_avaliadas >= '3' ORDER BY cobertura desc"); }
-if($tipo == 12){ $reprodutor_ = DBRead('reprodutor', "WHERE qtd_avaliadas >= '3' ORDER BY cor desc"); }
-if($tipo == 13){ $reprodutor_ = DBRead('reprodutor', "WHERE qtd_avaliadas >= '3' ORDER BY conformacao desc"); }
-
-foreach ($reprodutor_ as $reprodutor) {
-$id_reprodutor = $reprodutor['id_macho'];
-$macho = DBRead('animais', "WHERE id = '$id_reprodutor'");
-
-?>
-
-  <tr>
-    <? if($macho[0]['status'] == 0){ ?> <td> <?}else{?> <td style="color:red;"> <? } ?><?=$macho[0]['nome']?></td>
-    <td ><?=$reprodutor['qtd_avaliadas']?></td>
-    <td>
-      <? if($reprodutor['pesagem'] > $pesagem){?> <span style="color:green;"> <? }else{ ?> <span style="color:red;"> <? } ?>
-      <?=number_format($reprodutor['pesagem'], 2, ',', '.')?></span>
-    </td>
-    <td>
-      <? if($reprodutor['cabeca'] > $cabeca){?> <span style="color:green;"> <? }else{ ?> <span style="color:red;"> <? } ?>
-      <?=number_format($reprodutor['cabeca'], 2, ',', '.')?></span>
-    </td>
-    <td>
-      <? if($reprodutor['pescoco'] > $pescoco){?> <span style="color:green;"> <? }else{ ?> <span style="color:red;"> <? } ?>
-      <?=number_format($reprodutor['pescoco'], 2, ',', '.')?></span>
-    </td>
-    <td>
-      <? if($reprodutor['quarto_anterior'] > $quarto_anterior){?> <span style="color:green;"> <? }else{ ?> <span style="color:red;"> <? } ?>
-      <?=number_format($reprodutor['quarto_anterior'], 2, ',', '.')?></span>
-    </td>
-    <td>
-      <? if($reprodutor['barril'] > $barril){?> <span style="color:green;"> <? }else{ ?> <span style="color:red;"> <? } ?>
-      <?=number_format($reprodutor['barril'], 2, ',', '.')?></span>
-    </td>
-    <td>
-      <? if($reprodutor['quarto_posterior'] > $quarto_posterior){?> <span style="color:green;"> <? }else{ ?> <span style="color:red;"> <? } ?>
-      <?=number_format($reprodutor['quarto_posterior'], 2, ',', '.')?></span>
-    </td>
-    <td>
-      <? if($reprodutor['comprimento'] > $comprimento){?> <span style="color:green;"> <? }else{ ?> <span style="color:red;"> <? } ?>
-      <?=number_format($reprodutor['comprimento'], 2, ',', '.')?></span>
-    </td>
-    <td>
-      <? if($reprodutor['orgao'] > $orgao){?> <span style="color:green;"> <? }else{ ?> <span style="color:red;"> <? } ?>
-      <?=number_format($reprodutor['orgao'], 2, ',', '.')?></span>
-    </td>
-    <td>
-      <? if($reprodutor['gordura'] > $gordura){?> <span style="color:green;"> <? }else{ ?> <span style="color:red;"> <? } ?>
-      <?=number_format($reprodutor['gordura'], 2, ',', '.')?></span>
-    </td>
-    <td>
-      <? if($reprodutor['cobertura'] > $cobertura){?> <span style="color:green;"> <? }else{ ?> <span style="color:red;"> <? } ?>
-      <?=number_format($reprodutor['cobertura'], 2, ',', '.')?></span>
-    </td>
-    <td>
-      <? if($reprodutor['cor'] > $cor){?> <span style="color:green;"> <? }else{ ?> <span style="color:red;"> <? } ?>
-      <?=number_format($reprodutor['cor'], 2, ',', '.')?></span>
-    </td>
-    <td>
-      <? if($reprodutor['conformacao'] > $conformacao){?> <span style="color:green;"> <? }else{ ?> <span style="color:red;"> <? } ?>
-      <?=number_format($reprodutor['conformacao'], 2, ',', '.')?></span>
-    </td>
-    </tr>
-  <? } ?>
-  </table>
-<? } ?>
-
-</div>
-<!-- /.col -->
-</div>
-
-</div>
-</div>
+        <div class="form-group col-sm-6 col-md-3"><button class="btn btn-primary" type="submit">Pesquisar</button> <a class="btn btn-default" href="geral.php?pg=relatorio_tipificacao">Limpar</a></div>
+      </div>
+    </form>
+  </div></div>
+  <div class="box" style="border-top:0;"><div class="box-body">
+    <div style="display:flex; align-items:center; gap:8px; margin-bottom:15px;">
+      <h2 class="box-title" style="font-size:16px; margin:0;">Tipificação — <?=$grupoTip?></h2>
+      <button class="btn btn-link text-muted" type="button" style="padding:0 4px;" data-toggle="collapse" data-target="#dicas-tipificacao" aria-controls="dicas-tipificacao" aria-expanded="false" aria-label="Dicas sobre os indicadores" title="Dicas sobre os indicadores"><i class="fa fa-question-circle" aria-hidden="true"></i></button>
+    </div>
+    <div class="collapse text-muted" id="dicas-tipificacao"><p>Indicadores calculados em tempo real. Cada cria conta uma vez: segunda avaliação quando disponível, senão primeira; em caso de repetição, o maior ID. Verde indica valor acima da média dos animais do rebanho do grupo selecionado; vermelho, abaixo; iguais ficam neutros. A referência não muda com a pesquisa ou paginação.</p></div>
+    <p class="text-muted">Exibindo animais com três ou mais crias avaliadas.</p>
+    <div class="table-responsive"><table class="table table-bordered table-striped">
+      <thead><tr><th>Animal</th><?php $numeroTip = 0; foreach ($camposTip as $campoTip=>$rotuloTip): $numeroTip++; ?>
+        <th <?=$campoTip === $campoOrdemTip ? 'aria-sort="descending"' : ''?>><a style="color:inherit; text-decoration:none;" href="<?=$urlTip(1,$numeroTip)?>"><?=$rotuloTip?><?php if ($campoTip === $campoOrdemTip): ?> <i class="fa fa-sort-desc" aria-hidden="true"></i><?php endif; ?></a></th>
+      <?php endforeach; ?></tr></thead>
+      <tbody>
+        <?php if (!$registrosTip): ?><tr><td colspan="14" class="text-center text-muted" style="padding:30px;">Nenhum animal encontrado para os filtros selecionados.</td></tr><?php endif; ?>
+        <?php foreach (array_slice($registrosTip,$offsetTip,$porPaginaTip) as $itemTip): $situacaoAnimalTip=$situacoesTip[(int)$itemTip['status']] ?? array('Não informado','#777'); ?>
+        <tr>
+          <td style="min-width:220px;"><a style="color:inherit; text-decoration:none;" href="geral.php?pg=animal&amp;id_animal=<?=(int)$itemTip['id']?>"><?=$hTip($itemTip['nome'])?></a> <span style="color:<?=$situacaoAnimalTip[1]?>; white-space:nowrap;">(<?=$hTip($situacaoAnimalTip[0])?>)</span></td>
+          <?php foreach ($camposTip as $campoTip=>$rotuloTip):
+              $mediaTip=$mediasTip[$campoTip]; $valorTip=isset($itemTip[$campoTip]) ? (float)$itemTip[$campoTip] : null; $corTip='inherit';
+              if ($campoTip !== 'qtd_avaliadas' && $mediaTip !== null && $valorTip !== null && round($valorTip,2) !== round($mediaTip,2)) $corTip=$valorTip > $mediaTip ? '#008d4c' : '#dd4b39'; ?>
+          <td style="color:<?=$corTip?>;" <?=$campoTip !== 'qtd_avaliadas' ? 'title="' . $hTip($mediaTip === null ? 'Sem média de referência' : 'Média do rebanho: ' . number_format($mediaTip,2,',','.')) . '"' : ''?>><?=$valorTip === null ? 'Não informado' : ($campoTip === 'qtd_avaliadas' ? (int)$valorTip : number_format($valorTip,2,',','.'))?></td>
+          <?php endforeach; ?>
+        </tr>
+        <?php endforeach; ?>
+      </tbody>
+    </table></div>
+      <div style="display:flex; flex-wrap:wrap; align-items:center; justify-content:center; gap:16px; border-top:1px solid #f4f4f4; padding-top:10px;">
+        <label for="por-pagina-tipificacao" style="margin:0; font-weight:normal;">Por página</label>
+        <select id="por-pagina-tipificacao" class="form-control" style="width:70px;" onchange="var form=document.getElementById('filtros-tipificacao'); form.elements.por_pagina.value=this.value; form.submit();">
+          <?php foreach (array(10, 20, 50, 100) as $limite): ?><option value="<?=$limite?>" <?=$limite === $porPaginaTip ? 'selected' : ''?>><?=$limite?></option><?php endforeach; ?>
+        </select>
+        <span class="text-muted">Exibindo <?=$totalTip ? $offsetTip + 1 : 0?> a <?=min($offsetTip + $porPaginaTip, $totalTip)?> de <?=$totalTip?> registros</span>
+        <nav aria-label="Páginas do relatório de tipificacao"><ul class="pagination pagination-sm" style="margin:0;">
+          <li class="<?=$paginaTip === 1 ? 'disabled' : ''?>"><?php if ($paginaTip > 1): ?><a href="<?=$urlTip($paginaTip - 1)?>" aria-label="Página anterior">«</a><?php else: ?><span>«</span><?php endif; ?></li>
+          <?php for ($p = 1; $p <= $paginasTip; $p++):
+              if ($p !== 1 && $p !== $paginasTip && abs($p - $paginaTip) > 1) { if ($p === 2 || $p === $paginasTip - 1) echo '<li class="disabled"><span>…</span></li>'; continue; } ?>
+          <li class="<?=$p === $paginaTip ? 'active' : ''?>"><a href="<?=$urlTip($p)?>" <?=$p === $paginaTip ? 'aria-current="page"' : ''?>><?=$p?></a></li>
+          <?php endfor; ?>
+          <li class="<?=$paginaTip === $paginasTip ? 'disabled' : ''?>"><?php if ($paginaTip < $paginasTip): ?><a href="<?=$urlTip($paginaTip + 1)?>" aria-label="Próxima página">»</a><?php else: ?><span>»</span><?php endif; ?></li>
+        </ul></nav>
+      </div>
+  </div></div>
 </section>
-<!-- /.content -->
+<script>
+document.addEventListener('buscaanimais:selecionado', function(evento) {
+  if (evento.target.classList.contains('busca-tipificacao')) document.getElementById('filtros-tipificacao').submit();
+});
+</script>
