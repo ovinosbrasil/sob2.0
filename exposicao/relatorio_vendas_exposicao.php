@@ -118,6 +118,7 @@ function ativar_excluir_venda(id){
 
   <!-- Main content -->
   <section class="content">
+    <div class="box" style="border-top:0;"><div class="box-body"><?php $abaExposicao = 'vendas'; include __DIR__ . '/abas_exposicao.php'; ?></div></div>
     <div class="row">
 
     <div class="col-md-12">
@@ -127,13 +128,6 @@ function ativar_excluir_venda(id){
           <div class="col-md-4" style="margin-top:0%;">
             <div class="form-group">
                 <h3>Relatório de vendas - <?=$evento[0]['nome']?></h3>
-            </div>
-          </div>
-
-          <div class="col-md-4" style="float:right;">
-            <div class="form-group">
-                <a href="geral.php?pg=exposicao&id_exposicao=<?=$id_evento?>"><button type="submit" class="btn btn-primary" style="width:49%; margin-top:2%;">Dados do evento</button></a>
-                <a href="geral.php?pg=julgamento&id_exposicao=<?=$id_evento?>"><button type="submit" class="btn btn-primary" style="width:49%; margin-top:2%;">Pista de julgamento</button></a>
             </div>
           </div>
 

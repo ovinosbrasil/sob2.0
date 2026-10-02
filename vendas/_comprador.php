@@ -2,7 +2,12 @@
 require_once __DIR__ . "/../_config.php";
 header("Content-Type: text/html; charset=UTF-8");
 
-$nome = DBEscape($_POST['nome']);
+$nomeInformado = trim(isset($_POST['nome']) ? $_POST['nome'] : '');
+if ($nomeInformado === '') {
+  echo "<script>alert('Informe o nome completo do comprador.'); history.back();</script>";
+  exit;
+}
+$nome = DBEscape($nomeInformado);
 $comprador = DBRead('mercado', "WHERE nome = '$nome'");
 
 // TESTE EVENTO
@@ -12,7 +17,7 @@ if(($comprador[0]['id'] ?? 0) > 0){
 }else{
 
 $dados = array(
-	'nome'	=> $_POST['nome'],
+	'nome'	=> $nomeInformado,
 	'celular1'	=> $_POST['celular'],
   'telefone2' => '',
   'email'	=> $_POST['email'],

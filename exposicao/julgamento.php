@@ -64,6 +64,7 @@ function fechar_lista_animal_exposicao(){
 
   <!-- Main content -->
   <section class="content">
+    <div class="box" style="border-top:0;"><div class="box-body"><?php $abaExposicao = 'julgamento'; include __DIR__ . '/abas_exposicao.php'; ?></div></div>
     <div class="row">
       <div class="col-md-3">
 				<div class="box box-success">
@@ -119,12 +120,6 @@ function fechar_lista_animal_exposicao(){
             </div>
           </div>
 
-          <div class="col-md-6" style="float:right;">
-            <div class="form-group">
-                <a href="geral.php?pg=exposicao&id_exposicao=<?=$id_evento?>"><button type="submit" class="btn btn-primary" style="width:49%; margin-top:4%;">Dados do evento</button></a>
-                <a href="geral.php?pg=relatorio_vendas_exposicao&id_exposicao=<?=$id_evento?>"><button type="submit" class="btn btn-success" style="width:49%; margin-top:4%; margin-left:1%">Relatório de vendas</button></a>
-            </div>
-          </div>
         </div>
       </div>
     </div>

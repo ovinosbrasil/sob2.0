@@ -34,7 +34,7 @@ if($animal[0]['terceiro_mae'] == 0){
 }}
 
 if($tipo){
-  echo "<META HTTP-EQUIV=REFRESH CONTENT='0; URL=../geral.php?pg=julgamento&id_exposicao=$id_evento'>";
+  echo "<META HTTP-EQUIV=REFRESH CONTENT='0; URL=../geral.php?pg=exposicao&id_exposicao=$id_evento&aba=julgamento'>";
 }else{
   echo "<META HTTP-EQUIV=REFRESH CONTENT='0; URL=../geral.php?pg=exposicao&id_exposicao=$id_evento'>";
 }

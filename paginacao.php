@@ -168,7 +168,7 @@ switch ($_GET['pg']){
 		break;
 
 		case 'pesquisar_exposicao';
-		include "exposicao/pesquisar_exposicao.php";
+		include "exposicao/cadastrar_exposicao.php";
 		break;
 
 		case 'venda_exposicao';
@@ -176,7 +176,8 @@ switch ($_GET['pg']){
 		break;
 
 		case 'relatorio_vendas_exposicao';
-		include "exposicao/relatorio_vendas_exposicao.php";
+		$_GET['aba'] = 'vendas';
+		include "exposicao/exposicao.php";
 		break;
 
 		case 'exposicao';
@@ -184,7 +185,8 @@ switch ($_GET['pg']){
 		break;
 
 		case 'julgamento';
-		include "exposicao/julgamento.php";
+		$_GET['aba'] = 'julgamento';
+		include "exposicao/exposicao.php";
 		break;
 
 		case 'vender_animal_exposicao';

@@ -225,19 +225,8 @@ $data_expira2 = $data;
         </li>
 
 
-<? if(($pg == 'cadastrar_exposicao') || ($pg == 'exposicao') || ($pg == 'premiacao') || ($pg == 'julgamento') || ($pg == 'relatorio_vendas_exposicao') || ($pg == 'pesquisar_exposicao')){
-   ?> <li class="active treeview"> <? }else{ ?> <li class="treeview"><? } ?>
-          <a href="#">
-            <i class="fa fa-trophy"></i>
-            <span>Exposição</span>
-            <span class="pull-right-container">
-              <i class="fa fa-angle-left pull-right"></i>
-            </span>
-          </a>
-          <ul class="treeview-menu">
-            <li><a href="geral.php?pg=cadastrar_exposicao"><i class="fa fa-plus"></i>Cadastrar</a></li>
-            <li><a href="geral.php?pg=pesquisar_exposicao"><i class="fa fa-search"></i>Pesquisar</a></li>
-          </ul>
+        <li<?=$pg == 'cadastrar_exposicao' || $pg == 'pesquisar_exposicao' || $pg == 'exposicao' || $pg == 'premiacao' || $pg == 'julgamento' || $pg == 'relatorio_vendas_exposicao' ? ' class="active"' : ''?>>
+          <a href="geral.php?pg=cadastrar_exposicao"><i class="fa fa-trophy"></i> <span>Exposição</span></a>
         </li>
 
         <? if(($pg == 'compradores') || ($pg == 'comprador') || ($pg == 'relatorio_venda')){ ?> <li class="active treeview"> <? }else{ ?> <li class="treeview"><? } ?>
@@ -308,6 +297,7 @@ $data_expira2 = $data;
 <?php require __DIR__ . '/includes/confirmacao_exclusao.php'; ?>
 <script src="dist/js/confirmacao-exclusao.js?v=<?=filemtime(__DIR__ . '/dist/js/confirmacao-exclusao.js')?>"></script>
 <script src="dist/js/busca-animais.js?v=<?=filemtime(__DIR__ . '/dist/js/busca-animais.js')?>"></script>
+<script src="dist/js/busca-compradores.js?v=<?=filemtime(__DIR__ . '/dist/js/busca-compradores.js')?>"></script>
 <!-- Morris.js charts -->
 <script src="bower_components/raphael/raphael.min.js"></script>
 <script src="bower_components/morris.js/morris.min.js"></script>

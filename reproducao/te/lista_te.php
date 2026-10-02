@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/nomes_lotes.php';
 function dataTransplanteLista($valor)
 {
     $valor = substr((string)$valor, 0, 10);
@@ -51,7 +52,12 @@ $paginaInformada = filter_var($_GET['pag'] ?? 1, FILTER_VALIDATE_INT);
 $pagina = min(max(1, $paginaInformada === false ? 1 : $paginaInformada), $totalPaginas);
 $inicio = ($pagina - 1) * $porPagina;
 $lotesPagina = DBRead('transplante', "$where ORDER BY data DESC, id DESC LIMIT $inicio, $porPagina") ?: array();
-$lotesSelecao = DBRead('transplante', 'ORDER BY id DESC') ?: array();
+$lotesSelecao = nomesLotesTransplante(DBRead('transplante', 'ORDER BY id DESC') ?: array());
+$nomesPorLote = array_column($lotesSelecao, null, 'id');
+foreach ($lotesPagina as &$lotePagina) {
+    if (isset($nomesPorLote[$lotePagina['id']])) $lotePagina = array_merge($lotePagina, $nomesPorLote[$lotePagina['id']]);
+}
+unset($lotePagina);
 
 $parametrosPagina = array(
     'pg' => 'lista_te',
@@ -113,7 +119,7 @@ function confirmarExclusaoLoteTe(botao) {
             <select class="form-control" id="lote-te" onchange="te_lote(this.value)">
               <option value="">Selecionar</option>
               <?php foreach ($lotesSelecao as $loteSelecao):
-                $rotulo = $loteSelecao['codigo'] . ' - ' . ($loteSelecao['pai'] ?: '--') . ' - ' . ($loteSelecao['mae'] ?: '--');
+                $rotulo = $loteSelecao['codigo'] . ' — Macho: ' . $loteSelecao['nome_pai'] . ' — Fêmea: ' . $loteSelecao['nome_mae'];
               ?>
               <option value="<?=(int)$loteSelecao['id']?>"><?=htmlspecialchars($rotulo, ENT_QUOTES, 'UTF-8')?></option>
               <?php endforeach; ?>
@@ -174,19 +180,9 @@ function confirmarExclusaoLoteTe(botao) {
           <tbody>
           <?php if (!$lotesPagina): ?><tr><td colspan="7" class="text-center">Nenhum lote encontrado.</td></tr><?php endif; ?>
           <?php foreach ($lotesPagina as $lote):
-              $idPai = (int)$lote['id_pai'];
-              $pais = DBRead(!empty($lote['terceiro_pai']) ? 'terceiros' : 'animais', "WHERE id = '$idPai'") ?: array();
-              $nomePai = $pais[0]['nome'] ?? ($lote['pai'] ?: '--');
-
-              $idPaiComplementar = (int)($lote['id_pai_2'] ?? 0);
-              $paisComplementares = $idPaiComplementar
-                  ? (DBRead(!empty($lote['terceiro_pai_2']) ? 'terceiros' : 'animais', "WHERE id = '$idPaiComplementar'") ?: array())
-                  : array();
-              $nomePaiComplementar = $paisComplementares[0]['nome'] ?? '-';
-
-              $idMaeLote = (int)$lote['id_mae'];
-              $maes = DBRead(!empty($lote['terceiro_mae']) ? 'terceiros' : 'animais', "WHERE id = '$idMaeLote'") ?: array();
-              $nomeMae = $maes[0]['nome'] ?? ($lote['mae'] ?: '--');
+              $nomePai = $lote['nome_pai'] ?? 'Não informado';
+              $nomeMae = $lote['nome_mae'] ?? 'Não informado';
+              $nomePaiComplementar = $lote['nome_pai_complementar'] ?? 'Não informado';
 
               $data = dataTransplanteLista($lote['data']);
               $dataFormatada = $data ? $data->format('d/m/Y') : '--';

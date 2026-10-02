@@ -66,5 +66,5 @@ DBUpdate('matriz', $dados, "id_femea = '$id_femea'");
 
 DBDelete('vendas', "id_animal = '$id_animal'");
 DBDelete('controle_financeiro', "id_animal = '$id_animal'");
-echo "<META HTTP-EQUIV=REFRESH CONTENT='0; URL=../geral.php?pg=relatorio_vendas_exposicao&id_exposicao=$id_evento'>";
+echo "<META HTTP-EQUIV=REFRESH CONTENT='0; URL=../geral.php?pg=exposicao&id_exposicao=$id_evento&aba=vendas'>";
 ?>

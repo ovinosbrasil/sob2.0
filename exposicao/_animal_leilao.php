@@ -1,13 +1,11 @@
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<?
-include "../_config.php";
-$id_animal = $_GET['id_animal'];
-$id_evento = $_GET['id_evento'];
+<?php
+require __DIR__ . '/../_config.php';
 
-    $dados = array(
-    	'leilao'	=> 1
-    );
-    DBUpdate('animais_evento', $dados, "id_animal = '$id_animal' AND id_julgamento = '$id_evento'");
-    echo "<META HTTP-EQUIV=REFRESH CONTENT='0; URL=../geral.php?pg=exposicao&id_exposicao=$id_evento'>";
+$idAnimal = filter_input(INPUT_GET, 'id_animal', FILTER_VALIDATE_INT);
+$idEvento = filter_input(INPUT_GET, 'id_evento', FILTER_VALIDATE_INT);
+if ($idAnimal && $idEvento) {
+    DBUpdate('animais_evento', array('leilao' => 1), "id_animal = '" . (int)$idAnimal . "' AND id_julgamento = '" . (int)$idEvento . "'");
+}
 
-?>
+header('Location: ../geral.php?pg=exposicao&id_exposicao=' . (int)$idEvento, true, 303);
+exit;

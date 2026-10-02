@@ -1,6 +1,6 @@
 <script type="text/javascript">
 function validar_ter(){
-  saida = 0;
+  var saida = 0;
   if(!document.getElementById("lote").value){
     document.getElementById("lote").style.border = "1px solid red";
     saida = 1;
@@ -34,48 +34,58 @@ function validar_ter(){
 
 <section class="content-header">
   <h1>
-    Cadastrar Transplante de embriões
+    Cadastrar transplante de embriões
   </h1>
   <ol class="breadcrumb">
-    <li><a href="#"><i class="fa fa-venus-mars"></i> Reprodução</a></li>
-    <li><a href="#">Cadastra Transplante de embriões</a></li>
+    <li><i class="fa fa-venus-mars"></i> Reprodução</li>
+    <li><a href="geral.php?pg=lista_te">Transplante de embriões</a></li>
+    <li class="active">Cadastrar lote</li>
   </ol>
 </section>
 
   <!-- Main content -->
   <section class="content">
     <div class="row">
-      <div class="col-md-3">
-				<div class="box box-success">
+      <div class="col-md-12">
+				<div class="box" style="border-top:0;">
           <form method="post" action="reproducao/te/_cadastrar.php" onsubmit="return validar_ter()">
           <!-- /.box-header -->
           <div class="box-body">
-            <div class="form-group">
-                <label for="exampleInputPassword1">Lote<span style="color:#F00;">*</span></label>
-                <input type="text" class="form-control" id="lote" name="lote">
+            <h2 class="box-title" style="font-size:16px; margin:0 0 20px;">Dados do lote</h2>
+            <div class="row">
+            <div class="form-group col-sm-6 col-md-4">
+                <label for="lote">Lote<span class="text-danger">*</span></label>
+                <input type="text" class="form-control" id="lote" name="lote" required>
             </div>
 
 
-            <div class="form-group">
-                <label for="exampleInputPassword1">Data<span style="color:#F00;">*</span></label>
+            <div class="form-group col-sm-6 col-md-4">
+                <label for="data_inicial">Data<span class="text-danger">*</span></label>
                 <div class="input-group date">
                   <div class="input-group-addon">
                     <i class="fa fa-calendar"></i>
                   </div>
-                  <input type="text" class="form-control pull-right" id="data_inicial" name="data_inicial">
+                  <input type="text" class="form-control pull-right" id="data_inicial" name="data_inicial" placeholder="dd/mm/aaaa" required>
                 </div>
             </div>
 
 
-            <div class="form-group" style="position:relative;">
-              <label for="exampleInputPassword1">Macho<span style="color:#F00;">*</span>
-                <a href="geral.php?pg=cadastrar_animal&tipo=2" target="_blank"><span style="font-size:11px; color:green;">Novo</span></a></label>
-              <input type="text" class="form-control" id="pai" name="macho" onKeyUp="pesquisar_pai(this.value)" value="<?=$user[0]['prefixo']?>">
+            <div class="form-group col-sm-6 col-md-4">
+                <label for="embrioes">Embriões coletados<span class="text-danger">*</span></label>
+                <input type="number" class="form-control" id="embrioes" name="embrioes" min="0" step="1" required>
+            </div>
+
+            <div class="form-group col-sm-6 col-md-4" style="position:relative;">
+              <label for="pai">Macho<span class="text-danger">*</span></label>
+              <div class="input-group">
+              <input type="text" class="form-control" id="pai" name="macho" onKeyUp="pesquisar_pai(this.value)" value="<?=$user[0]['prefixo']?>" required>
+                <span class="input-group-btn"><a class="btn btn-success" href="geral.php?pg=cadastrar_animal&amp;tipo=2" target="_blank" rel="noopener" title="Cadastrar animal em nova aba">Novo</a></span>
+              </div>
               <div id="lista_pai" style="border-style:solid; border-width:thin; height:auto; border-color: #bab1b4; position:absolute; z-index:99999; background:#fff; width:100%; display:none; margin-top:1%;">
               </div>
             </div>
 
-            <div class="form-group" style="position:relative;">
+            <div class="form-group col-sm-6 col-md-4" style="position:relative;">
               <label for="macho_complementar">Macho complementar</label>
               <input type="text" class="form-control" id="macho_complementar" name="macho_complementar" autocomplete="off" oninput="pesquisar_pai_2(this.value)">
               <input type="hidden" id="id_pai_2" name="id_pai_2" value="0">
@@ -83,22 +93,22 @@ function validar_ter(){
               <div id="lista_pai_2" style="border:1px solid #bab1b4; position:absolute; z-index:99999; background:#fff; width:100%; display:none; margin-top:1%;"></div>
             </div>
 
-            <div class="form-group" style="position:relative;">
-              <label for="exampleInputPassword1">Fêmea<span style="color:#F00;">*</span>
-                <a href="geral.php?pg=cadastrar_animal&tipo=2" target="_blank"><span style="font-size:11px; color:green;">Novo</span></a></label>
-              <input type="text" class="form-control" id="mae" name="femea" onKeyUp="pesquisar_mae(this.value)" value="<?=$user[0]['prefixo']?>">
+            <div class="form-group col-sm-6 col-md-4" style="position:relative;">
+              <label for="mae">Fêmea<span class="text-danger">*</span></label>
+              <div class="input-group">
+              <input type="text" class="form-control" id="mae" name="femea" onKeyUp="pesquisar_mae(this.value)" value="<?=$user[0]['prefixo']?>" required>
+                <span class="input-group-btn"><a class="btn btn-success" href="geral.php?pg=cadastrar_animal&amp;tipo=2" target="_blank" rel="noopener" title="Cadastrar animal em nova aba">Novo</a></span>
+              </div>
               <div id="lista_mae" style="border-style:solid; border-width:thin; height:auto; border-color: #bab1b4; position:absolute; z-index:99999; background:#fff; width:100%; display:none; margin-top:1%;">
               </div>
             </div>
 
-            <div class="form-group">
-                <label for="exampleInputPassword1">Embriões coletados<span style="color:#F00;">*</span></label>
-                <input type="text" class="form-control" id="embrioes" name="embrioes">
-            </div>
 
-            <div class="form-group">
-              <button type="submit" class="btn btn-success" style="width:100%; margin-top:4%;">Cadastrar lote</button>
             </div>
+        </div>
+        <div class="box-footer text-right">
+          <a class="btn btn-default" href="geral.php?pg=lista_te">Cancelar</a>
+          <button type="submit" class="btn btn-success">Cadastrar lote</button>
         </div>
       </form>
 			</div>

@@ -55,6 +55,32 @@ $urlNascimentos = function ($pagina) use ($data_inicial, $data_final, $porPagina
   <h1>Relatório de nascimentos</h1>
   <ol class="breadcrumb"><li><i class="fa fa-book"></i> Relatórios</li><li class="active">Nascimentos</li></ol>
 </section>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  'use strict';
+  var form = document.getElementById('filtros-nascimentos');
+  if (!form) return;
+  var enviando = false;
+  var datas = [form.elements.data_inicial, form.elements.data_final];
+  function dataValida(valor) {
+    var partes = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(valor);
+    if (!partes) return false;
+    var data = new Date(Number(partes[3]), Number(partes[2]) - 1, Number(partes[1]));
+    return data.getFullYear() === Number(partes[3]) && data.getMonth() === Number(partes[2]) - 1 && data.getDate() === Number(partes[1]);
+  }
+  function pesquisar() {
+    if (enviando || !dataValida(datas[0].value) || !dataValida(datas[1].value)) return;
+    enviando = true;
+    form.submit();
+  }
+  form.elements.tipo.addEventListener('change', pesquisar);
+  datas.forEach(function (campo) {
+    campo.addEventListener('change', pesquisar);
+    if (window.jQuery) window.jQuery(campo).on('changeDate', pesquisar);
+  });
+  form.addEventListener('submit', function () { enviando = true; });
+});
+</script>
 <section class="content">
   <div class="box" style="border-top:0;">
     <div class="box-body">

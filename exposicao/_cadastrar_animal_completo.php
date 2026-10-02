@@ -91,6 +91,6 @@ if(empty($teste[0]['id'])){
   }
 
   DBUpdate('animais_evento', array('julgamento' => 1), "id_animal = '$id_animal' AND id_julgamento = '$id_evento'");
-  echo "<META HTTP-EQUIV=REFRESH CONTENT='0; URL=../geral.php?pg=julgamento&id_exposicao=$id_evento'>";
+  echo "<META HTTP-EQUIV=REFRESH CONTENT='0; URL=../geral.php?pg=exposicao&id_exposicao=$id_evento&aba=julgamento'>";
 
 ?>

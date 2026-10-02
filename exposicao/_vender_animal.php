@@ -13,6 +13,7 @@ $tipo = $_POST['tipo_venda'];
 $forma = $_POST['forma'];
 $valor = $_POST['valor'];
 $valor = str_replace("," , "" , $valor);
+$valor_venda = (float)$valor;
 $observacoes = str_replace("'", '"',$_POST['observacoes']);
 
 $dados = array(
@@ -53,9 +54,9 @@ foreach ($vendas as $vendas_) {
   if($vendas_['sexo'] == 'Fêmea'){ $total_femea = $total_femea+$valor[0]['preco_de_venda']; $qtd_femea++;}
     $valor_total = $valor_total+$valor[0]['preco_de_venda'];
   }}
-  $media_macho = $total_macho/$qtd_macho;
-  $media_femea = $total_femea/$qtd_femea;
-  $media_total = $valor_total/($qtd_macho+$qtd_femea);
+  $media_macho = $qtd_macho ? $total_macho/$qtd_macho : 0;
+  $media_femea = $qtd_femea ? $total_femea/$qtd_femea : 0;
+  $media_total = ($qtd_macho+$qtd_femea) ? $valor_total/($qtd_macho+$qtd_femea) : 0;
   $qtd_total = $qtd_macho+$qtd_femea;
   $dados = array(
     'qtd_vendas'	=> $qtd_total,
@@ -81,9 +82,9 @@ foreach ($vendas as $vendas_) {
   if($vendas_['sexo'] == 'Fêmea'){ $total_femea = $total_femea+$valor[0]['preco_de_venda']; $qtd_femea++;}
     $valor_total = $valor_total+$valor[0]['preco_de_venda'];
   }}
-  $media_macho = $total_macho/$qtd_macho;
-  $media_femea = $total_femea/$qtd_femea;
-  $media_total = $valor_total/($qtd_macho+$qtd_femea);
+  $media_macho = $qtd_macho ? $total_macho/$qtd_macho : 0;
+  $media_femea = $qtd_femea ? $total_femea/$qtd_femea : 0;
+  $media_total = ($qtd_macho+$qtd_femea) ? $valor_total/($qtd_macho+$qtd_femea) : 0;
   $qtd_total = $qtd_macho+$qtd_femea;
   $dados = array(
     'qtd_vendas'	=> $qtd_total,
@@ -97,7 +98,8 @@ DBUpdate('matriz', $dados, "id_femea = '$id_femea'");
 
 
 //FINANCEIRO
-$valor = $valor_compra/$parcelas;
+$parcelas = max(1, (int)$parcelas);
+$valor = $valor_venda/$parcelas;
 $descricao = "Venda animal - ".$animal[0]['nome'];
 while($parcelas > 0){
 	$dados = array(
@@ -105,8 +107,15 @@ while($parcelas > 0){
 	'data'				=> $data,
 	'valor'		=> $valor,
 	'id_animal'		=> $id_animal,
-	'comprador'	=> $id_comprador,
-  'forma_de_pagamento'    => $forma
+	'id_comprador'	=> $id_comprador,
+  'forma_de_pagamento' => $forma,
+  'categoria' => '',
+  'id_tipo' => 0,
+  'obs' => $observacoes,
+  'status' => 0,
+  'tipo' => 0,
+  'id_embriao' => 0,
+  'id_semen' => 0
 );
 
 DBCreate('controle_financeiro', $dados);

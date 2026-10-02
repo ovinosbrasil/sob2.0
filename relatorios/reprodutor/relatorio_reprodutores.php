@@ -146,6 +146,13 @@ $urlRep = function ($pagina, $ordem = null) use ($filtro, $filtro2, $porPaginaRe
 </section>
 
 <script>
+(function () {
+    'use strict';
+    var form = document.getElementById('filtros-reprodutores');
+    if (!form) return;
+    form.elements.filtro2.addEventListener('change', function () { form.submit(); });
+    form.elements.filtro.addEventListener('change', function () { form.submit(); });
+})();
 document.addEventListener('buscaanimais:selecionado', function (evento) {
     if (!evento.target.classList.contains('busca-macho-relatorio-reprodutores')) return;
     document.getElementById('filtros-reprodutores').submit();

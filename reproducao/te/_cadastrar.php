@@ -54,6 +54,8 @@ $dados = array(
   'terceiro_mae' => $terceiro_mae,
   'id_mae' => $id_femea,
   'qtd'   => $_POST['embrioes'],
+  // Campo legado obrigatório; a quantidade por receptora fica em transplante_controle.n_embrioes.
+  'n_embrioes' => '',
   'usados' => 0,
   'congelados' => 0,
   'data_coleta' => null,
