@@ -23,34 +23,52 @@ function dataRelatorioReproducao($valor)
     return $data && $data->format('Y-m-d') === $valor ? $data->format('d/m/Y') : 'Não informada';
 }
 
-function registrosRelatorioReproducao($filtro)
+function colunaRelatorioReproducaoExiste($tabela, $coluna)
+{
+    $tabela = DBEscape($tabela);
+    $coluna = DBEscape($coluna);
+    return (bool)DBRead('information_schema.COLUMNS', "WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = '$tabela' AND COLUMN_NAME = '$coluna' LIMIT 1", 'COLUMN_NAME');
+}
+
+function registrosRelatorioReproducao($filtro, $forcarEsquemaLegado = false)
 {
     if ($filtro === 'Monta natural') {
+        $montaTemIdAnimal = !$forcarEsquemaLegado && colunaRelatorioReproducaoExiste('monta', 'id_animal');
+        $montaTemTerceiro = colunaRelatorioReproducaoExiste('monta', 'terceiro');
+        $origemMacho = $montaTemTerceiro ? 'COALESCE(b.terceiro, 0)' : '0';
+        $idMacho = $montaTemIdAnimal ? 'b.id_animal' : 'COALESCE(a.id, t.id)';
+        $nomeMacho = $montaTemIdAnimal
+            ? "COALESCE(NULLIF(a.nome, ''), NULLIF(t.nome, ''), 'Animal não encontrado')"
+            : "COALESCE(NULLIF(b.macho, ''), NULLIF(a.nome, ''), NULLIF(t.nome, ''), 'Animal não encontrado')";
+        $juncaoMacho = $montaTemIdAnimal
+            ? "LEFT JOIN animais a ON a.id = b.id_animal AND $origemMacho = 0
+            LEFT JOIN terceiros t ON t.id = b.id_animal AND $origemMacho = 1"
+            : "LEFT JOIN animais a ON a.nome = b.macho AND $origemMacho = 0
+            LEFT JOIN terceiros t ON t.nome = b.macho AND $origemMacho = 1";
         $campos = "lr.*, b.codigo, b.data_inicio, b.data_fim,
-            COALESCE(NULLIF(a.nome, ''), NULLIF(t.nome, ''), 'Animal não encontrado') AS nome_macho,
+            $nomeMacho AS nome_macho,
             (SELECT COUNT(DISTINCT cria.id)
              FROM monta_controle controle
              INNER JOIN animais cria ON cria.mae = controle.id_animal
                 AND COALESCE(cria.terceiro_mae, 0) = COALESCE(controle.terceiro, 0)
-                AND cria.pai = b.id_animal
-                AND COALESCE(cria.terceiro_pai, 0) = COALESCE(b.terceiro, 0)
+             WHERE controle.id_monta = b.id
+                AND cria.pai = $idMacho
+                AND COALESCE(cria.terceiro_pai, 0) = $origemMacho
                 AND cria.tipo_reproducao = 'Monta Natural'
                 AND cria.data_de_nascimento BETWEEN DATE_ADD(b.data_inicio, INTERVAL 120 DAY) AND DATE_ADD(b.data_fim, INTERVAL 180 DAY)
-             WHERE controle.id_monta = b.id
                 AND NOT (COALESCE(cria.status, 0) = 1 AND LOWER(TRIM(COALESCE(cria.causa_da_perda, ''))) = 'nascimento')) AS vivos,
             (SELECT COUNT(DISTINCT cria.id)
              FROM monta_controle controle
              INNER JOIN animais cria ON cria.mae = controle.id_animal
                 AND COALESCE(cria.terceiro_mae, 0) = COALESCE(controle.terceiro, 0)
-                AND cria.pai = b.id_animal
-                AND COALESCE(cria.terceiro_pai, 0) = COALESCE(b.terceiro, 0)
+             WHERE controle.id_monta = b.id
+                AND cria.pai = $idMacho
+                AND COALESCE(cria.terceiro_pai, 0) = $origemMacho
                 AND cria.tipo_reproducao = 'Monta Natural'
                 AND cria.data_de_nascimento BETWEEN DATE_ADD(b.data_inicio, INTERVAL 120 DAY) AND DATE_ADD(b.data_fim, INTERVAL 180 DAY)
-             WHERE controle.id_monta = b.id
                 AND COALESCE(cria.status, 0) = 1 AND LOWER(TRIM(COALESCE(cria.causa_da_perda, ''))) = 'nascimento') AS mortes";
         $juncao = "INNER JOIN monta b ON b.id = lr.id_lote
-            LEFT JOIN animais a ON a.id = b.id_animal AND b.terceiro = 0
-            LEFT JOIN terceiros t ON t.id = b.id_animal AND b.terceiro = 1
+            $juncaoMacho
             WHERE lr.tipo = 0";
     } elseif ($filtro === 'Inseminação artificial') {
         $campos = "lr.*, b.codigo, b.data AS data_inicio, NULL AS data_fim,
@@ -59,21 +77,21 @@ function registrosRelatorioReproducao($filtro)
              FROM inseminacao_controle controle
              INNER JOIN animais cria ON cria.mae = controle.id_femea
                 AND COALESCE(cria.terceiro_mae, 0) = COALESCE(controle.terceiro, 0)
+             WHERE controle.id_lote = b.id
                 AND cria.pai = b.id_macho
                 AND COALESCE(cria.terceiro_pai, 0) = COALESCE(b.terceiro, 0)
                 AND cria.tipo_reproducao = 'Inseminação Artificial'
                 AND cria.data_de_nascimento BETWEEN DATE_ADD(b.data, INTERVAL 120 DAY) AND DATE_ADD(b.data, INTERVAL 180 DAY)
-             WHERE controle.id_lote = b.id
                 AND NOT (COALESCE(cria.status, 0) = 1 AND LOWER(TRIM(COALESCE(cria.causa_da_perda, ''))) = 'nascimento')) AS vivos,
             (SELECT COUNT(DISTINCT cria.id)
              FROM inseminacao_controle controle
              INNER JOIN animais cria ON cria.mae = controle.id_femea
                 AND COALESCE(cria.terceiro_mae, 0) = COALESCE(controle.terceiro, 0)
+             WHERE controle.id_lote = b.id
                 AND cria.pai = b.id_macho
                 AND COALESCE(cria.terceiro_pai, 0) = COALESCE(b.terceiro, 0)
                 AND cria.tipo_reproducao = 'Inseminação Artificial'
                 AND cria.data_de_nascimento BETWEEN DATE_ADD(b.data, INTERVAL 120 DAY) AND DATE_ADD(b.data, INTERVAL 180 DAY)
-             WHERE controle.id_lote = b.id
                 AND COALESCE(cria.status, 0) = 1 AND LOWER(TRIM(COALESCE(cria.causa_da_perda, ''))) = 'nascimento') AS mortes";
         $juncao = "INNER JOIN inseminacao b ON b.id = lr.id_lote
             LEFT JOIN animais a ON a.id = b.id_macho AND b.terceiro = 0
@@ -102,7 +120,17 @@ function registrosRelatorioReproducao($filtro)
             LEFT JOIN terceiros tm ON tm.id = b.id_mae AND b.terceiro_mae = 1
             WHERE lr.tipo = 2";
     }
-    return DBRead('lotes_reproducao lr', $juncao, $campos) ?: array();
+    try {
+        return DBRead('lotes_reproducao lr', $juncao, $campos) ?: array();
+    } catch (Throwable $erro) {
+        $colunaIdMontaInexistente = $filtro === 'Monta natural'
+            && !$forcarEsquemaLegado
+            && stripos($erro->getMessage(), "b.id_animal") !== false;
+        if ($colunaIdMontaInexistente) {
+            return registrosRelatorioReproducao($filtro, true);
+        }
+        throw $erro;
+    }
 }
 
 $registrosReproducao = registrosRelatorioReproducao($filtro);
