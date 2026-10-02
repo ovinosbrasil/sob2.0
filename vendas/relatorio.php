@@ -1,7 +1,11 @@
 <?
-$filtro = $_GET['filtro'];
+$nomeComprador = $_POST['comprador'] ?? '';
+$id_comprador = null;
+$total = 0;
+$sql = array();
+$filtro = $_GET['filtro'] ?? '';
 if (!$filtro) { 
-  $filtro = $_POST['filtro'];
+  $filtro = $_POST['filtro'] ?? '';
 }
 
 if (!$filtro) {
@@ -9,25 +13,25 @@ if (!$filtro) {
 }
 
 if ($filtro == 'Data') {
-  $data_inicial = $_POST['data_inicial'];
+  $data_inicial = ($_POST['data_inicial'] ?? '');
   if (!$data_inicial) {
-    $data_inicial = $_GET['data_inicial'];
+    $data_inicial = ($_GET['data_inicial'] ?? '');
   }
 
   if (!$data_inicial) {
     $data_inicial = date('01/m/Y');
   }
 
-  $data_final = $_POST['data_final'];
+  $data_final = ($_POST['data_final'] ?? '');
   if (!$data_final) {
-    $data_final = $_GET['data_final'];
+    $data_final = ($_GET['data_final'] ?? '');
   }
 
   if (!$data_final) {
-    $data_final = date('31/m/Y');
+    $data_final = date('t/m/Y');
   }
   
-  $comprador = $_POST['comprador'];
+  $comprador = ($_POST['comprador'] ?? '');
   if ($comprador) {
     $comprador = DBRead('mercado', "WHERE nome = '$comprador'");
     $id_comprador = $comprador[0]['id'];
@@ -74,7 +78,7 @@ if ($filtro == 'Data') {
 
 
 if ($filtro == 'Anual') {
-  $ano = $_POST['ano'];
+  $ano = ($_POST['ano'] ?? '');
   if (!$ano) { 
     $ano = date('Y');
   }
@@ -84,7 +88,7 @@ if ($filtro == 'Anual') {
   $sql = DBRead("vendas", "WHERE data >= '$data_inicial_' and data <= '$data_final_' ORDER BY data asc ");
   $venda_janeiro = $venda_fevereiro = $venda_marco = $venda_abril = $venda_maio = $venda_junho = $venda_julho = $venda_agosto = $venda_setembro = $venda_outubro = $venda_novembro = $venda_dezembro = 0;
 
-  foreach ($sql as $vendas){
+  foreach (($sql ?: array()) as $vendas){
     list($ano, $mes, $dia) = explode('-', $vendas['data']);
     if ($mes == 01) {
        $venda_janeiro = $venda_janeiro + $vendas['preco_de_venda']; 
@@ -125,7 +129,7 @@ if ($filtro == 'Anual') {
   }
 }
 
-foreach($sql as $linha){
+foreach(($sql ?: array()) as $linha){
   $total = $linha['preco_de_venda']+$total;
 }
 
@@ -134,32 +138,19 @@ foreach($sql as $linha){
 
 <script type="text/javascript">
 
-function excluir_venda(id_animal){
-if(window.XMLHttpRequest) { PP = new XMLHttpRequest();} else if(window.ActiveXObject) { PP = new ActiveXObject("Microsoft.XMLHTTP"); }
-// Arquivo PHP juntamente com o valor digitado no campo (método GET)
-var url = "vendas/palco_excluir.php?id_animal="+id_animal;
-// Chamada do método open para processar a requisição
-PP.open("Get", url, true);
-// Quando o objeto recebe o retorno, chamamos a seguinte função;
-PP.onreadystatechange = function() {
-if (PP.readyState == 4) {
-resposta = PP.responseText;
-document.getElementById("palco_excluir").innerHTML = resposta;
-}
-}
-PP.send(null);
-document.getElementById("transparencia").style.display = 'block';
-document.getElementById("palco_excluir").style.display = 'block';
+function excluir_venda(botao){
+  var id_animal = botao.getAttribute('data-id');
+  if (!/^\d+$/.test(String(id_animal)) || Number(id_animal) < 1) { return; }
+  confirmarExclusao({
+    titulo: 'Excluir venda?',
+    nome: botao.getAttribute('data-nome'),
+    descricao: 'Confirme se deseja excluir esta venda. Esta ação não pode ser desfeita. Os lançamentos financeiros vinculados ao animal serão removidos e ele retornará ao rebanho.',
+    aoConfirmar: function () {
+      window.location.href = 'vendas/_excluir_venda.php?tipo=1&id_animal=' + encodeURIComponent(id_animal);
+    }
+  });
 }
 
-function fechar_excluir_venda(){
-  document.getElementById("transparencia").style.display = 'none';
-  document.getElementById("palco_excluir").style.display = 'none';
-}
-
-function ativar_excluir_venda(id_animal){
-    window.location.href = "vendas/_excluir_venda.php?tipo=1&id_animal="+id_animal+"&id_comprador=<?=$id_comprador?>";
-}
 function atualizar(filtro){
     window.location.href = "geral.php?pg=relatorio_venda&filtro="+filtro;
 }
@@ -170,7 +161,6 @@ function abrir_venda(id_animal){
 </script>
 
 
-<div class="row" id="palco_excluir" style=" z-index:9999999999;  left:40%; top:5%;  position:absolute; position:fixed;"></div>
 
 <section class="content-header">
   <h1>
@@ -185,116 +175,85 @@ function abrir_venda(id_animal){
   <!-- Main content -->
   <section class="content">
     <div class="row">
-      <div class="col-md-3">
-				<div class="box box-success">
-          <!-- /.box-header -->
+      <div class="col-md-12">
+        <div class="box" style="border-top:0;">
           <div class="box-body">
-						<form method="post" action="geral.php?pg=relatorio_venda&filtro=<?=$filtro?>">
-
-              <div class="form-group">
-                  <label for="exampleInputPassword1">Tipo</label>
-                  <select class="form-control select" onchange="atualizar(this.value)" name="filtro" id="filtro">
-                    <option value="<?=$filtro?>"><?=$filtro?></option>
-                    <option value=""></option>
-                    <option value="Data">Data</option>
-                    <option value="Anual">Anual</option>
+            <form method="post" action="geral.php?pg=relatorio_venda&amp;filtro=<?=$filtro?>">
+              <div class="row">
+                <div class="form-group col-sm-3 col-md-2">
+                  <label for="filtro">Tipo</label>
+                  <select class="form-control" onchange="atualizar(this.value)" name="filtro" id="filtro">
+                    <option value="Data" <?=$filtro == 'Data' ? 'selected' : ''?>>Data</option>
+                    <option value="Anual" <?=$filtro == 'Anual' ? 'selected' : ''?>>Anual</option>
                   </select>
-              </div>
-
-            <? if($filtro == 'Data'){ ?>
-            <div class="form-group">
-                <label for="exampleInputPassword1">Data Inicial</label>
-                <div class="input-group date">
-                  <div class="input-group-addon">
-                    <i class="fa fa-calendar"></i>
-                  </div>
-                  <input type="text" class="form-control pull-right" id="data_inicial" name="data_inicial" value="<?=$data_inicial?>">
                 </div>
-            </div>
-
-            <div class="form-group">
-                <label for="exampleInputPassword1">Data Final</label>
-                <div class="input-group date">
-                  <div class="input-group-addon">
-                    <i class="fa fa-calendar"></i>
+                <? if($filtro == 'Data'){ ?>
+                <div class="form-group col-sm-3 col-md-2">
+                  <label for="data_inicial">Data Inicial</label>
+                  <div class="input-group date">
+                    <div class="input-group-addon"><i class="fa fa-calendar" aria-hidden="true"></i></div>
+                    <input type="text" class="form-control" id="data_inicial" name="data_inicial" value="<?=htmlspecialchars($data_inicial, ENT_QUOTES, 'UTF-8')?>">
                   </div>
-                  <input type="text" class="form-control pull-right" id="data_final" name="data_final" value="<?=$data_final?>">
                 </div>
-            </div>
-
-
-            <div class="form-group">
-                <label for="exampleInputPassword1">Pesquisar comprador</label>
-                <input type="text" class="form-control" id="comprador" name="comprador" value="<?=$mae?>" onKeyUp="pesquisar_comprador(this.value)">
-                <div id="lista_comprador" style="border-style:solid; border-width:thin; height:auto; border-color: #bab1b4; position:absolute; z-index:99999; background:#fff; width:90%; display:none; margin-top:1%;">
-              </div>
-            </div>
-
-            <div class="form-group">
-              <label for="exampleInputPassword1" style="font-size:18px; color:#00a65a;">Faturamento:
-            R$<?=number_format($total,2,",",".");?></label><br/>
-
-            </div>
-            <? } ?>
-
-            <? if($filtro == 'Anual'){ ?>
-              <div class="form-group">
-                  <label for="exampleInputPassword1">Tipo</label>
-                  <select class="form-control select" name="ano" id="ano">
-                    <? $data = $_POST['ano']; if(!$data){ $data = date('Y'); }?>
-                    <option><?=$data?></option>
-                    <option></option>
-                    <option><?=date('Y')?></option>
-                    <option><?=date('Y')-1?></option>
-                    <option><?=date('Y')-2?></option>
-                    <option><?=date('Y')-3?></option>
-                    <option><?=date('Y')-4?></option>
-                    <option><?=date('Y')-5?></option>
-                    <option><?=date('Y')-6?></option>
+                <div class="form-group col-sm-3 col-md-2">
+                  <label for="data_final">Data Final</label>
+                  <div class="input-group date">
+                    <div class="input-group-addon"><i class="fa fa-calendar" aria-hidden="true"></i></div>
+                    <input type="text" class="form-control" id="data_final" name="data_final" value="<?=htmlspecialchars($data_final, ENT_QUOTES, 'UTF-8')?>">
+                  </div>
+                </div>
+                <div class="form-group col-sm-3" style="position:relative;">
+                  <label for="comprador">Pesquisar comprador</label>
+                  <input type="text" class="form-control" id="comprador" name="comprador" value="<?=htmlspecialchars($nomeComprador, ENT_QUOTES, 'UTF-8')?>" onkeyup="pesquisar_comprador(this.value)" autocomplete="off">
+                  <div id="lista_comprador" style="border:1px solid #bab1b4; position:absolute; z-index:99999; background:#fff; left:15px; right:15px; display:none;"></div>
+                </div>
+                <? } ?>
+                <? if($filtro == 'Anual'){ ?>
+                <div class="form-group col-sm-3 col-md-2">
+                  <label for="ano">Ano</label>
+                  <select class="form-control" name="ano" id="ano">
+                    <? $anoSelecionado = $_POST['ano'] ?? date('Y'); ?>
+                    <? for ($anoOpcao = max((int)date('Y'), (int)$anoSelecionado); $anoOpcao >= min((int)date('Y') - 6, (int)$anoSelecionado); $anoOpcao--) { ?>
+                    <option value="<?=$anoOpcao?>" <?=$anoOpcao == $anoSelecionado ? 'selected' : ''?>><?=$anoOpcao?></option>
+                    <? } ?>
                   </select>
+                </div>
+                <? } ?>
+                <div class="form-group col-sm-6 col-md-3">
+                  <label class="hidden-xs" aria-hidden="true">&nbsp;</label>
+                  <div style="display:flex; gap:8px;">
+                    <button type="submit" class="btn btn-primary" style="flex:1;">Pesquisar Extrato</button>
+                    <a href="geral.php?pg=relatorio_venda" class="btn btn-default" style="flex:1;">Limpar</a>
+                  </div>
+                </div>
               </div>
-
-              <div class="form-group">
-                <label for="exampleInputPassword1" style="font-size:18px; color:#00a65a;">Faturamento:
-              R$<?=number_format($total,2,",",".");?></label><br/>
-
-              </div>
-            <? } ?>
-
-            <div class="form-group">
-                <button type="submit" class="btn btn-primary" style="width:100%; margin-bottom:3%;">Pesquisar Extrato</button>
-            </div>
-					</form>
-
-
+            </form>
+            <p class="help-block" style="margin-bottom:0;">Faturamento: <strong class="text-success">R$ <?=number_format($total,2,",",".")?></strong></p>
           </div>
-          <!-- /.box-body -->
-			</div>
-      <!-- /.col -->
-    </div>
-
-
-
-      <div class="col-md-9">
-        <div class="box box-success">
-          <!-- /.box-header -->
+        </div>
+      </div>
+      <div class="col-md-12">
+        <div class="box" style="border-top:0;">
           <div class="box-body">
             <? if($filtro == 'Data'){ ?>
-              <table class="table table-bordered" id="tabela_padrao">
-                <tr>
+              <div class="table-responsive">
+              <table class="table table-bordered table-striped">
+                <thead><tr>
                   <th>Nº</th>
                   <th>Animal</th>
                   <th>Comprador</th>
                   <th>Data</th>
                   <th>Tipo de venda</th>
                   <th>Valor</th>
-                  <th>Parclas</th>
-                  <th>Excluir</th>
-                </tr>
+                  <th>Parcelas</th>
+                  <th style="width:1%; white-space:nowrap;"><span class="sr-only">Ações</span></th>
+                </tr></thead>
+                <tbody>
+                <? if (!$sql) { ?><tr><td colspan="8" class="text-center">Nenhuma venda encontrada para estes filtros.</td></tr><? } ?>
 
                 <?
                 $x=1;
-                foreach ($sql as $vendas){
+                foreach (($sql ?: array()) as $vendas){
                   $id_animal = $vendas['id_animal'];
                   $animal = DBRead('animais', "WHERE id = '$id_animal'");
                   $data = $vendas['data'];
@@ -323,10 +282,14 @@ function abrir_venda(id_animal){
                       <td onclick="abrir_venda(<?=$id_animal?>)" style="cursor:pointer;" ><?=$vendas['tipo_venda']." - ".$vendas['forma_de_pagamento']?></td>
                       <td onclick="abrir_venda(<?=$id_animal?>)" style="cursor:pointer;" >R$ <?=number_format($vendas['preco_de_venda'],2,",",".");?></td>
                       <td onclick="abrir_venda(<?=$id_animal?>)" style="cursor:pointer;" ><?=$vendas['parcelas']."x"?></td>
-                      <td><button type="button" class="btn btn-danger" style="padding:0%; padding-left:5%; padding-right:5%; height:20px;" onclick="excluir_venda(<?=$id_animal?>)">X</button></td>
+                      <td style="white-space:nowrap;">
+                        <button type="button" class="text-primary" style="background:none; border:0; padding:0; margin-right:10px; cursor:pointer;" onclick="abrir_venda(<?=$id_animal?>)" title="Abrir venda" aria-label="Abrir venda"><i class="fa fa-search" aria-hidden="true"></i></button>
+                        <button type="button" class="text-danger" style="background:none; border:0; padding:0; cursor:pointer;" data-id="<?=(int)$id_animal?>" data-nome="<?=htmlspecialchars($animal[0]['nome'], ENT_QUOTES, 'UTF-8')?>" onclick="excluir_venda(this)" title="Excluir venda" aria-label="Excluir venda"><i class="fa fa-trash-o" aria-hidden="true"></i></button>
+                      </td>
                     </tr>
                   <? $x++; } ?>
-                  </table>
+                </tbody></table>
+              </div>
 
             <? } ?>
 
@@ -347,8 +310,9 @@ function abrir_venda(id_animal){
                     <!-- /.box-body -->
 
 
-              <table class="table table-bordered" id="tabela_padrao">
-                <tr>
+              <div class="table-responsive">
+              <table class="table table-bordered table-striped">
+                <thead><tr>
                   <th>Jan</th>
                   <th>Fev</th>
                   <th>Mar</th>
@@ -361,7 +325,8 @@ function abrir_venda(id_animal){
                   <th>Out</th>
                   <th>Nov</th>
                   <th>Dez</th>
-                </tr>
+                </tr></thead>
+                <tbody>
                   <tr>
                       <td>R$ <?=number_format($venda_janeiro,2,",",".");?></td>
                       <td>R$ <?=number_format($venda_fevereiro,2,",",".");?></td>
@@ -376,12 +341,14 @@ function abrir_venda(id_animal){
                       <td>R$ <?=number_format($venda_novembro,2,",",".");?></td>
                       <td>R$ <?=number_format($venda_dezembro,2,",",".");?></td>
                     </tr>
-                </table>
+                </tbody></table>
+              </div>
           </div>
         <? } ?>
 
       </div>
     </div>
+  </div>
   </div>
     <!-- /.row -->
   </section>

@@ -145,7 +145,7 @@
         <div class="row">
           <div class="col-md-4">
             <div class="form-group">
-              <?php renderBuscaCompradores(array('id'=>'comprador','name'=>'comprador','label'=>'Comprador','value'=>$comprador[0]['nome'] ?? '','required'=>true,'placeholder'=>'Digite para pesquisar','novo_url'=>'geral.php?pg=compradores','novo_texto'=>'Novo')); ?>
+              <?php renderBuscaCompradores(array('id'=>'comprador','name'=>'comprador','label'=>'Comprador','value'=>$comprador[0]['nome'] ?? '','required'=>true,'placeholder'=>'Digite para pesquisar','novo_modal'=>'novo-comprador-modal','novo_texto'=>'Novo')); ?>
             </div>
           </div>
           <div class="col-md-4">
@@ -210,3 +210,5 @@
     </div>
   </form>
 </section>
+
+<?php require __DIR__ . '/../includes/modal_novo_comprador.php'; ?>

@@ -1,6 +1,7 @@
 <?
 include "../_config.php";
 $id_animal = $_GET['id_animal'];
+$id_comprador = (int)($_GET['id_comprador'] ?? 0);
 $dados = array(
   'status' => 0
 );

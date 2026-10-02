@@ -1,13 +1,13 @@
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<?
-include "../_config.php";
+<?php
+require_once __DIR__ . "/../_config.php";
+header("Content-Type: text/html; charset=UTF-8");
 
-$nome = $_POST['nome'];
-$id_comprador = $_GET['id_comprador'];
+$nome = DBEscape($_POST['nome'] ?? '');
+$id_comprador = (int)($_GET['id_comprador'] ?? 0);
 $comprador = DBRead('mercado', "WHERE nome = '$nome' AND id != '$id_comprador'");
 
 // TESTE EVENTO
-if($comprador[0]['id'] > 0){
+if(($comprador[0]['id'] ?? 0) > 0){
   echo "<script type=\"text/javascript\"> alert(\"Comprador já existe.Tente novamente\"); </script>
   <script language='javascript'>history.back()</script>";
 }else{
@@ -23,6 +23,6 @@ $dados = array(
 );
 
 DBUpdate('mercado', $dados, "id = '$id_comprador'");
-echo "<META HTTP-EQUIV=REFRESH CONTENT='0; URL=../geral.php?pg=comprador&id_comprador=$id_comprador'>";
+header("Location: ../geral.php?pg=comprador&id_comprador=$id_comprador", true, 303);
+exit;
 }
-?>
