@@ -25,42 +25,26 @@ function atualizar(x){
   }
 }
 
-function excluir_premio(id){
-if(window.XMLHttpRequest) { PP = new XMLHttpRequest();} else if(window.ActiveXObject) { PP = new ActiveXObject("Microsoft.XMLHTTP"); }
-// Arquivo PHP juntamente com o valor digitado no campo (método GET)
-var url = "animal/premios/palco_excluir.php?id="+id;
-// Chamada do método open para processar a requisição
-PP.open("Get", url, true);
-// Quando o objeto recebe o retorno, chamamos a seguinte função;
-PP.onreadystatechange = function() {
-if (PP.readyState == 4) {
-resposta = PP.responseText;
-document.getElementById("palco_excluir").innerHTML = resposta;
-}
-}
-PP.send(null);
-document.getElementById("transparencia").style.display = 'block';
-document.getElementById("palco_excluir").style.display = 'block';
-}
-
-function fechar_excluir_premio(){
-  document.getElementById("transparencia").style.display = 'none';
-  document.getElementById("palco_excluir").style.display = 'none';
-}
-
-function ativar_excluir_premio(id){
-    window.location.href = "animal/premios/_excluir.php?id="+id;
+function excluir_premio(botao){
+  confirmarExclusao({
+    titulo: 'Excluir prêmio?',
+    nome: botao.getAttribute('data-descricao'),
+    descricao: 'Confirme se deseja excluir este registro de prêmio. Esta ação não pode ser desfeita.',
+    aoConfirmar: function () {
+      window.location.href = 'animal/premios/_excluir.php?id=' + encodeURIComponent(botao.getAttribute('data-id'));
+    }
+  });
 }
 </script>
 
-<form role="form" action="animal/premios/_cadastrar.php?id_animal=<?=$id_animal?>" method="post" onsubmit="return ativar_premio()">
+<form class="registros-animal" role="form" action="animal/premios/_cadastrar.php?id_animal=<?=$id_animal?>" method="post" onsubmit="return ativar_premio()">
 <div class="row">
-<div class="col-md-3">
-  <!-- general form elements -->
+<div class="col-md-4">
+  <h3 class="titulo-registros">Cadastrar prêmio</h3>
   <div class="box-body">
 
     <div class="form-group">
-      <label for="exampleInputPassword1">Posição<span style="color:#F00;">*</span></label>
+      <label for="posicao">Posição<span style="color:#F00;">*</span></label>
       <select class="form-control select" id="posicao" name="posicao">
         <option value="">Selecionar</option>
         <option value=""></option>
@@ -80,7 +64,7 @@ function ativar_excluir_premio(id){
     </div>
 
     <div class="form-group">
-      <label for="exampleInputPassword1">Categoria<span style="color:#F00;">*</span></label>
+      <label for="categoria">Categoria<span style="color:#F00;">*</span></label>
       <select class="form-control select" id="categoria" name="categoria">
         <option value="">Selecionar</option>
        <option value=""></option>
@@ -104,7 +88,7 @@ function ativar_excluir_premio(id){
     </div>
 
     <div class="form-group" id="nova_vacina_">
-      <label for="exampleInputPassword1">Exposição<span style="color:#F00;">*</span></label>
+      <label for="exposicao">Exposição<span style="color:#F00;">*</span></label>
       <select class="form-control select" id="exposicao" name="exposicao">
         <option value="">Selecionar</option>
        <option value=""></option>
@@ -115,19 +99,24 @@ function ativar_excluir_premio(id){
       <? } ?>
       </select>
     </div>
-    <button type="submit" class="btn btn-success" style="margin-top:0%; width:100%;">Cadastrar prêmio</button>
+    <div class="acoes-registros"><button type="submit" class="btn btn-success">Cadastrar prêmio</button></div>
   </div>
 </div>
 
 <div class="col-md-8">
-  <table class="table table-bordered" id="tabela_padrao" width="98%">
+  <h3 class="titulo-registros">Histórico de prêmios</h3>
+  <div class="table-responsive">
+  <table class="table table-bordered table-striped">
+    <thead>
     <tr>
-      <th></th>
+      <th>#</th>
       <th>Prêmios</th>
       <th>Exposição</th>
       <th>Data</th>
-      <th>Excluir</th>
+      <th class="text-center"><span class="sr-only">Excluir</span></th>
     </tr>
+    </thead>
+    <tbody>
     <?
     $premio = DBRead('premio', "WHERE id_animal = '$id_animal'");
     foreach (($premio ?: []) as $premio_) {
@@ -149,13 +138,16 @@ function ativar_excluir_premio(id){
       $data['9'] = $data_atual['3'];
       $data_exposicao = $data;
     ?>
+    <tr>
       <td><?=$z?></td>
       <td><?=$premio_['premio']?></td>
       <td><?=$exposicao[0]['nome']?> - <?=$exposicao[0]['cidade']?></td>
       <td><?=$data_exposicao?></td>
-      <td><button type="button" class="btn btn-danger" style="margin-top:0%; padding:3%; padding-left:5%; padding-right:5%;" onclick="excluir_premio(<?=$premio_['id']?>)">X</button></td>
+      <td class="text-center"><button type="button" class="btn btn-link text-danger" style="padding:0; color:#dd4b39;" title="Excluir prêmio" aria-label="Excluir prêmio" data-id="<?=(int)$premio_['id']?>" data-descricao="<?=htmlspecialchars(($premio_['premio'] ?? '') . ' — ' . ($exposicao[0]['nome'] ?? ''), ENT_QUOTES, 'UTF-8')?>" onclick="excluir_premio(this)"><i class="fa fa-trash-o" aria-hidden="true"></i></button></td>
     </tr>
   <? } ?>
+    </tbody>
     </table>
+  </div>
 </div></div>
 </form>

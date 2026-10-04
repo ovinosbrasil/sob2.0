@@ -28,130 +28,60 @@ $avo11 = ($avo4[0]['pai'] ?? '');
 if(($avo4[0]['terceiro_pai'] ?? '')){ $avo11 = DBRead('terceiros', "WHERE id = '$avo11'"); }else{ $avo11 = DBRead('animais', "WHERE id = '$avo11'"); }
 $avo12 = ($avo4[0]['mae'] ?? '');
 if(($avo4[0]['terceiro_mae'] ?? '')){ $avo12 = DBRead('terceiros', "WHERE id = '$avo12'"); }else{ $avo12 = DBRead('animais', "WHERE id = '$avo12'"); }
+
+$linhagensPedigree = array(
+  array(
+    array(array('Pai', $pai)),
+    array(array('Avô paterno', $avo1), array('Avó paterna', $avo2)),
+    array(array('Bisavô paterno', $avo5), array('Bisavó paterna', $avo6), array('Bisavô paterno', $avo7), array('Bisavó paterna', $avo8)),
+  ),
+  array(
+    array(array('Mãe', $mae)),
+    array(array('Avô materno', $avo3), array('Avó materna', $avo4)),
+    array(array('Bisavô materno', $avo9), array('Bisavó materna', $avo10), array('Bisavô materno', $avo11), array('Bisavó materna', $avo12)),
+  ),
+);
+$pedigreeH = static function ($valor) { return htmlspecialchars((string)$valor, ENT_QUOTES, 'UTF-8'); };
 ?>
-
-
-<div class="row">
-<div class="col-md-3">
-  <!-- general form elements -->
-  <div class="box-body">
-    <div class="form-group" style="margin-top:3%;">
-      <label for="exampleInputPassword1"></label>
-      <textarea  class="form-control" name="observacoes" id="observacoes" cols="45" rows="3" style=" width:100%; border:transparent; resize: none"></textarea>
+<style>
+  #pagina-animal .dados-gerais-animal, #pagina-animal .pedigree-animal {
+    background:#fff; border:1px solid #e3eaf5; border-radius:8px; padding:20px;
+  }
+  #pagina-animal .pedigree-animal { margin-top:24px; }
+  #pagina-animal .dados-gerais-animal h3, #pagina-animal .pedigree-animal h3 {
+    font-size:18px; margin:0 0 20px; padding-bottom:12px; border-bottom:1px solid #e3eaf5;
+  }
+  .pedigree-animal__linhagem { display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:12px; }
+  .pedigree-animal__linhagem + .pedigree-animal__linhagem { margin-top:36px; }
+  .pedigree-animal__item { margin-bottom:4px; }
+  .pedigree-animal__parentesco { display:block; margin-bottom:5px; }
+  .pedigree-animal__dados { background:#f0f0f0; border-radius:4px; padding:10px; overflow-wrap:anywhere; }
+  .pedigree-animal__nome { display:block; min-height:20px; }
+  @media (max-width:767px) {
+    #pagina-animal .dados-gerais-animal, #pagina-animal .pedigree-animal { padding:15px; }
+    .pedigree-animal__linhagem { grid-template-columns:1fr; gap:12px; }
+    .pedigree-animal__linhagem + .pedigree-animal__linhagem { margin-top:24px; }
+  }
+</style>
+<section class="pedigree-animal" aria-labelledby="pedigree-animal-titulo">
+  <h3 id="pedigree-animal-titulo">Pedigree</h3>
+  <?php foreach ($linhagensPedigree as $linhagemPedigree): ?>
+  <div class="pedigree-animal__linhagem">
+    <?php foreach ($linhagemPedigree as $geracaoPedigree): ?>
+    <div>
+      <?php foreach ($geracaoPedigree as $itemPedigree):
+        $ascendente = $itemPedigree[1][0] ?? array(); ?>
+      <div class="pedigree-animal__item">
+        <strong class="pedigree-animal__parentesco"><?=$pedigreeH($itemPedigree[0])?></strong>
+        <div class="pedigree-animal__dados">
+          <span class="pedigree-animal__nome"><?=$pedigreeH($ascendente['nome'] ?? '')?></span>
+          <div>FBB: <?=$pedigreeH($ascendente['fbb'] ?? $ascendente['FBB'] ?? '')?></div>
+          <div>Tipo: <?=$pedigreeH($ascendente['tipo'] ?? '')?></div>
+        </div>
+      </div>
+      <?php endforeach; ?>
     </div>
-    <div class="form-group" style="margin-top:3%;">
-      <label for="exampleInputPassword1"></label>
-      <textarea  class="form-control" name="observacoes" id="observacoes" cols="45" rows="3" style=" width:100%; border:transparent; resize: none"></textarea>
-    </div>
-
-    <div class="form-group" style="margin-top:3%;">
-      <label for="exampleInputPassword1"></label>
-      <textarea  class="form-control" name="observacoes" id="observacoes" cols="45" rows="3" style="width:100%; border:transparent; resize: none"></textarea>
-    </div>
-    <div class="form-group" style="margin-top:3%;">
-      <label for="exampleInputPassword1">Pai</label>
-      <textarea  class="form-control" name="observacoes" id="observacoes" cols="45" rows="3" style="width:100%; border:transparent; resize: none" readonly="readonly"><?=($pai[0]['nome'] ?? '')?>&#10;FBB:<?=($pai[0]['fbb'] ?? $pai[0]['FBB'] ?? '')?>
-        &#10;Tipo:<?=($pai[0]['tipo'] ?? '')?></textarea>
-    </div>
-
-    <div class="form-group" style="margin-top:3%;">
-      <label for="exampleInputPassword1">Mãe</label>
-      <textarea  class="form-control" name="observacoes" id="observacoes" cols="45" rows="3" style=" width:100%; border:transparent; resize: none" readonly="readonly"><?=($mae[0]['nome'] ?? '')?>&#10;FBB:<?=($mae[0]['fbb'] ?? $mae[0]['FBB'] ?? '')?>
-        &#10;Tipo:<?=($mae[0]['tipo'] ?? '')?></textarea>
-    </div>
+    <?php endforeach; ?>
   </div>
-</div>
-
-<div class="col-md-3">
-  <!-- general form elements -->
-  <div class="box-body">
-    <div class="form-group" style="margin-top:3%;">
-      <label for="exampleInputPassword1"></label>
-      <textarea  class="form-control" name="observacoes" id="observacoes" cols="45" rows="3" style=" width:100%; border:transparent; resize: none"></textarea>
-    </div>
-
-    <div class="form-group" style="margin-top:3%;">
-      <label for="exampleInputPassword1"></label>
-      <textarea  class="form-control" name="observacoes" id="observacoes" cols="45" rows="3" style="width:100%; border:transparent; resize: none"></textarea>
-    </div>
-
-    <div class="form-group" style="margin-top:3%;">
-      <label for="exampleInputPassword1">Avô paterno<span style="color:#F00;">*</span></label>
-      <textarea  class="form-control" name="observacoes" id="observacoes" cols="45" rows="3" style=" width:100%; border:transparent; resize: none" readonly="readonly"><?=($avo1[0]['nome'] ?? '')?>&#10;FBB:<?=($avo1[0]['fbb'] ?? $avo1[0]['FBB'] ?? '')?>
-        &#10;Tipo:<?=($avo1[0]['tipo'] ?? '')?></textarea>
-    </div>
-    <div class="form-group" style="margin-top:3%;">
-      <label for="exampleInputPassword1">Avó paterna<span style="color:#F00;">*</span></label>
-      <textarea  class="form-control" name="observacoes" id="observacoes" cols="45" rows="3" style="width:100%; border:transparent; resize: none" readonly="readonly"><?=($avo2[0]['nome'] ?? '')?>&#10;FBB:<?=($avo2[0]['fbb'] ?? $avo2[0]['FBB'] ?? '')?>
-        &#10;Tipo:<?=($avo2[0]['tipo'] ?? '')?></textarea>
-    </div>
-
-
-    <div class="form-group" style="margin-top:3%;">
-      <label for="exampleInputPassword1">Avô materno<span style="color:#F00;">*</span></label>
-      <textarea  class="form-control" name="observacoes" id="observacoes" cols="45" rows="3" style="width:100%; border:transparent; resize: none" readonly="readonly"><?=($avo3[0]['nome'] ?? '')?>&#10;FBB:<?=($avo3[0]['fbb'] ?? $avo3[0]['FBB'] ?? '')?>
-        &#10;Tipo:<?=($avo3[0]['tipo'] ?? '')?></textarea>
-    </div>
-
-
-    <div class="form-group" style="margin-top:3%;">
-      <label for="exampleInputPassword1">Avó materna<span style="color:#F00;">*</span></label>
-      <textarea  class="form-control" name="observacoes" id="observacoes" cols="45" rows="3" style="width:100%; border:transparent; resize: none" readonly="readonly"><?=($avo4[0]['nome'] ?? '')?>&#10;FBB:<?=($avo4[0]['fbb'] ?? $avo4[0]['FBB'] ?? '')?>
-        &#10;Tipo:<?=($avo4[0]['tipo'] ?? '')?></textarea>
-    </div>
-  </div>
-</div>
-
-<div class="col-md-3">
-  <!-- general form elements -->
-  <div class="box-body">
-    <div class="form-group" style="margin-top:3%;">
-      <label for="exampleInputPassword1">Bisavô paterno<span style="color:#F00;">*</span></label>
-      <textarea  class="form-control" name="observacoes" id="observacoes" cols="45" rows="3" style=" width:100%; border:transparent; resize: none" readonly="readonly"><?=($avo5[0]['nome'] ?? '')?>&#10;FBB:<?=($avo5[0]['fbb'] ?? $avo5[0]['FBB'] ?? '')?>
-        &#10;Tipo:<?=($avo5[0]['tipo'] ?? '')?></textarea>
-    </div>
-
-    <div class="form-group" style="margin-top:3%;">
-      <label for="exampleInputPassword1">Bisavó paterna<span style="color:#F00;">*</span></label>
-      <textarea  class="form-control" name="observacoes" id="observacoes" cols="45" rows="3" style=" width:100%; border:transparent; resize: none" readonly="readonly"><?=($avo6[0]['nome'] ?? '')?>&#10;FBB:<?=($avo6[0]['fbb'] ?? $avo6[0]['FBB'] ?? '')?>
-        &#10;Tipo:<?=($avo6[0]['tipo'] ?? '')?></textarea>
-    </div>
-
-    <div class="form-group" style="margin-top:3%;">
-      <label for="exampleInputPassword1">Bisavô paterno<span style="color:#F00;">*</span></label>
-      <textarea  class="form-control" name="observacoes" id="observacoes" cols="45" rows="3" style="width:100%; border:transparent; resize: none" readonly="readonly"><?=($avo7[0]['nome'] ?? '')?>&#10;FBB:<?=($avo7[0]['fbb'] ?? $avo7[0]['FBB'] ?? '')?>
-        &#10;Tipo:<?=($avo7[0]['tipo'] ?? '')?></textarea>
-    </div>
-
-
-    <div class="form-group" style="margin-top:3%;">
-      <label for="exampleInputPassword1">Bisavó paterna<span style="color:#F00;">*</span></label>
-      <textarea  class="form-control" name="observacoes" id="observacoes" cols="45" rows="3" style="width:100%; border:transparent; resize: none" readonly="readonly"><?=($avo8[0]['nome'] ?? '')?>&#10;FBB:<?=($avo8[0]['fbb'] ?? $avo8[0]['FBB'] ?? '')?>
-        &#10;Tipo:<?=($avo8[0]['tipo'] ?? '')?></textarea>
-    </div>
-
-    <div class="form-group" style="margin-top:3%;">
-      <label for="exampleInputPassword1">Bisavô materno<span style="color:#F00;">*</span></label>
-      <textarea  class="form-control" name="observacoes" id="observacoes" cols="45" rows="3" style="width:100%; border:transparent; resize: none" readonly="readonly"><?=($avo9[0]['nome'] ?? '')?>&#10;FBB:<?=($avo9[0]['fbb'] ?? $avo9[0]['FBB'] ?? '')?>
-        &#10;Tipo:<?=($avo9[0]['tipo'] ?? '')?></textarea>
-    </div>
-
-    <div class="form-group" style="margin-top:3%;">
-      <label for="exampleInputPassword1">Bisavó materna<span style="color:#F00;">*</span></label>
-      <textarea  class="form-control" name="observacoes" id="observacoes" cols="45" rows="3" style="width:100%; border:transparent; resize: none" readonly="readonly"><?=($avo10[0]['nome'] ?? '')?>&#10;FBB:<?=($avo10[0]['fbb'] ?? $avo10[0]['FBB'] ?? '')?>
-        &#10;Tipo:<?=($avo10[0]['tipo'] ?? '')?></textarea>
-    </div>
-
-    <div class="form-group" style="margin-top:3%;">
-      <label for="exampleInputPassword1">Bisavô materno<span style="color:#F00;">*</span></label>
-      <textarea  class="form-control" name="observacoes" id="observacoes" cols="45" rows="3" style="width:100%; border:transparent; resize: none" readonly="readonly"><?=($avo11[0]['nome'] ?? '')?>&#10;FBB:<?=($avo11[0]['fbb'] ?? $avo11[0]['FBB'] ?? '')?>
-        &#10;Tipo:<?=($avo11[0]['tipo'] ?? '')?></textarea>
-    </div>
-    <div class="form-group" style="margin-top:3%;">
-      <label for="exampleInputPassword1">Bisavó materna<span style="color:#F00;">*</span></label>
-      <textarea  class="form-control" name="observacoes" id="observacoes" cols="45" rows="3" style="width:100%; border:transparent; resize: none" readonly="readonly"><?=($avo12[0]['nome'] ?? '')?>&#10;FBB:<?=($avo12[0]['fbb'] ?? $avo12[0]['FBB'] ?? '')?>
-        &#10;Tipo:<?=($avo12[0]['tipo'] ?? '')?></textarea>
-    </div>
-  </div>
-</div>
-</div>
+  <?php endforeach; ?>
+</section>

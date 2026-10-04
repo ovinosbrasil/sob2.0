@@ -434,9 +434,18 @@ if(($pg == 'perfil') || ($pg == 'comprador') || ($pg == 'compradores')){
 <script src="bower_components/jprice.js"></script>
 <script type="text/javascript">
   $(function () {
-    $('#peso_inicial').priceFormat();
-    $('#peso_apartacao').priceFormat();
-    $('#peso_adulto').priceFormat();
+    $('#peso_inicial, #peso_apartacao, #peso_adulto').priceFormat({
+      centsLimit: 3,
+      centsSeparator: '.',
+      thousandsSeparator: ''
+    });
+    $('#gmd_peso').priceFormat({
+      centsLimit: 3,
+      centsSeparator: ',',
+      thousandsSeparator: ''
+    }).on('keyup.gmd focusout.gmd', function () {
+      this.dispatchEvent(new Event('input', { bubbles: true }));
+    });
     $('#valor').priceFormat();
   })
 </script>
@@ -534,12 +543,18 @@ $(function () {
 $(function () {
   $('#valor_faturamento').priceFormat();
   $('#valor_debito').priceFormat();
-  $('#valor').each(function () {
+  $('#valor, #gmd_peso').each(function () {
     $(this).priceFormat({
       centsLimit: Number($(this).attr('data-casas-decimais')) || 2,
       centsSeparator: $(this).attr('data-separador-decimal') || '.',
       thousandsSeparator: $(this).attr('data-separador-milhar') || ','
     });
+    if (this.id === 'gmd_peso') {
+      $(this).on('keyup blur', function () {
+        this.dispatchEvent(new Event('input', { bubbles: true }));
+      });
+      this.dispatchEvent(new Event('input', { bubbles: true }));
+    }
   });
 })
 

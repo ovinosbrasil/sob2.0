@@ -1,3 +1,4 @@
+<?php require_once __DIR__ . '/../../includes/busca_compradores.php'; ?>
 <script type="text/javascript">
 function desfazer_venda2(){
     window.location.href = "animal/vender/_desfazer_venda.php?id_animal=<?=$id_animal?>";
@@ -68,10 +69,16 @@ $comprador = DBRead('mercado', "WHERE id = '$comprador'");
   <!-- general form elements -->
   <div class="box-body">
     <div class="form-group">
-      <label for="exampleInputPassword1">Comprador<span style="color:#F00;">*</span></label>
-      <input type="text" class="form-control" id="comprador" name="comprador" value="<?=$comprador[0]['nome']?>" onKeyUp="pesquisar_comprador(this.value)">
-      <div id="lista_comprador" style="border-style:solid; border-width:thin; height:auto; border-color: #bab1b4; position:absolute; z-index:99999; background:#fff; width:90%; display:none; margin-top:1%;">
-      </div>
+      <?php renderBuscaCompradores(array(
+        'id' => 'comprador',
+        'name' => 'comprador',
+        'label' => 'Comprador',
+        'value' => $comprador[0]['nome'] ?? '',
+        'value_id' => $venda[0]['comprador'] ?? 0,
+        'required' => true,
+        'novo_modal' => 'novo-comprador-modal',
+        'novo_texto' => 'Novo'
+      )); ?>
     </div>
 
     <div class="form-group">
@@ -140,7 +147,6 @@ $comprador = DBRead('mercado', "WHERE id = '$comprador'");
     <div class="form-group">
       <button type="submit" class="btn btn-success" style="margin-top:6%; width:100%;">Vender animal</button>
       <? if($animal[0]['status'] == 2){ ?><button type="button" class="btn btn-primary" style="margin-top:6%; width:100%;" onclick="desfazer_venda2()">Desfazer venda</button> <? } ?>
-      <a href="http://187.9.216.98/website4/criador/comunicar.aspx" target="_blank"><button type="button" class="btn btn-warning" style="margin-top:6%; width:100%;">Transferir animal</button></a>
     </div>
   </div>
 </div>
@@ -172,3 +178,5 @@ $comprador = DBRead('mercado', "WHERE id = '$comprador'");
 
 </div>
 </form>
+
+<?php require __DIR__ . '/../../includes/modal_novo_comprador.php'; ?>

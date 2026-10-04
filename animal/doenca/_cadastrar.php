@@ -20,7 +20,7 @@ if($nova_doenca){
 $dados = array(
 	'id_animal'	=> $id_animal,
 	'id_doenca'	=> $doenca,
-	'obs'	=> preg_replace("'", '"',$_POST['observacoes_doenca']),
+	'obs'	=> (string)($_POST['observacoes_doenca'] ?? ''),
 	'data'	=> $data
 );
 

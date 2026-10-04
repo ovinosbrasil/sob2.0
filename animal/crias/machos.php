@@ -20,15 +20,10 @@ $t = $_GET['t'] ?? '';
 if(!$t){
 ?>
 <div id="lista_crias">
-<div class="col-md-10">
-  <h4 class="box-title">Lista de crias</h4>
-</div>
-<div class="col-md-2">
-<button type="button" class="btn btn-primary" style="margin-top:0%; width:100%;" onclick="mudar(1)">Gráficos de vendas</button>
-</div>
-<table class="table table-bordered" id="tabela_padrao" width="98%">
-  <tr>
-    <th></th>
+<div class="cabecalho-crias"><h3>Lista de crias</h3><button type="button" class="btn btn-primary" onclick="mudar(1)">Gráficos de vendas</button></div>
+<div class="table-responsive"><table class="table table-bordered table-striped">
+  <thead><tr>
+    <th style="width:1%;">Nº</th>
     <th>Animal</th>
     <th>Sexo</th>
     <th>Peso 90 dias</th>
@@ -36,16 +31,20 @@ if(!$t){
     <th>Peso Adulto</th>
     <th onclick="atualizar_tabela(1)" style="cursor:pointer;">Tipo</th>
     <th onclick="atualizar_tabela(2)" style="cursor:pointer;">Status</th>
-  </tr>
+  </tr></thead><tbody>
 
     <?
     $x=0;
     $filtro = (int) ($_GET['filtro'] ?? 0);
+    if (!in_array($filtro, array(0, 1, 2), true)) $filtro = 0;
     if($filtro == 0){ $cria = DBRead('animais', "WHERE pai = '$id_animal' AND terceiro_pai = '0' ORDER BY data_de_nascimento asc"); }
     if($filtro == 1){ $cria = DBRead('animais', "WHERE pai = '$id_animal' AND terceiro_pai = '0' ORDER BY tipo desc"); }
     if($filtro == 2){ $cria = DBRead('animais', "WHERE pai = '$id_animal' AND terceiro_pai = '0' ORDER BY status asc"); }
 
-    $data_antiga = '';
+    $paginacaoCrias = paginacaoCrias(count($cria ?: array()), array('pg' => 'animal', 'id_animal' => $id_animal, 'aba' => 'crias', 'filtro' => $filtro));
+    $x = $paginacaoCrias['inicio'];
+    $data_antiga = $x > 0 ? date('d/m/Y', strtotime($cria[$x - 1]['data_de_nascimento'])) : '';
+    $cria = array_slice($cria ?: array(), $x, $paginacaoCrias['por_pagina']);
     foreach ($cria as $crias) {
       $x++;
       $id_cria = $crias['id'];
@@ -70,7 +69,7 @@ if(!$t){
 
     ?>
     <?
-    if($cria_[0]['status'] == '0'){ ?> <tr style="color:#2a8595;"><? }
+    if($cria_[0]['status'] == '0'){ ?> <tr><? }
     if($cria_[0]['status'] == '1'){ ?> <tr style="color:red; "><? }
     if($cria_[0]['status'] == '2'){ ?> <tr style="color:green;"><? }
     if($cria_[0]['status'] == '3'){ ?> <tr style="color:red;"><? }
@@ -94,7 +93,8 @@ if(!$t){
     </td>
   </tr>
   <? } ?>
-  </table>
+  </tbody></table></div>
+  <?php renderPaginacaoCrias($paginacaoCrias); ?>
 </div>
 <? }
 if($t == 'g'){

@@ -8,6 +8,8 @@ $dados = array(
 	'id_animal'	=> $id_animal,
 	'premio'	=> $premio,
 	'id_julgamento'	=> $_POST['exposicao'],
+  'camp' => 0,
+  'grand_camp' => 0,
 );
 
 DBcreate('premio', $dados);

@@ -20,42 +20,26 @@ function atualizar_doenca(x){
   }
 }
 
-function excluir_doenca(id){
-if(window.XMLHttpRequest) { PP = new XMLHttpRequest();} else if(window.ActiveXObject) { PP = new ActiveXObject("Microsoft.XMLHTTP"); }
-// Arquivo PHP juntamente com o valor digitado no campo (método GET)
-var url = "animal/doenca/palco_excluir.php?id="+id;
-// Chamada do método open para processar a requisição
-PP.open("Get", url, true);
-// Quando o objeto recebe o retorno, chamamos a seguinte função;
-PP.onreadystatechange = function() {
-if (PP.readyState == 4) {
-resposta = PP.responseText;
-document.getElementById("palco_excluir").innerHTML = resposta;
-}
-}
-PP.send(null);
-document.getElementById("transparencia").style.display = 'block';
-document.getElementById("palco_excluir").style.display = 'block';
-}
-
-function fechar_excluir(){
-  document.getElementById("transparencia").style.display = 'none';
-  document.getElementById("palco_excluir").style.display = 'none';
-}
-
-function ativar_excluir_doenca(id){
-    window.location.href = "animal/doenca/_excluir.php?id="+id;
+function excluir_doenca(botao){
+  confirmarExclusao({
+    titulo: 'Excluir doença?',
+    nome: botao.getAttribute('data-descricao'),
+    descricao: 'Confirme se deseja excluir esta registro de doença. Esta ação não pode ser desfeita.',
+    aoConfirmar: function () {
+      window.location.href = 'animal/doenca/_excluir.php?id=' + encodeURIComponent(botao.getAttribute('data-id'));
+    }
+  });
 }
 </script>
 
-<form role="form" action="animal/doenca/_cadastrar.php?id_animal=<?=$id_animal?>" method="post" onsubmit="return ativar_doenca()">
+<form class="registros-animal" role="form" action="animal/doenca/_cadastrar.php?id_animal=<?=$id_animal?>" method="post" onsubmit="return ativar_doenca()">
 <div class="row">
-<div class="col-md-3">
-  <!-- general form elements -->
+<div class="col-md-4">
+  <h3 class="titulo-registros">Cadastrar doença</h3>
   <div class="box-body">
 
     <div class="form-group">
-      <label for="exampleInputPassword1">Data<span style="color:#F00;">*</span></label>
+      <label for="data_doenca">Data<span style="color:#F00;">*</span></label>
       <div class="input-group date">
         <div class="input-group-addon">
           <i class="fa fa-calendar"></i>
@@ -65,7 +49,7 @@ function ativar_excluir_doenca(id){
     </div>
 
     <div class="form-group">
-      <label for="exampleInputPassword1">Doença<span style="color:#F00;">*</span></label>
+      <label for="doenca">Doença<span style="color:#F00;">*</span></label>
       <select class="form-control select" id="doenca" name="doenca" onchange="atualizar_doenca(this.value)">
         <option value="">Selecionar doença</option>
         <option></option>
@@ -79,27 +63,32 @@ function ativar_excluir_doenca(id){
     </div>
 
     <div class="form-group" id="nova_doenca_" style="display:none;">
-      <label for="exampleInputPassword1">Nova doença<span style="color:#F00;">*</span></label>
+      <label for="nova_doenca">Nova doença<span style="color:#F00;">*</span></label>
         <input type="text" class="form-control" id="nova_doenca" name="nova_doenca">
     </div>
 
     <div class="form-group">
-      <label for="exampleInputPassword1">Observações</label>
-      <textarea  class="form-control" name="observacoes_doenca" id="observacoes_doenca" cols="45" rows="6" style="height:135px; width:100%;"><?=$animal[0]['obs']?></textarea>
+      <label for="observacoes_doenca">Observações</label>
+      <textarea  class="form-control" name="observacoes_doenca" id="observacoes_doenca" cols="45" rows="5"><?=$animal[0]['obs']?></textarea>
     </div>
-    <button type="submit" class="btn btn-success" style="margin-top:0%; width:100%;">Cadastrar doença</button>
+    <div class="acoes-registros"><button type="submit" class="btn btn-success">Cadastrar doença</button></div>
   </div>
 </div>
 
 <div class="col-md-8">
-  <table class="table table-bordered" id="tabela_padrao" width="98%">
+  <h3 class="titulo-registros">Histórico de doenças</h3>
+  <div class="table-responsive">
+  <table class="table table-bordered table-striped">
+    <thead>
     <tr>
-      <th></th>
+      <th>#</th>
       <th>Doença</th>
       <th>Data</th>
       <th>Observação</th>
-      <th>Excluir</th>
+      <th class="text-center"><span class="sr-only">Excluir</span></th>
     </tr>
+    </thead>
+    <tbody>
     <?
     $doenca = DBRead('doencas', "WHERE id_animal = '$id_animal' ORDER BY data asc");
     foreach (($doenca ?: []) as $doenca_) {
@@ -121,14 +110,17 @@ function ativar_excluir_doenca(id){
       $data['9'] = $data_atual['3'];
       $data_doenca = $data;
     ?>
+    <tr>
       <td><?=$x?></td>
       <td><?=$nome_doenca[0]['nome']?></td>
       <td><?=$data_doenca?></td>
       <td><?=$doenca_['obs']?></td>
-      <td><button type="button" class="btn btn-danger" style="margin-top:0%; padding:3%; padding-left:5%; padding-right:5%;" onclick="excluir_doenca(<?=$doenca_['id']?>)">X</button></td>
+      <td class="text-center"><button type="button" class="btn btn-link text-danger" style="padding:0; color:#dd4b39;" title="Excluir doença" aria-label="Excluir doença" data-id="<?=(int)$doenca_['id']?>" data-descricao="<?=htmlspecialchars(($nome_doenca[0]['nome'] ?? '') . ' — ' . $data_doenca, ENT_QUOTES, 'UTF-8')?>" onclick="excluir_doenca(this)"><i class="fa fa-trash-o" aria-hidden="true"></i></button></td>
     </tr>
   <? } ?>
+    </tbody>
     </table>
+  </div>
 </div>
 </div>
 </form>

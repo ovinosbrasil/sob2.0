@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/../includes/paginacao_vendas.php';
 function dadosCompradorH($valor) {
     return htmlspecialchars((string)$valor, ENT_QUOTES, 'UTF-8');
 }
@@ -17,14 +18,14 @@ if (!$comprador) {
 $cadastro = $comprador[0];
 $filtro = (int)($_GET['filtro'] ?? 0);
 $ordem = array(0 => 'data ASC', 1 => 'data DESC', 2 => 'preco_de_venda DESC');
-$vendas = DBRead('vendas', "WHERE comprador = '$id_comprador' ORDER BY " . ($ordem[$filtro] ?? $ordem[0])) ?: array();
-$total = 0;
-$ultimaVenda = '';
-foreach ($vendas as $venda) {
-    $total += (float)$venda['preco_de_venda'];
-    if ($venda['data'] > $ultimaVenda) $ultimaVenda = $venda['data'];
-}
+$condicaoVendas = "WHERE comprador = '$id_comprador'";
+$resumoVendas = DBRead('vendas', $condicaoVendas, 'COUNT(*) AS quantidade, COALESCE(SUM(preco_de_venda), 0) AS total, MAX(data) AS ultima')[0] ?? array();
+$quantidadeVendas = (int)($resumoVendas['quantidade'] ?? 0);
+$total = (float)($resumoVendas['total'] ?? 0);
+$ultimaVenda = $resumoVendas['ultima'] ?? '';
 $dataUltimaVenda = $ultimaVenda ? implode('/', array_reverse(explode('-', $ultimaVenda))) : '—';
+$paginacao = paginacaoVendas($quantidadeVendas, array('pg' => 'comprador', 'id_comprador' => $id_comprador, 'filtro' => $filtro));
+$vendasPagina = DBRead('vendas', $condicaoVendas . ' ORDER BY ' . ($ordem[$filtro] ?? $ordem[0]) . ', id ASC LIMIT ' . $paginacao['inicio'] . ', ' . $paginacao['por_pagina']) ?: array();
 ?>
 <script>
 function abrir_venda(id_animal) {
@@ -94,7 +95,7 @@ function excluir_venda(botao) {
     <div class="box-body">
       <div class="row">
         <div class="col-sm-4"><strong>Valor total:</strong> <span class="text-success">R$ <?=number_format($total, 2, ',', '.')?></span></div>
-        <div class="col-sm-4"><strong>Vendas:</strong> <?=count($vendas)?></div>
+        <div class="col-sm-4"><strong>Vendas:</strong> <?=$quantidadeVendas?></div>
         <div class="col-sm-4"><strong>Última venda:</strong> <?=dadosCompradorH($dataUltimaVenda)?></div>
       </div>
     </div>
@@ -112,15 +113,15 @@ function excluir_venda(botao) {
             <th>Parcelas</th><th style="width:1%; white-space:nowrap;"><span class="sr-only">Ações</span></th>
           </tr></thead>
           <tbody>
-            <?php if (!$vendas): ?><tr><td colspan="8" class="text-center">Nenhuma venda cadastrada para este comprador.</td></tr><?php endif; ?>
-            <?php foreach ($vendas as $indice => $venda):
+            <?php if (!$vendasPagina): ?><tr><td colspan="8" class="text-center">Nenhuma venda cadastrada para este comprador.</td></tr><?php endif; ?>
+            <?php foreach ($vendasPagina as $indice => $venda):
                 $id_animal = (int)$venda['id_animal'];
                 $animal = DBRead('animais', "WHERE id = '$id_animal'");
                 $nomeAnimal = $animal[0]['nome'] ?? 'Animal não encontrado';
                 $dataVenda = implode('/', array_reverse(explode('-', $venda['data'])));
             ?>
             <tr>
-              <td><?=$indice + 1?></td>
+              <td><?=$paginacao['inicio'] + $indice + 1?></td>
               <td><a href="geral.php?pg=animal&amp;id_animal=<?=$id_animal?>&amp;aba=vender" target="_blank" rel="noopener" style="color:inherit;"><?=dadosCompradorH($nomeAnimal)?></a></td>
               <td><?=dadosCompradorH($animal[0]['fbb'] ?? '')?></td>
               <td><?=dadosCompradorH($dataVenda)?></td>
@@ -136,6 +137,7 @@ function excluir_venda(botao) {
           </tbody>
         </table>
       </div>
+      <?php renderPaginacaoVendas($paginacao); ?>
     </div>
   </div>
 </section>

@@ -1,5 +1,6 @@
 <?
-$nomeComprador = $_POST['comprador'] ?? '';
+require_once __DIR__ . '/../includes/paginacao_vendas.php';
+$nomeComprador = $_POST['comprador'] ?? $_GET['comprador'] ?? '';
 $id_comprador = null;
 $total = 0;
 $sql = array();
@@ -31,10 +32,11 @@ if ($filtro == 'Data') {
     $data_final = date('t/m/Y');
   }
   
-  $comprador = ($_POST['comprador'] ?? '');
+  $comprador = $nomeComprador;
   if ($comprador) {
+    $comprador = DBEscape($comprador);
     $comprador = DBRead('mercado', "WHERE nome = '$comprador'");
-    $id_comprador = $comprador[0]['id'];
+    $id_comprador = $comprador[0]['id'] ?? null;
   }
 
   $data = $data_inicial;
@@ -69,11 +71,12 @@ if ($filtro == 'Data') {
   $data_final_ = $data;
 
 
-  if (($id_comprador) && ($id_comprador != 'Todos')) {
-    $sql = DBRead("vendas", "WHERE data >= '$data_inicial_' and data <= '$data_final_' and comprador = '$id_comprador' ORDER BY data asc ");
-  } else {
-    $sql = DBRead("vendas", "WHERE data >= '$data_inicial_' and data <= '$data_final_' ORDER BY data asc ");
+  $condicaoVendas = "WHERE data >= '$data_inicial_' AND data <= '$data_final_'";
+  if ($id_comprador) {
+    $condicaoVendas .= " AND comprador = '" . (int)$id_comprador . "'";
   }
+  $resumoVendas = DBRead('vendas', $condicaoVendas, 'COUNT(*) AS quantidade, COALESCE(SUM(preco_de_venda), 0) AS total')[0] ?? array();
+  $total = (float)($resumoVendas['total'] ?? 0);
 }
 
 
@@ -133,6 +136,14 @@ foreach(($sql ?: array()) as $linha){
   $total = $linha['preco_de_venda']+$total;
 }
 
+if ($filtro == 'Data') {
+  $paginacao = paginacaoVendas((int)($resumoVendas['quantidade'] ?? 0), array(
+    'pg' => 'relatorio_venda', 'filtro' => 'Data', 'data_inicial' => $data_inicial,
+    'data_final' => $data_final, 'comprador' => $nomeComprador
+  ));
+  $vendasPagina = DBRead('vendas', $condicaoVendas . ' ORDER BY data ASC, id ASC LIMIT ' . $paginacao['inicio'] . ', ' . $paginacao['por_pagina']) ?: array();
+}
+
 
 ?>
 
@@ -179,6 +190,7 @@ function abrir_venda(id_animal){
         <div class="box" style="border-top:0;">
           <div class="box-body">
             <form method="post" action="geral.php?pg=relatorio_venda&amp;filtro=<?=$filtro?>">
+              <input type="hidden" name="por_pagina" value="<?=$paginacao['por_pagina'] ?? 10?>">
               <div class="row">
                 <div class="form-group col-sm-3 col-md-2">
                   <label for="filtro">Tipo</label>
@@ -249,11 +261,11 @@ function abrir_venda(id_animal){
                   <th style="width:1%; white-space:nowrap;"><span class="sr-only">Ações</span></th>
                 </tr></thead>
                 <tbody>
-                <? if (!$sql) { ?><tr><td colspan="8" class="text-center">Nenhuma venda encontrada para estes filtros.</td></tr><? } ?>
+                <? if (!$vendasPagina) { ?><tr><td colspan="8" class="text-center">Nenhuma venda encontrada para estes filtros.</td></tr><? } ?>
 
                 <?
-                $x=1;
-                foreach (($sql ?: array()) as $vendas){
+                $x=$paginacao['inicio'] + 1;
+                foreach ($vendasPagina as $vendas){
                   $id_animal = $vendas['id_animal'];
                   $animal = DBRead('animais', "WHERE id = '$id_animal'");
                   $data = $vendas['data'];
@@ -290,6 +302,7 @@ function abrir_venda(id_animal){
                   <? $x++; } ?>
                 </tbody></table>
               </div>
+              <?php renderPaginacaoVendas($paginacao); ?>
 
             <? } ?>
 

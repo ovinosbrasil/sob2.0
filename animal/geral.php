@@ -84,29 +84,31 @@ if($animal[0]['terceiro_mae']){
 
 
 
-<form role="form" action="animal/_alterar.php?id_animal=<?=$id_animal?>" method="post" onsubmit="return ativar_geral()">
+<section class="dados-gerais-animal" aria-labelledby="dados-gerais-animal-titulo">
+<h3 id="dados-gerais-animal-titulo">Dados gerais</h3>
+<form id="form-dados-animal" role="form" action="animal/_alterar.php?id_animal=<?=$id_animal?>" method="post" onsubmit="return ativar_geral()">
 <div class="row">
-<div class="col-md-3">
+<div class="col-sm-6 col-md-3">
   <!-- general form elements -->
   <div class="box-body">
 
     <div class="form-group">
-      <label for="exampleInputPassword1">Nome<span style="color:#F00;">*</span></label>
+      <label for="nome_animal">Nome<span style="color:#F00;">*</span></label>
       <input type="text" class="form-control" id="nome_animal" name="nome_animal" value="<?=$animal[0]['nome']?>">
     </div>
 
     <div class="form-group">
-      <label for="exampleInputPassword1">Tatuagem<span style="color:#F00;">*</span></label>
+      <label for="tatuagem">Tatuagem<span style="color:#F00;">*</span></label>
       <input type="text" class="form-control" id="tatuagem" name="tatuagem" value="<?=$animal[0]['tatuagem']?>">
     </div>
 
     <div class="form-group">
-      <label for="exampleInputPassword1">FBB</label>
+      <label for="fbb">FBB</label>
       <input type="text" class="form-control" id="fbb" name="fbb" value="<?=$animal[0]['fbb']?>">
     </div>
 
     <div class="form-group">
-      <label for="exampleInputPassword1">Forma de entrada</label>
+      <label for="entrada">Forma de entrada</label>
       <? if($animal[0]['entrada'] == 0){ ?><input type="text" class="form-control" id="entrada" name="entrada" value="Nascimento" readonly="readonly"> <? } ?>
       <? if($animal[0]['entrada'] == 1){ ?><input type="text" class="form-control" id="entrada" name="entrada" value="Compra" readonly="readonly"> <? } ?>
       <? if($animal[0]['entrada'] == 2){ ?><input type="text" class="form-control" id="entrada" name="entrada" value="Rebanho" readonly="readonly"> <? } ?>
@@ -114,11 +116,11 @@ if($animal[0]['terceiro_mae']){
   </div>
 </div>
 
-<div class="col-md-3">
+<div class="col-sm-6 col-md-3">
   <!-- general form elements -->
   <div class="box-body">
     <div class="form-group" >
-      <label for="exampleInputPassword1">Data de Nascimento<span style="color:#F00;">*</span></label>
+      <label for="datepicker">Data de Nascimento<span style="color:#F00;">*</span></label>
       <div class="input-group date">
         <div class="input-group-addon">
           <i class="fa fa-calendar"></i>
@@ -128,7 +130,7 @@ if($animal[0]['terceiro_mae']){
     </div>
 
     <div class="form-group">
-      <label for="exampleInputPassword1">Data de entrada no rebanho</label>
+      <label for="datepicker2">Data de entrada no rebanho</label>
       <div class="input-group date">
         <div class="input-group-addon">
           <i class="fa fa-calendar"></i>
@@ -138,12 +140,12 @@ if($animal[0]['terceiro_mae']){
     </div>
 
     <div class="form-group">
-      <label for="exampleInputPassword1">Idade</label>
+      <label for="idade">Idade</label>
       <input type="text" class="form-control" id="idade" name="idade" value="<?=$idade?>" readonly="readonly">
     </div>
 
     <div class="form-group">
-      <label for="exampleInputPassword1">Sexo<span style="color:#F00;">*</span></label>
+      <label for="sexo">Sexo<span style="color:#F00;">*</span></label>
       <select class="form-control select" id="sexo" name="sexo" onchange="lista_colaborador(this.value)">
         <? if($animal[0]['sexo'] != ''){?> <option value="<?=$animal[0]['sexo']?>"><?=$animal[0]['sexo']?></option><? }else{ ?>
       <option value="x">Selecionar sexo</option> <? } ?>
@@ -156,7 +158,7 @@ if($animal[0]['terceiro_mae']){
 </div>
 
 
-<div class="col-md-3">
+<div class="col-sm-6 col-md-3">
   <!-- general form elements -->
   <div class="box-body">
     <div class="form-group">
@@ -173,7 +175,7 @@ if($animal[0]['terceiro_mae']){
 
 
     <div class="form-group">
-      <label for="exampleInputPassword1">Raça<span style="color:#F00;">*</span></label>
+      <label for="raca">Raça<span style="color:#F00;">*</span></label>
       <select class="form-control select" id="raca" name="raca">
         <?if($animal[0]['raca'] != ''){?> <option value="<?=$animal[0]['raca']?>"><?=$animal[0]['raca']?></option> <? }else{?><option value="">Selecionar raca</option> <? } ?>
         <option value=""></option>
@@ -186,7 +188,7 @@ if($animal[0]['terceiro_mae']){
     </div>
 
     <div class="form-group">
-      <label for="exampleInputPassword1">Observações</label>
+      <label for="observacoes">Observações</label>
       <textarea  class="form-control" name="observacoes" id="observacoes" cols="45" rows="5" style="height:105px; width:100%;"><?=$animal[0]['observacoes']?></textarea>
     </div>
 
@@ -195,7 +197,7 @@ if($animal[0]['terceiro_mae']){
 </div>
 
 
-<div class="col-md-3">
+<div class="col-sm-6 col-md-3">
   <!-- general form elements -->
   <div class="box-body">
     <div class="form-group">
@@ -211,7 +213,7 @@ if($animal[0]['terceiro_mae']){
     </div>
 
     <div class="form-group">
-      <label for="exampleInputPassword1">Tipo</label>
+      <label for="tipo">Tipo</label>
       <select class="form-control select" id="tipo" name="tipo" onchange="abrir_avaliacao(this.value)">
       <? if(!$animal[0]['tipo']){?> <option value="">Animal sem Avaliações</option> <? }else{?> <option value="<?=$animal[0]['tipo']?>"><?=$animal[0]['tipo']?></option> <? } ?>
         <option></option>
@@ -221,18 +223,20 @@ if($animal[0]['terceiro_mae']){
 
     <? if($animal[0]['entrada'] == 1){ ?>
       <div class="form-group">
-        <label for="exampleInputPassword1">Preço da compra</label>
+        <label for="valor">Preço da compra</label>
         <input type="text" class="form-control" id="valor" name="preco_de_compra" value="<?=$animal[0]['preco_de_compra']?>">
       </div>
     <? } ?>
-    <div class="form-group">
-      <button type="submit" class="btn btn-warning" style="margin-top:2%; width:100%;">Alterar animal</button>
-      <a href="animal/_imprimir.php?id_animal=<?=$id_animal?>" target="_blank"><button type="button" class="btn btn-primary" style="margin-top:2%; width:100%;">Imprimir animal</button></a>
-      <a href="animal/_excluir_animal.php?id_animal=<?=$id_animal?>" data-id="<?=(int)$id_animal?>" data-origem="Rebanho" data-nome="<?=htmlspecialchars($animal[0]['nome'], ENT_QUOTES, 'UTF-8')?>" onclick="confirmarExclusaoRebanho(this); return false;" class="btn btn-danger" style="margin-top:2%; width:100%;">Excluir animal</a>
-    </div>
+
 
   </div>
 </div>
 
 </div>
+<div class="acoes-animal">
+  <button type="submit" class="btn btn-warning">Salvar alterações</button>
+</div>
 </form>
+</section>
+
+<?php require __DIR__ . '/pedigree.php'; ?>

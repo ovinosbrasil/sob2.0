@@ -18,6 +18,26 @@ $animal = DBRead('animais', "WHERE id = '$id_animal'");
 if (!$animal) {
   exit('Animal não encontrado.');
 }
+// A pesagem é salva junto com a avaliação; o GMD é mostrado enquanto se preenche.
+if (isset($_POST['gmd_data']) || isset($_POST['gmd_peso'])) {
+  $dataPesagem = $_POST['gmd_data'] ?? '';
+  $dataValida = is_string($dataPesagem) && preg_match('/^([0-9]{4})-([0-9]{2})-([0-9]{2})$/', $dataPesagem, $partes)
+    && checkdate((int)$partes[2], (int)$partes[3], (int)$partes[1]);
+  $pesoInformado = $_POST['gmd_peso'] ?? '';
+  if (!is_string($pesoInformado)) exit('Peso da avaliação inválido.');
+  $pesoInformado = trim($pesoInformado);
+  if (strpos($pesoInformado, ',') !== false) {
+    $pesoInformado = str_replace(',', '.', str_replace('.', '', $pesoInformado));
+  }
+  if (!$dataValida || $dataPesagem <= ($animal[0]['data_de_nascimento'] ?? '')
+      || !is_numeric($pesoInformado) || !is_finite((float)$pesoInformado) || (float)$pesoInformado <= 0) {
+    exit('Informe uma data posterior ao nascimento e um peso da avaliação maior que zero.');
+  }
+  DBUpdate('animais', array(
+    $avaliacao === 1 ? 'data2' : 'data3' => $dataPesagem,
+    $avaliacao === 1 ? 'peso2' : 'peso3' => (float)$pesoInformado
+  ), "id = '$id_animal'");
+}
 // Estes vínculos são usados apenas no ranking de animais do rebanho.
 $id_pai = empty($animal[0]['terceiro_pai']) ? (int)($animal[0]['pai'] ?? 0) : 0;
 $id_mae = empty($animal[0]['terceiro_mae']) ? (int)($animal[0]['mae'] ?? 0) : 0;
