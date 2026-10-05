@@ -42,7 +42,7 @@ $origemSelecionada = $_POST['macho_origem'] ?? '';
 if ($idSelecionado && in_array($origemSelecionada, array('rebanho', 'terceiros'), true)) {
     $tabela = $origemSelecionada === 'terceiros' ? 'terceiros' : 'animais';
     $idSelecionado = (int)$idSelecionado;
-    $selecionado = DBRead($tabela, "WHERE id = '$idSelecionado' AND sexo = 'Macho'") ?: array();
+    $selecionado = DBRead($tabela, "WHERE id = '$idSelecionado' AND sexo = 'Macho'" . ($tabela === 'terceiros' ? ' AND ativo = 1' : '')) ?: array();
     if (!empty($selecionado[0]['id'])) {
         $idMacho = (int)$selecionado[0]['id'];
         $terceiro = $origemSelecionada === 'terceiros' ? 1 : 0;
@@ -53,7 +53,7 @@ if ($idSelecionado && in_array($origemSelecionada, array('rebanho', 'terceiros')
 if (!$idMacho) {
     $nomeMachoEscapado = DBEscape($nomeMacho);
     $machoRebanho = DBRead('animais', "WHERE nome = '$nomeMachoEscapado' AND sexo = 'Macho'") ?: array();
-    $machoTerceiro = DBRead('terceiros', "WHERE nome = '$nomeMachoEscapado' AND sexo = 'Macho'") ?: array();
+    $machoTerceiro = DBRead('terceiros', "WHERE ativo = 1 AND nome = '$nomeMachoEscapado' AND sexo = 'Macho'") ?: array();
 
     if (!empty($machoRebanho[0]['id'])) {
         $idMacho = (int)$machoRebanho[0]['id'];

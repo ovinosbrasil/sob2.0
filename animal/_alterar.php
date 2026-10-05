@@ -35,6 +35,15 @@ if($verifica_pai[0]['id'] > 0){ $pai = $verifica_pai[0]['id']; $terceiro_pai = 0
 if($verifica_pai_terceiro[0]['id'] > 0){ $pai = $verifica_pai_terceiro[0]['id']; $terceiro_pai = 1;}
 if($verifica_mae[0]['id'] > 0){ $mae = $verifica_mae[0]['id']; $terceiro_mae = 0;}
 if($verifica_mae_terceiro[0]['id'] > 0){ $mae = $verifica_mae_terceiro[0]['id']; $terceiro_mae = 1;}
+// Edição mantém vínculos históricos; apenas novos vínculos exigem terceiro ativo.
+foreach (array('pai' => $verifica_pai_terceiro, 'mae' => $verifica_mae_terceiro) as $campoParente => $parenteTerceiro) {
+  if ($parenteTerceiro && empty($parenteTerceiro[0]['ativo']) &&
+      (empty($animal[0]['terceiro_' . $campoParente]) || (int)$animal[0][$campoParente] !== (int)$parenteTerceiro[0]['id'])) {
+    echo '<script>alert("Este terceiro está inativo. Ative o cadastro antes de criar um novo vínculo."); history.back();</script>';
+    exit;
+  }
+}
+
 
 $data = $_POST['data_de_nascimento'];
 include "../funcoes_data/data.php";

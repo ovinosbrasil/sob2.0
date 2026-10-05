@@ -32,7 +32,7 @@ function fonteRebanho(array $filtros)
                      'Rebanho' AS origem FROM animais
                UNION ALL
                SELECT id, nome, sexo, NULL, NULL, NULL, NULL, NULL,
-                      'Terceiros' AS origem FROM terceiros) AS rebanho_filtrado";
+                      'Terceiros' AS origem FROM terceiros WHERE ativo = 1) AS rebanho_filtrado";
     return array($fonte, $condicoes ? 'WHERE ' . implode(' AND ', $condicoes) : '');
 }
 

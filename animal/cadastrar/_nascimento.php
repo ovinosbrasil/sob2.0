@@ -30,14 +30,14 @@ if ((int)($_GET['tipo'] ?? 0) === 3) {
   $terceiro_pai = $pais_te[$pai]['terceiro'];
 } else {
 $verifica_pai = DBRead('animais', "WHERE nome = '$pai' AND sexo = 'Macho'");
-$verifica_pai_terceiro = DBRead('terceiros', "WHERE nome = '$pai' AND sexo = 'Macho'");
+$verifica_pai_terceiro = DBRead('terceiros', "WHERE ativo = 1 AND nome = '$pai' AND sexo = 'Macho'");
 if($verifica_pai[0]['id'] > 0){ $id_pai = $verifica_pai[0]['id']; $terceiro_pai = 0;}
 if($verifica_pai_terceiro[0]['id'] > 0){ $id_pai = $verifica_pai_terceiro[0]['id']; $terceiro_pai = 1;}
 }
 
 $mae = $_POST['mae'];
 $verifica_mae = DBRead('animais', "WHERE nome = '$mae' AND sexo = 'Fêmea'");
-$verifica_mae_terceiro = DBRead('terceiros', "WHERE nome = '$mae' AND sexo = 'Fêmea'");
+$verifica_mae_terceiro = DBRead('terceiros', "WHERE ativo = 1 AND nome = '$mae' AND sexo = 'Fêmea'");
 
 if($verifica_mae[0]['id'] > 0){ $id_mae = $verifica_mae[0]['id']; $terceiro_mae = 0;}
 if($verifica_mae_terceiro[0]['id'] > 0){ $id_mae = $verifica_mae_terceiro[0]['id']; $terceiro_mae = 1;}

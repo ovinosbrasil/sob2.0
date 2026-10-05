@@ -3,7 +3,10 @@ $sexo = $_GET['sexo'] ?? '';
 if (!in_array($sexo, array('', 'Macho', 'Fêmea'), true)) {
   $sexo = '';
 }
+$situacaoTerceiro = $_GET['situacao'] ?? 'todos';
+if (!in_array($situacaoTerceiro, array('todos', 'ativos', 'inativos'), true)) { $situacaoTerceiro = 'todos'; }
 $filtroSexo = $sexo === '' ? '' : "WHERE sexo = '$sexo'";
+if ($situacaoTerceiro !== 'todos') { $filtroSexo .= ($filtroSexo ? ' AND ' : 'WHERE ') . 'ativo = ' . ($situacaoTerceiro === 'ativos' ? '1' : '0'); }
 $contagem = DBRead('terceiros', $filtroSexo, 'COUNT(*) AS total');
 $qtd = (int)($contagem[0]['total'] ?? 0);
 $porPagina = filter_var($_GET['por_pagina'] ?? 10, FILTER_VALIDATE_INT);
@@ -13,8 +16,8 @@ $paginaInformada = filter_var($_GET['pag'] ?? 0, FILTER_VALIDATE_INT);
 $pagina = min(max(0, $paginaInformada === false ? 0 : $paginaInformada), max(0, $qtd_pag - 1));
 $loop = $pagina * $porPagina;
 $animais = $qtd > 0 ? (DBRead('terceiros', "$filtroSexo ORDER BY id desc LIMIT $loop,$porPagina") ?: array()) : array();
-$filtros = array('sexo' => $sexo);
-$urlPagina = 'geral.php?pg=lista_terceiros&amp;sexo=' . rawurlencode($sexo) . '&amp;por_pagina=' . $porPagina;
+$filtros = array('sexo' => $sexo, 'situacao' => $situacaoTerceiro);
+$urlPagina = 'geral.php?pg=lista_terceiros&amp;sexo=' . rawurlencode($sexo) . '&amp;situacao=' . $situacaoTerceiro . '&amp;por_pagina=' . $porPagina;
 ?>
 
 <script type="text/javascript">
@@ -48,6 +51,14 @@ $urlPagina = 'geral.php?pg=lista_terceiros&amp;sexo=' . rawurlencode($sexo) . '&
                 </select>
               </div>
               <div class="form-group col-sm-3">
+                <label for="filtro-situacao-terceiro">Situação</label>
+                <select class="form-control" id="filtro-situacao-terceiro" name="situacao" onchange="this.form.submit()">
+                  <?php foreach (array('todos' => 'Todos', 'ativos' => 'Ativos', 'inativos' => 'Inativos') as $valorSituacao => $labelSituacao): ?>
+                  <option value="<?=$valorSituacao?>" <?=$situacaoTerceiro === $valorSituacao ? 'selected' : ''?>><?=$labelSituacao?></option>
+                  <?php endforeach; ?>
+                </select>
+              </div>
+              <div class="form-group col-sm-3">
                 <label class="hidden-xs" aria-hidden="true">&nbsp;</label>
                 <a class="btn btn-default btn-block" href="geral.php?pg=lista_terceiros">Limpar</a>
               </div>
@@ -69,6 +80,7 @@ $urlPagina = 'geral.php?pg=lista_terceiros&amp;sexo=' . rawurlencode($sexo) . '&
               <th>Sexo</th>
               <th>Pai</th>
               <th>Mãe</th>
+              <th>Situação</th>
               <th style="width:1%; white-space:nowrap;"><span class="sr-only">Ações</span></th>
             </tr>
             </thead>
@@ -76,7 +88,7 @@ $urlPagina = 'geral.php?pg=lista_terceiros&amp;sexo=' . rawurlencode($sexo) . '&
             <?
             $x = $loop;
             if (!$animais) { ?>
-            <tr><td colspan="6" class="text-center">Nenhum animal de terceiros encontrado.</td></tr>
+            <tr><td colspan="7" class="text-center">Nenhum animal de terceiros encontrado.</td></tr>
             <?php }
             foreach ($animais as $animais_){
               $x++;
@@ -87,6 +99,14 @@ $urlPagina = 'geral.php?pg=lista_terceiros&amp;sexo=' . rawurlencode($sexo) . '&
               <td><?=htmlspecialchars(trim((string)($animais_['sexo'] ?? '')) !== '' ? $animais_['sexo'] : '--', ENT_QUOTES, 'UTF-8')?></td>
               <td><?=htmlspecialchars(trim((string)($animais_['pai'] ?? '')) !== '' ? $animais_['pai'] : '--', ENT_QUOTES, 'UTF-8')?></td>
               <td><?=htmlspecialchars(trim((string)($animais_['mae'] ?? '')) !== '' ? $animais_['mae'] : '--', ENT_QUOTES, 'UTF-8')?></td>
+              <td>
+                <div class="sob-controle-status">
+                  <button type="button" class="sob-interruptor" role="switch" aria-checked="<?=!empty($animais_['ativo']) ? 'true' : 'false'?>" aria-label="Animal <?=!empty($animais_['ativo']) ? 'ativo' : 'inativo'?>" title="<?=!empty($animais_['ativo']) ? 'Inativar' : 'Ativar'?> animal" data-id="<?=(int)$animais_['id']?>" onclick="alternar_terceiro(this)">
+                    <span class="sob-interruptor__indicador"><i class="fa <?=!empty($animais_['ativo']) ? 'fa-check' : 'fa-minus'?>" aria-hidden="true"></i></span>
+                  </button>
+                  <span class="sob-controle-status__texto" style="color:<?=!empty($animais_['ativo']) ? '#008d4c' : '#777'?>;"><?=!empty($animais_['ativo']) ? 'Ativo' : 'Inativo'?></span>
+                </div>
+              </td>
               <td style="white-space:nowrap;">
                 <button type="button" class="text-primary" style="background:none; border:0; padding:0; margin-right:10px; cursor:pointer;" aria-label="Abrir dados do animal" onclick="abrir_terceiro(<?=(int)$animais_['id']?>)" title="Abrir dados do animal"><i class="fa fa-search" aria-hidden="true"></i></button>
                 <button type="button" class="text-danger" style="background:none; border:0; padding:0; cursor:pointer;" aria-label="Excluir animal" onclick="excluir_terceiro(<?=(int)$animais_['id']?>)" title="Excluir animal"><i class="fa fa-trash-o" aria-hidden="true"></i></button></td>

@@ -23,7 +23,7 @@ $origemSelecionada = $_POST['mae_origem'] ?? '';
 if ($idSelecionado && in_array($origemSelecionada, array('rebanho', 'terceiros'), true)) {
     $tabela = $origemSelecionada === 'terceiros' ? 'terceiros' : 'animais';
     $idSelecionado = (int)$idSelecionado;
-    $selecionada = DBRead($tabela, "WHERE id = '$idSelecionado' AND sexo = 'Fêmea'") ?: array();
+    $selecionada = DBRead($tabela, "WHERE id = '$idSelecionado' AND sexo = 'Fêmea'" . ($tabela === 'terceiros' ? ' AND ativo = 1' : '')) ?: array();
     if (!empty($selecionada[0]['id'])) {
         $idMae = (int)$selecionada[0]['id'];
         $origemTerceiro = $origemSelecionada === 'terceiros' ? 1 : 0;
@@ -34,7 +34,7 @@ if ($idSelecionado && in_array($origemSelecionada, array('rebanho', 'terceiros')
 if (!$idMae) {
     $nomeMaeEscapado = DBEscape($nomeMae);
     $animal = DBRead('animais', "WHERE nome = '$nomeMaeEscapado' AND sexo = 'Fêmea'") ?: array();
-    $terceiro = DBRead('terceiros', "WHERE nome = '$nomeMaeEscapado' AND sexo = 'Fêmea'") ?: array();
+    $terceiro = DBRead('terceiros', "WHERE ativo = 1 AND nome = '$nomeMaeEscapado' AND sexo = 'Fêmea'") ?: array();
     $animalPorChip = DBRead('animais', "WHERE chip = '$nomeMaeEscapado' AND sexo = 'Fêmea'") ?: array();
 
     if (!empty($animal[0]['id'])) {

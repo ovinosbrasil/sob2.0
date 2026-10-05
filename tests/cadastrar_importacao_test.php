@@ -31,6 +31,7 @@ $existente = array('id' => 10, 'nome' => 'PAI P001', 'sexo' => 'Macho', 'fbb' =>
 $terceira = array('id' => 11, 'nome' => 'MÃE M001', 'sexo' => 'Fêmea', 'fbb' => '', 'tatuagem' => 'M001');
 $soFilho = planoCadastroTeste($registros, 2, array($existente), array($terceira));
 exigirCadastro(count($soFilho) === 1 && $soFilho[0]['pai']['id'] === 10 && $soFilho[0]['mae']['origem'] === 'terceiros', 'Pais existentes não foram reutilizados.');
+rejeitarCadastro(function () use ($registros, $existente, $terceira) { $terceira['ativo'] = 0; planoCadastroTeste($registros, 2, array($existente), array($terceira)); });
 $compartilhados = $registros;
 $compartilhados[2]['dados']['Pai'] = 'AVÔ A001';
 $compartilhados[2]['dados']['Mãe'] = 'AVÓ A002';

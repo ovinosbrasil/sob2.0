@@ -17,6 +17,9 @@ function dataRegistroUltrassom($valor)
 $femea=trim((string)($_POST['femea']??''));
 $femeaId=filter_var($_POST['femea_id']??0,FILTER_VALIDATE_INT);
 $origem=in_array($_POST['femea_origem']??'',array('rebanho','terceiros','receptora'),true)?$_POST['femea_origem']:'';
+if ($origem === 'terceiros' && (!($femeaId > 0) || !DBRead('terceiros', "WHERE id = '" . (int)$femeaId . "' AND ativo = 1"))) {
+    voltarCadastroUltrassom('Este terceiro está inativo ou não foi encontrado.');
+}
 $situacao=filter_var($_POST['situacao']??0,FILTER_VALIDATE_INT);
 $data=dataRegistroUltrassom($_POST['data']??'');
 $vinculo=isset($_POST['vinculo'])?(string)$_POST['vinculo']:'';

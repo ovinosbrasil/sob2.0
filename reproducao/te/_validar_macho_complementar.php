@@ -9,7 +9,7 @@ if ($nome_macho_complementar !== '') {
     $macho_complementar = false;
     if ($id_pai_2 > 0 && in_array($terceiro_pai_2, [0, 1], true)) {
         $tabela_macho_complementar = $terceiro_pai_2 ? 'terceiros' : 'animais';
-        $macho_complementar = DBRead($tabela_macho_complementar, "WHERE id = '$id_pai_2' AND sexo = 'Macho'");
+        $macho_complementar = DBRead($tabela_macho_complementar, "WHERE id = '$id_pai_2' AND sexo = 'Macho'" . ($terceiro_pai_2 ? " AND ativo = 1" : ""));
     }
     if (!$macho_complementar || trim($macho_complementar[0]['nome']) !== $nome_macho_complementar) {
         echo '<script>alert("Selecione o macho complementar na pesquisa ou deixe o campo vazio."); history.back();</script>';

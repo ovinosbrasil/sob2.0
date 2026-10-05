@@ -8,6 +8,7 @@
       <div class="animal-confirmacao"><strong id="confirmacao-exclusao-nome"></strong></div>
       <div class="acoes-confirmacao">
         <button type="button" class="btn btn-default" data-dismiss="modal" id="confirmacao-exclusao-cancelar">Cancelar</button>
+        <button type="button" class="btn btn-warning" id="confirmacao-exclusao-inativar" style="display:none;">Inativar</button>
         <button type="button" class="btn btn-danger" id="confirmacao-exclusao-prosseguir">Excluir</button>
       </div>
     </div>

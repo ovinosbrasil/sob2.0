@@ -38,7 +38,8 @@ if (empty($_SESSION['embriao_csrf']) || !hash_equals($_SESSION['embriao_csrf'], 
         mysqli_set_charset($link, 'utf8mb4');
         foreach (array(array($idMacho, $origemMacho, 'Macho'), array($idFemea, $origemFemea, 'Fêmea')) as $animal) {
             $tabela = $animal[1] === 'terceiros' ? 'terceiros' : 'animais';
-            $stmt = mysqli_prepare($link, "SELECT sexo FROM $tabela WHERE id = ? LIMIT 1");
+            $filtroAtivo = $tabela === 'terceiros' ? ' AND ativo = 1' : '';
+            $stmt = mysqli_prepare($link, "SELECT sexo FROM $tabela WHERE id = ?$filtroAtivo LIMIT 1");
             mysqli_stmt_bind_param($stmt, 'i', $animal[0]);
             mysqli_stmt_execute($stmt);
             $registroAnimal = mysqli_fetch_assoc(mysqli_stmt_get_result($stmt));

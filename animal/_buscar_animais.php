@@ -57,6 +57,7 @@ function consultarBuscaAnimais($link, $tabela, $termoLike, $sexo = null, $limite
         ? 'SELECT id, nome, sexo, data_de_nascimento, status'
         : 'SELECT id, nome, sexo, NULL AS data_de_nascimento';
     $sql .= " FROM $tabela WHERE nome LIKE ? ESCAPE '!'";
+    if ($tabela === 'terceiros') { $sql .= ' AND ativo = 1'; }
     if ($sexo !== null) {
         $sql .= ' AND sexo = ?';
     }

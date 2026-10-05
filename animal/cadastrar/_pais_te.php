@@ -8,7 +8,7 @@ function paisDoLoteTe($lote)
         if ($id <= 0) {
             continue;
         }
-        $animal = DBRead($terceiro ? 'terceiros' : 'animais', "WHERE id = '$id' AND sexo = 'Macho'");
+        $animal = DBRead($terceiro ? 'terceiros' : 'animais', "WHERE id = '$id' AND sexo = 'Macho'" . ($terceiro ? " AND ativo = 1" : ""));
         if (!empty($animal[0])) {
             $pais[$terceiro . ':' . $id] = [
                 'id' => $id,

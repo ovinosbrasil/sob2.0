@@ -16,7 +16,7 @@ if($lote_[0]['id'] > 0){
 
 $macho = $_POST['macho'];
 $verifica_macho = DBRead('animais', "WHERE nome = '$macho' AND sexo = 'Macho'");
-$verifica_macho_terceiro = DBRead('terceiros', "WHERE nome = '$macho' AND sexo = 'Macho'");
+$verifica_macho_terceiro = DBRead('terceiros', "WHERE ativo = 1 AND nome = '$macho' AND sexo = 'Macho'");
 
 //TESTE MACHO
 if(($verifica_macho[0]['id'] <= 0) && ($verifica_macho_terceiro[0]['id'] <= 0)){

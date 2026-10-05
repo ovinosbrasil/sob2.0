@@ -26,7 +26,7 @@ foreach (($animal ?: []) as $animais) {
 <? } ?>
 
 <?
-$animal = DBRead('terceiros',"WHERE nome LIKE '%$nome%' ORDER BY nome asc LIMIT 5");
+$animal = DBRead('terceiros',"WHERE ativo = 1 AND nome LIKE '%$nome%' ORDER BY nome asc LIMIT 5");
 foreach (($animal ?: []) as $animais) {
   $data = 'Não informado';
   $nascimento = $animais['data_de_nascimento'] ?? '';

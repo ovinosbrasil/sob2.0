@@ -20,7 +20,7 @@ function localizarParenteCadastro($campo, $sexo)
   $origem = $_POST[$campo . '_origem'] ?? '';
   if ($id && in_array($origem, array('rebanho', 'terceiros'), true)) {
     $tabela = $origem === 'terceiros' ? 'terceiros' : 'animais';
-    $registro = DBRead($tabela, "WHERE id = '" . (int)$id . "' AND sexo = '" . DBEscape($sexo) . "'");
+    $registro = DBRead($tabela, "WHERE id = '" . (int)$id . "' AND sexo = '" . DBEscape($sexo) . "'" . ($tabela === 'terceiros' ? ' AND ativo = 1' : ''));
     if ($registro) {
       return array((int)$registro[0]['id'], $origem === 'terceiros' ? 1 : 0);
     }
@@ -34,7 +34,7 @@ function localizarParenteCadastro($campo, $sexo)
   if ($registro) {
     return array((int)$registro[0]['id'], 0);
   }
-  $registro = DBRead('terceiros', "WHERE nome = '$nome' AND sexo = '" . DBEscape($sexo) . "'");
+  $registro = DBRead('terceiros', "WHERE ativo = 1 AND nome = '$nome' AND sexo = '" . DBEscape($sexo) . "'");
   return $registro ? array((int)$registro[0]['id'], 1) : array(0, 0);
 }
 

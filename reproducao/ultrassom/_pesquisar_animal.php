@@ -8,7 +8,7 @@ $id_animal = $animal[0]['id'];
 $animal = DBRead('animais', "WHERE nome = '$chip'");
 $id_animal2 = $animal[0]['id'];
 
-$animal = DBRead('terceiros', "WHERE nome = '$chip'");
+$animal = DBRead('terceiros', "WHERE ativo = 1 AND nome = '$chip'");
 $id_animal3 = $animal[0]['id'];
 $terceiro =0;
 

@@ -40,7 +40,7 @@ if (DBRead('monta', "WHERE codigo = '$codigoEscapado'")) {
 
 $nomeMachoEscapado = DBEscape($nomeMacho);
 $machoRebanho = DBRead('animais', "WHERE nome = '$nomeMachoEscapado' AND sexo = 'Macho'") ?: array();
-$machoTerceiro = DBRead('terceiros', "WHERE nome = '$nomeMachoEscapado' AND sexo = 'Macho'") ?: array();
+$machoTerceiro = DBRead('terceiros', "WHERE ativo = 1 AND nome = '$nomeMachoEscapado' AND sexo = 'Macho'") ?: array();
 
 $idMacho = 0;
 $terceiro = 0;

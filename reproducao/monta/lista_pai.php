@@ -30,7 +30,7 @@ function resultadoPaiMonta($animal, $terceiro = false)
 }
 
 $rebanho = DBRead('animais', "WHERE nome LIKE '%$nome%' AND sexo = 'Macho' ORDER BY nome ASC LIMIT 7") ?: array();
-$terceiros = DBRead('terceiros', "WHERE nome LIKE '%$nome%' AND sexo = 'Macho' ORDER BY nome ASC LIMIT 3") ?: array();
+$terceiros = DBRead('terceiros', "WHERE ativo = 1 AND nome LIKE '%$nome%' AND sexo = 'Macho' ORDER BY nome ASC LIMIT 3") ?: array();
 
 if (!$rebanho && !$terceiros) {
     echo '<div class="animal-search-empty">Nenhum reprodutor encontrado.</div>';

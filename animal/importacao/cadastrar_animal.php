@@ -62,6 +62,9 @@ function planejarCadastroPrevia(array $registros, $linha, array $animais, array 
             if (count($encontrados) > 1) { throw new RuntimeException('Mais de um cadastro encontrado para ' . $nome . '. Revise antes de cadastrar.'); }
             if ($encontrados) {
                 $animal = $encontrados[0];
+                if ($origem === 'terceiros' && isset($animal['ativo']) && !(int)$animal['ativo']) {
+                    throw new RuntimeException('O terceiro ' . $nome . ' está inativo. Ative o cadastro antes de utilizá-lo como parente.');
+                }
                 if ($linhasComNome && identificadorAnimalPrevia($animal['fbb'] ?? '') !== '' && identificadorAnimalPrevia($animal['fbb'] ?? '') !== identificadorAnimalPrevia($linhasComNome[0]['dados']['FBB/FBE'] ?? '')) {
                     throw new RuntimeException('Parentesco ambíguo: ' . $nome . ' tem FBB diferente no banco e na planilha. Revise o pai ou a mãe.');
                 }
@@ -123,7 +126,7 @@ function consultarCadastroPrevia($link, $bloquear = false)
 {
     $listas = array();
     foreach (array('animais', 'terceiros') as $tabela) {
-        $result = mysqli_query($link, 'SELECT id, nome, fbb, tatuagem, sexo' . ($tabela === 'animais' ? ', data_de_nascimento' : '') . ' FROM ' . $tabela . ($bloquear ? ' FOR UPDATE' : ''));
+        $result = mysqli_query($link, 'SELECT id, nome, fbb, tatuagem, sexo' . ($tabela === 'animais' ? ', data_de_nascimento' : ', ativo') . ' FROM ' . $tabela . ($bloquear ? ' FOR UPDATE' : ''));
         $listas[$tabela] = mysqli_fetch_all($result, MYSQLI_ASSOC);
         mysqli_free_result($result);
     }

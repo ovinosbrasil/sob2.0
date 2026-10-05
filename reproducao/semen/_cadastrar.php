@@ -34,7 +34,8 @@ if (empty($_SESSION['semen_csrf']) || !hash_equals($_SESSION['semen_csrf'], $tok
     try {
         mysqli_set_charset($link, 'utf8mb4');
         $tabela = $origem === 'terceiros' ? 'terceiros' : 'animais';
-        $stmt = mysqli_prepare($link, "SELECT id FROM $tabela WHERE id = ? AND sexo = 'Macho' LIMIT 1");
+        $filtroAtivo = $tabela === 'terceiros' ? ' AND ativo = 1' : '';
+        $stmt = mysqli_prepare($link, "SELECT id FROM $tabela WHERE id = ? AND sexo = 'Macho'$filtroAtivo LIMIT 1");
         mysqli_stmt_bind_param($stmt, 'i', $idMacho);
         mysqli_stmt_execute($stmt);
         mysqli_stmt_store_result($stmt);

@@ -72,7 +72,7 @@ try {
     }
 
     $tabelaAnimal = !empty($semen['terceiro']) ? 'terceiros' : 'animais';
-    $stmt = mysqli_prepare($link, "SELECT nome FROM $tabelaAnimal WHERE id = ?");
+    $stmt = mysqli_prepare($link, "SELECT nome FROM $tabelaAnimal WHERE id = ?" . ($tabelaAnimal === 'terceiros' ? ' AND ativo = 1' : ''));
     mysqli_stmt_bind_param($stmt, 'i', $semen['id_animal']);
     mysqli_stmt_execute($stmt);
     $macho = mysqli_fetch_assoc(mysqli_stmt_get_result($stmt));
