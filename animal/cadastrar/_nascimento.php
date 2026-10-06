@@ -1,11 +1,11 @@
 <?php
+require_once __DIR__ . "/../../_config.php";
 function geraTimestamp($data) {
   $partes = explode('/', $data);
   return mktime(0, 0, 0, $partes[1], $partes[0], $partes[2]);
 }
 
 
-require __DIR__ . "/../../_config.php";
 header("Content-Type: text/html; charset=UTF-8");
 $receptora = '';
 $nome = DBEscape($_POST['nome_animal']);
@@ -377,6 +377,7 @@ if($tipo == 3){
 //FIM RANKING LOTES
 
 
+$_SESSION['alerta_cadastro_animal'] = array('tipo'=>'success', 'titulo'=>'Sucesso!', 'mensagem'=>'Nascimento cadastrado com sucesso.');
 $qtd = $_GET['qtd'];
 $y = $_GET['y'];
 $teste = $qtd-$y;

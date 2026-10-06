@@ -45,6 +45,10 @@ switch ($_GET['pg']){
 		//FIM ANIMAL
 
 		//MONTA
+		case 'prenhez_atual';
+		include "reproducao/prenhez/prenhez_atual.php";
+		break;
+
 		case 'lista_monta';
 		include "reproducao/monta/lista_monta.php";
 		break;

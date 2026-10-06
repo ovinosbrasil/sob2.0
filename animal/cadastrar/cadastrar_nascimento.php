@@ -88,45 +88,6 @@ if($tipo == 3){ $pre = "TE"; }
 
 
 <script type="text/javascript">
-function ativar_nascimento(){
-  saida = 0;
-	if((!document.getElementById("nome_animal").value) || (document.getElementById("nome_animal").value == '<?=$user[0]['prefixo']?>')){
-    document.getElementById("nome_animal").style.border = "1px solid red";
-    saida = 1;
-  }else{document.getElementById("nome_animal").style.border = "1px solid green";}
-
-  if(!document.getElementById("tatuagem").value){
-    document.getElementById("tatuagem").style.border = "1px solid red";
-    saida = 1;
-  }else{document.getElementById("tatuagem").style.border = "1px solid green";}
-
-  if(!document.getElementById("sexo").value){
-    document.getElementById("sexo").style.border = "1px solid red";
-    saida = 1;
-  }else{document.getElementById("sexo").style.border = "1px solid green";}
-
-  if(!document.getElementById("data_nascimento").value){
-    document.getElementById("data_nascimento").style.border = "1px solid red";
-    saida = 1;
-  }else{document.getElementById("data_nascimento").style.border = "1px solid green";}
-
-  if(!document.getElementById("raca").value){
-    document.getElementById("raca").style.border = "1px solid red";
-    saida = 1;
-  }else{document.getElementById("raca").style.border = "1px solid green";}
-
-  if(!document.getElementById("peso").value){
-    document.getElementById("peso").style.border = "1px solid red";
-    saida = 1;
-  }else{document.getElementById("peso").style.border = "1px solid green";}
-
-  if(!document.getElementById("status").value){
-    document.getElementById("status").style.border = "1px solid red";
-    saida = 1;
-  }else{document.getElementById("status").style.border = "1px solid green";}
-
-  if(saida){ return false; }else{ return true; }
-}
 </script>
 
 <section class="content-header">

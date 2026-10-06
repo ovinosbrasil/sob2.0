@@ -175,7 +175,7 @@ $data_expira2 = $data;
         <? if(($pg == 'lista_monta') || ($pg == 'monta') || ($pg == 'cadastrar_monta') || ($pg == 'lista_inseminacao') || ($pg == 'inseminacao') || ($pg == 'cadastrar_inseminacao') || ($pg == 'lista_te') ||
         ($pg == 'te') || ($pg == 'cadastrar_te') || ($pg == 'lista_te')
         || ($pg == 'lista_ultrassom') || ($pg == 'cadastrar_ultrassom') || ($pg == 'embrioes') || ($pg == 'vendas_embriao') || ($pg == 'semen') || ($pg == 'vender_semen')
-        || ($pg == 'relatorio_arco')){ ?> <li class="active treeview"> <? }else{ ?> <li class="treeview">
+        || ($pg == 'relatorio_arco') || ($pg == 'prenhez_atual')){ ?> <li class="active treeview"> <? }else{ ?> <li class="treeview">
         <? } ?>
           <a href="#">
             <i class="fa fa-venus-mars"></i>
@@ -191,6 +191,7 @@ $data_expira2 = $data;
             <li><a href="geral.php?pg=semen"><i class="fa fa-mars"></i> Banco de sêmens</a></li>
             <li><a href="geral.php?pg=embrioes"><i class="fa fa-gg-circle"></i> Banco de embriões</a></li>
             <li><a href="geral.php?pg=lista_ultrassom"><i class="fa fa-qq"></i> Ultrassom</a></li>
+            <li<?= $pg == 'prenhez_atual' ? ' class="active"' : '' ?>><a href="geral.php?pg=prenhez_atual"><i class="fa fa-venus"></i> Prenhez atual</a></li>
             <li><a href="geral.php?pg=relatorio_arco"><i class="fa fa-print"></i> Relatório ARCO</a></li>
           </ul>
         </li>
@@ -295,6 +296,10 @@ $data_expira2 = $data;
 <!-- Bootstrap 3.3.7 -->
 <script src="bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
 <?php require __DIR__ . '/includes/confirmacao_exclusao.php'; ?>
+<?php require __DIR__ . '/includes/alertas_cadastro_animal.php'; ?>
+<?php require __DIR__ . '/includes/alertas_cadastro_monta.php'; ?>
+<?php require __DIR__ . '/includes/alertas_cadastro_inseminacao.php'; ?>
+<?php require __DIR__ . '/includes/alertas_te.php'; ?>
 <script src="dist/js/confirmacao-exclusao.js?v=<?=filemtime(__DIR__ . '/dist/js/confirmacao-exclusao.js')?>"></script>
 <script src="dist/js/busca-animais.js?v=<?=filemtime(__DIR__ . '/dist/js/busca-animais.js')?>"></script>
 <script src="dist/js/busca-compradores.js?v=<?=filemtime(__DIR__ . '/dist/js/busca-compradores.js')?>"></script>

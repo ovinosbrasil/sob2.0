@@ -3,7 +3,9 @@ require_once __DIR__ . '/../../_config.php';
 
 function voltarCadastroMonta($mensagem)
 {
-    echo '<script>alert(' . json_encode($mensagem, JSON_UNESCAPED_UNICODE) . '); history.back();</script>';
+    $_SESSION['alerta_cadastro_monta'] = array('tipo'=>'warning', 'titulo'=>'Atenção!', 'mensagem'=>$mensagem);
+    $_SESSION['campos_cadastro_monta'] = array_intersect_key($_POST, array_flip(array('lote', 'data_inicial', 'data_final', 'macho', 'raca', 'notificacao')));
+    header('Location: ../../geral.php?pg=cadastrar_monta');
     exit;
 }
 
@@ -75,5 +77,7 @@ DBCreate('lotes_reproducao', array(
     'vivos' => 0
 ));
 
+$_SESSION['alerta_cadastro_monta'] = array('tipo'=>'success', 'titulo'=>'Sucesso!', 'mensagem'=>'Lote de monta natural cadastrado com sucesso.');
+unset($_SESSION['campos_cadastro_monta']);
 header('Location: ../../geral.php?pg=monta&id_lote=' . (int)$idLote);
 exit;

@@ -3,7 +3,9 @@ require_once __DIR__ . '/../../_config.php';
 
 function voltarCadastroFemeaMonta($mensagem)
 {
-    echo '<script>alert(' . json_encode($mensagem, JSON_UNESCAPED_UNICODE) . '); history.back();</script>';
+    global $idLote;
+    $_SESSION['alerta_cadastro_monta'] = array('tipo'=>'warning', 'titulo'=>'Atenção!', 'mensagem'=>$mensagem);
+    header('Location: ../../geral.php?pg=' . ($idLote > 0 ? 'monta&id_lote=' . (int)$idLote : 'lista_monta'));
     exit;
 }
 
@@ -79,5 +81,6 @@ DBUpdate('lotes_reproducao', array(
     'femeas' => $total
 ), "id_lote = '$idLote' AND tipo = '0'");
 
+$_SESSION['alerta_cadastro_monta'] = array('tipo'=>'success', 'titulo'=>'Sucesso!', 'mensagem'=>'Fêmea adicionada ao lote com sucesso.');
 header('Location: ../../geral.php?pg=monta&id_lote=' . $idLote);
 exit;

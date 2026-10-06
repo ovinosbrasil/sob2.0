@@ -72,6 +72,9 @@ if (empty($_SESSION['receptora_csrf']) || !hash_equals($_SESSION['receptora_csrf
     }
     DBClose($link);
 }
+$_SESSION['alerta_te'] = $erro !== ''
+    ? array('tipo'=>'warning', 'titulo'=>'Atenção!', 'mensagem'=>$erro)
+    : array('tipo'=>'success', 'titulo'=>'Sucesso!', 'mensagem'=>'Receptora adicionada ao lote com sucesso.');
 $_SESSION['te_receptora_flash'] = array('erro' => $erro, 'nome' => $erro !== '' ? $nome : '');
 header('Location: ../../geral.php?pg=te&id_lote=' . $id_lote, true, 303);
 exit;

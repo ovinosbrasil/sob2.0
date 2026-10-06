@@ -1,16 +1,18 @@
 <script>
 function validarCadastroInseminacao() {
-  var ids = ['lote', 'data_inicial', 'pai', 'raca', 'semen', 'notificacao'];
-  var invalido = false;
-  ids.forEach(function (id) {
+  var campos = {lote:'Lote', data_inicial:'Data', pai:'Macho', raca:'Raça', semen:'Tipo de sêmen', notificacao:'Notificação'};
+  var faltantes = [], primeiro;
+  Object.keys(campos).forEach(function (id) {
     var campo = document.getElementById(id);
-    if (!campo) { return; }
     var vazio = !campo.value.trim();
-    campo.style.border = vazio ? '1px solid red' : '';
-    if (vazio) { invalido = true; }
+    campo.style.borderColor = vazio ? '#dd4b39' : '';
+    campo.setAttribute('aria-invalid', String(vazio));
+    if (vazio) { faltantes.push(campos[id]); primeiro = primeiro || campo; }
   });
-  return !invalido;
+  if (faltantes.length) { SobAlertas.camposObrigatorios(faltantes); primeiro.focus(); return false; }
+  return true;
 }
+
 </script>
 
 <section class="content-header">
@@ -23,7 +25,7 @@ function validarCadastroInseminacao() {
 
 <section class="content">
   <div class="box" style="border-top:0;">
-    <form method="post" action="reproducao/inseminacao/_cadastrar.php" onsubmit="return validarCadastroInseminacao()">
+    <form method="post" action="reproducao/inseminacao/_cadastrar.php" onsubmit="return validarCadastroInseminacao()" novalidate>
       <div class="box-body">
         <div class="row" style="display:flex; flex-wrap:wrap; align-items:flex-end;">
           <div class="col-sm-6 col-md-4">

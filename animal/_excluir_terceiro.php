@@ -39,6 +39,7 @@ try {
             responderExclusaoTerceiro(409, array('erro' => 'Exclusão bloqueada: este animal possui vínculos. Preserve o cadastro para manter o histórico.', 'vinculos' => $vinculos));
         } else {
             consultarExclusaoTerceiro($link, 'DELETE FROM terceiros WHERE id = ' . (int)$id);
+            $_SESSION['alerta_exclusao_animal'] = array('tipo'=>'success', 'titulo'=>'Sucesso!', 'mensagem'=>'Animal de terceiros excluído com sucesso.');
             responderExclusaoTerceiro(200, array('excluido' => true));
         }
     }

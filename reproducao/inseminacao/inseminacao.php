@@ -18,25 +18,26 @@ $dataFormatada = $dataInseminacao ? $dataInseminacao->format('d/m/Y') : '';
 ?>
 <script>
 function validar_inseminacao() {
-  var ids = ['lote', 'data_inicial', 'pai', 'raca', 'semen', 'notificacao'];
-  var invalido = false;
-  ids.forEach(function (id) {
+  var campos = {lote:'Lote', data_inicial:'Data', pai:'Macho', raca:'Raça', semen:'Tipo de sêmen', notificacao:'Notificação'};
+  var faltantes = [], primeiro;
+  Object.keys(campos).forEach(function (id) {
     var campo = document.getElementById(id);
-    if (!campo) { return; }
     var vazio = !campo.value.trim();
-    campo.style.border = vazio ? '1px solid red' : '';
-    if (vazio) { invalido = true; }
+    campo.style.borderColor = vazio ? '#dd4b39' : '';
+    campo.setAttribute('aria-invalid', String(vazio));
+    if (vazio) { faltantes.push(campos[id]); primeiro = primeiro || campo; }
   });
-  return !invalido;
+  if (faltantes.length) { SobAlertas.camposObrigatorios(faltantes); primeiro.focus(); return false; }
+  return true;
 }
+
 
 function ativar_femea() {
   var campo = document.getElementById('mae-inseminacao');
-  if (!campo || !campo.value.trim()) {
-    if (campo) { campo.style.border = '1px solid red'; }
-    return false;
-  }
-  campo.style.border = '';
+  var vazio = !campo.value.trim();
+  campo.style.borderColor = vazio ? '#dd4b39' : '';
+  campo.setAttribute('aria-invalid', String(vazio));
+  if (vazio) { SobAlertas.camposObrigatorios(['Adicionar fêmea']); campo.focus(); return false; }
   return true;
 }
 
@@ -102,7 +103,7 @@ function confirmarExclusaoLoteInseminacaoDetalhe(botao) {
 
 <section class="content">
   <div class="box" style="border-top:0;">
-    <form method="post" action="reproducao/inseminacao/_alterar.php?id_lote=<?=$id_lote?>" onsubmit="return validar_inseminacao()">
+    <form method="post" action="reproducao/inseminacao/_alterar.php?id_lote=<?=$id_lote?>" onsubmit="return validar_inseminacao()" novalidate>
       <div class="box-body">
         <div class="row" style="display:flex; flex-wrap:wrap; align-items:flex-end;">
           <div class="col-sm-6 col-md-4">
@@ -178,7 +179,7 @@ function confirmarExclusaoLoteInseminacaoDetalhe(botao) {
     <div class="box-body">
       <form id="form-adicionar-femea-inseminacao" method="post"
             action="reproducao/inseminacao/_cadastrar_femea.php?id_lote=<?=$id_lote?>"
-            onsubmit="return ativar_femea()">
+            onsubmit="return ativar_femea()" novalidate>
         <div class="row" style="display:flex; flex-wrap:wrap; align-items:flex-end;">
           <div class="col-sm-12 col-md-6">
             <div class="form-group">

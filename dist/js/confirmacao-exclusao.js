@@ -10,11 +10,12 @@
     window.confirmarExclusao = function (opcoes) {
         if (!opcoes.bloqueado && typeof opcoes.aoConfirmar !== 'function') { return; }
         origem = document.activeElement;
-        acao = opcoes.aoConfirmar;
+        acao = opcoes.bloqueado ? null : opcoes.aoConfirmar;
         document.getElementById('confirmacao-exclusao-titulo').textContent = opcoes.titulo || 'Excluir registro?';
         document.getElementById('confirmacao-exclusao-descricao').textContent = opcoes.descricao || 'Confirme se deseja excluir este registro. Esta ação não pode ser desfeita.';
         document.getElementById('confirmacao-exclusao-nome').textContent = opcoes.nome || '';
         confirmar.disabled = !!opcoes.bloqueado;
+        confirmar.style.display = opcoes.bloqueado ? 'none' : '';
         confirmar.textContent = opcoes.textoConfirmar || 'Excluir';
         inativar.style.display = typeof opcoes.aoInativar === 'function' ? '' : 'none';
         inativar.disabled = false;
@@ -83,6 +84,7 @@
                             window.location.href = 'geral.php?pg=lista_terceiros';
                         }).fail(function (xhr) {
                             var resposta = xhr.responseJSON || {};
+                            confirmar.style.display = 'none';
                             document.getElementById('confirmacao-exclusao-titulo').textContent = 'Cadastro preservado';
                             document.getElementById('confirmacao-exclusao-descricao').textContent =
                                 (resposta.erro || 'Não foi possível concluir a exclusão. Atualize a página e tente novamente.') +

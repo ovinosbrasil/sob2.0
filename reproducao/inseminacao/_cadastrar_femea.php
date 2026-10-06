@@ -3,7 +3,9 @@ require_once __DIR__ . '/../../_config.php';
 
 function voltarCadastroFemeaInseminacao($mensagem)
 {
-    echo '<script>alert(' . json_encode($mensagem, JSON_UNESCAPED_UNICODE) . '); history.back();</script>';
+    global $idLote;
+    $_SESSION['alerta_cadastro_inseminacao'] = array('tipo'=>'warning', 'titulo'=>'Atenção!', 'mensagem'=>$mensagem);
+    header('Location: ../../geral.php?pg=' . ($idLote > 0 ? 'inseminacao&id_lote=' . (int)$idLote : 'lista_inseminacao'));
     exit;
 }
 
@@ -80,5 +82,6 @@ DBUpdate('lotes_reproducao', array(
     'femeas' => $total
 ), "id_lote = '$idLote' AND tipo = '1'");
 
+$_SESSION['alerta_cadastro_inseminacao'] = array('tipo'=>'success', 'titulo'=>'Sucesso!', 'mensagem'=>'Fêmea adicionada ao lote com sucesso.');
 header('Location: ../../geral.php?pg=inseminacao&id_lote=' . $idLote);
 exit;

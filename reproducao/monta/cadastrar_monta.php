@@ -1,39 +1,17 @@
 <script type="text/javascript">
-function validar_montar(){
-  saida = 0;
-  if(!document.getElementById("lote").value){
-    document.getElementById("lote").style.border = "1px solid red";
-    saida = 1;
-  }else{document.getElementById("lote").style.border = "1px solid green";}
-
-  if(!document.getElementById("data_inicial").value){
-    document.getElementById("data_inicial").style.border = "1px solid red";
-    saida = 1;
-  }else{document.getElementById("data_inicial").style.border = "1px solid green";}
-
-  if(!document.getElementById("data_final").value){
-    document.getElementById("data_final").style.border = "1px solid red";
-    saida = 1;
-  }else{document.getElementById("data_final").style.border = "1px solid green";}
-
-  if(!document.getElementById("pai").value){
-    document.getElementById("pai").style.border = "1px solid red";
-    saida = 1;
-  }else{document.getElementById("pai").style.border = "1px solid green";}
-
-  if(!document.getElementById("raca").value){
-    document.getElementById("raca").style.border = "1px solid red";
-    saida = 1;
-  }else{document.getElementById("raca").style.border = "1px solid green";}
-
-  if(!document.getElementById("notificacao").value){
-    document.getElementById("notificacao").style.border = "1px solid red";
-    saida = 1;
-  }else{document.getElementById("notificacao").style.border = "1px solid green";}
-
-  if(saida){ return false; }else{ return true; }
+function validar_montar() {
+  var campos = {lote:'Lote', data_inicial:'Data inicial', data_final:'Data final', pai:'Macho', raca:'Raça', notificacao:'Notificação'};
+  var faltantes = [], primeiro;
+  Object.keys(campos).forEach(function (id) {
+    var campo = document.getElementById(id);
+    var vazio = !campo.value.trim();
+    campo.style.borderColor = vazio ? '#dd4b39' : '';
+    campo.setAttribute('aria-invalid', String(vazio));
+    if (vazio) { faltantes.push(campos[id]); primeiro = primeiro || campo; }
+  });
+  if (faltantes.length) { SobAlertas.camposObrigatorios(faltantes); primeiro.focus(); return false; }
+  return true;
 }
-
 </script>
 
 <section class="content-header">
@@ -48,7 +26,7 @@ function validar_montar(){
 
   <section class="content">
     <div class="box" style="border-top:0;">
-      <form method="post" action="reproducao/monta/_cadastrar.php" onsubmit="return validar_montar()">
+      <form method="post" action="reproducao/monta/_cadastrar.php" onsubmit="return validar_montar()" novalidate>
         <div class="box-body">
           <div class="row" style="display:flex; flex-wrap:wrap; align-items:flex-end;">
             <div class="col-sm-6 col-md-4">

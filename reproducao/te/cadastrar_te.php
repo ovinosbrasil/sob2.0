@@ -1,34 +1,18 @@
 <script type="text/javascript">
-function validar_ter(){
-  var saida = 0;
-  if(!document.getElementById("lote").value){
-    document.getElementById("lote").style.border = "1px solid red";
-    saida = 1;
-  }else{document.getElementById("lote").style.border = "1px solid green";}
-
-  if(!document.getElementById("data_inicial").value){
-    document.getElementById("data_inicial").style.border = "1px solid red";
-    saida = 1;
-  }else{document.getElementById("data_inicial").style.border = "1px solid green";}
-
-  if(!document.getElementById("pai").value){
-    document.getElementById("pai").style.border = "1px solid red";
-    saida = 1;
-  }else{document.getElementById("pai").style.border = "1px solid green";}
-
-  if(!document.getElementById("mae").value){
-    document.getElementById("mae").style.border = "1px solid red";
-    saida = 1;
-  }else{document.getElementById("mae").style.border = "1px solid green";}
-
-
-  if(!document.getElementById("embrioes").value){
-    document.getElementById("embrioes").style.border = "1px solid red";
-    saida = 1;
-  }else{document.getElementById("embrioes").style.border = "1px solid green";}
-
-  if(saida){ return false; }else{ return true; }
+function validar_ter() {
+  var campos = {lote:'Lote', data_inicial:'Data', pai:'Macho', mae:'Fêmea', embrioes:'Embriões coletados'};
+  var faltantes = [], primeiro;
+  Object.keys(campos).forEach(function (id) {
+    var campo = document.getElementById(id);
+    var vazio = !campo.value.trim();
+    campo.style.borderColor = vazio ? '#dd4b39' : '';
+    campo.setAttribute('aria-invalid', String(vazio));
+    if (vazio) { faltantes.push(campos[id]); primeiro = primeiro || campo; }
+  });
+  if (faltantes.length) { SobAlertas.camposObrigatorios(faltantes); primeiro.focus(); return false; }
+  return true;
 }
+
 
 </script>
 
@@ -48,7 +32,7 @@ function validar_ter(){
     <div class="row">
       <div class="col-md-12">
 				<div class="box" style="border-top:0;">
-          <form method="post" action="reproducao/te/_cadastrar.php" onsubmit="return validar_ter()">
+          <form method="post" action="reproducao/te/_cadastrar.php" onsubmit="return validar_ter()" novalidate>
           <!-- /.box-header -->
           <div class="box-body">
             <h2 class="box-title" style="font-size:16px; margin:0 0 20px;">Dados do lote</h2>

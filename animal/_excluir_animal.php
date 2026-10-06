@@ -29,5 +29,7 @@ include "_ranking_reprodutor.php";
 $id_mae = $animal[0]['mae'];
 include "_ranking_matriz.php";
 
-echo "<META HTTP-EQUIV=REFRESH CONTENT='0; URL=../geral.php'>";
+$_SESSION['alerta_exclusao_animal'] = array('tipo'=>'success', 'titulo'=>'Sucesso!', 'mensagem'=>'Animal excluído com sucesso.');
+header('Location: ../geral.php');
+exit;
 ?>

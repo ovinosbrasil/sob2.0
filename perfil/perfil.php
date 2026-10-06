@@ -1,245 +1,144 @@
-<?
-
-//mysql_close($db);
-
-// $db = mysql_connect("localhost", "siste870_sob","sob123");
-// echo $login_user;
-// $dados = mysql_select_db("siste870_sob",$db);
-// $senha = mysql_query("SELECT * FROM user WHERE login = '$login_user'");
-// $senha = mysql_fetch_array($senha);
-// echo $senha;
-// mysql_close($db);
-
-define('DB_HOSTNAME', 'localhost');
-define('DB_USERNAME', 'siste870_sob');
-define('DB_PASSWORD', 'sob123');
-define('DB_DATABASE', 'siste870_user');
-define('DB_CHARSET', 'latin1');
-
-// require '../mysqli/_conexao.php';
-// require '../mysqli/_database.php';
-
-// $senha = DBRead('user', "WHERE login = '$login_user'");
-// echo "asdasdasdsda",$senha;
+<link rel="stylesheet" href="dist/css/alertas.css">
+<script src="dist/js/alertas.js"></script>
+<?php
+$alertaPerfil = $_SESSION['alerta_perfil'] ?? null;
+unset($_SESSION['alerta_perfil']);
 ?>
-
-
-
 <script type="text/javascript">
-function ativar(){
-  saida = 0;
-	if(!document.getElementById("nome").value){
-    document.getElementById("nome").style.border = "1px solid red";
-    saida = 1;
-  }else{document.getElementById("nome").style.border = "1px solid green";}
-
-  if(!document.getElementById("cpf").value){
-    document.getElementById("cpf").style.border = "1px solid red";
-    saida = 1;
-  }else{document.getElementById("cpf").style.border = "1px solid green";}
-
-  if(!document.getElementById("celular").value){
-    document.getElementById("celular").style.border = "1px solid red";
-    saida = 1;
-  }else{document.getElementById("celular").style.border = "1px solid green";}
-
-  if(!document.getElementById("senha").value){
-    document.getElementById("senha").style.border = "1px solid red";
-    saida = 1;
-  }else{document.getElementById("senha").style.border = "1px solid green";}
-
-  if(!document.getElementById("fazenda").value){
-    document.getElementById("fazenda").style.border = "1px solid red";
-    saida = 1;
-  }else{document.getElementById("fazenda").style.border = "1px solid green";}
-
-  if(saida){ return false; }else{ return true; }
+function ativar() {
+  var campos = {nome: 'Nome completo', cpf: 'CPF/CNPJ', celular: 'Celular (Whatsapp)', fazenda: 'Nome da fazenda'};
+  var faltantes = [];
+  var primeiro = null;
+  Object.keys(campos).forEach(function (id) {
+    var campo = document.getElementById(id);
+    var vazio = !campo.value.trim();
+    campo.closest('.form-group').classList.toggle('has-error', vazio);
+    campo.setAttribute('aria-invalid', vazio ? 'true' : 'false');
+    if (vazio) { faltantes.push(campos[id]); primeiro = primeiro || campo; }
+  });
+  if (faltantes.length) {
+    SobAlertas.camposObrigatorios(faltantes);
+    primeiro.focus();
+    return false;
+  }
+  return true;
 }
+document.addEventListener('DOMContentLoaded', function () {
+  var alerta = <?=json_encode($alertaPerfil, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT)?>;
+  if (alerta) { SobAlertas.mostrar(alerta); }
+});
 </script>
 
+<?php
+$perfilH = function ($valor) { return htmlspecialchars((string)$valor, ENT_QUOTES, 'UTF-8'); };
+$perfilDados = $user[0] ?? array();
+?>
 <section class="content-header">
-  <h1>
-    Dados da gerais
-  </h1>
-  <ol class="breadcrumb">
-    <li><a href="#"><i class="fa fa-dashboard"></i> Perfil</a></li>
-  </ol>
+  <h1>Dados gerais</h1>
+  <ol class="breadcrumb"><li class="active"><i class="fa fa-user"></i> Perfil</li></ol>
 </section>
-
 <section class="content">
-  <div class="row">
-    <!-- left column -->
-    <div class="col-md-6">
-      <!-- general form elements -->
-      <div class="box box-success">
-        <div class="box-header with-border">
-          <h3 class="box-title">Dados pessoais</h3>
+  <form role="form" action="perfil/_alterar.php?id=<?=(int)$id_user?>" method="post" onsubmit="return ativar()">
+    <div class="box" style="border-top:0;">
+      <div class="box-body">
+        <h3 class="box-title" style="font-size:18px; margin:0 0 20px;">Dados pessoais</h3>
+        <div class="row">
+            <div class="col-sm-6"><div class="form-group">
+              <label for="nome">Nome completo<span class="text-danger">*</span></label>
+              <input type="text" class="form-control" id="nome" name="nome" value="<?=$perfilH($perfilDados['responsavel'] ?? '')?>" aria-required="true">
+            </div></div>
+            <div class="col-sm-3"><div class="form-group">
+              <label for="cpf">CPF/CNPJ<span class="text-danger">*</span></label>
+              <input type="text" class="form-control" id="cpf" name="cpf" value="<?=$perfilH($perfilDados['cpf'] ?? '')?>" aria-required="true">
+            </div></div>
+            <div class="col-sm-3"><div class="form-group">
+              <label for="cod">Cód. do responsável</label>
+              <input type="text" class="form-control" id="cod" name="cod" value="<?=$perfilH($perfilDados['cod'] ?? '')?>">
+            </div></div>
         </div>
-        <!-- /.box-header -->
-
-        <!-- form start -->
-        <form role="form" action="perfil/_alterar.php?id=<?=$id_user?>" method="post" onsubmit="return ativar()">
-          <div class="box-body">
-            <div class="form-group">
-              <label for="exampleInputEmail1">Nome completo<span style="color:#F00;">*</span></label>
-              <input type="text" class="form-control" id="nome" name="nome" value="<?=$user[0]['responsavel']?>">
-            </div>
-
-            <div class="form-group">
-              <label for="exampleInputEmail1">CPF/CNPJ<span style="color:#F00;">*</span></label>
-              <input type="text" class="form-control" id="cpf" name="cpf" value="<?=$user[0]['cpf']?>">
-            </div>
-
-            <div class="form-group">
-              <label for="exampleInputPassword1">E-mail</label>
-              <input type="text" class="form-control" name="email" value="<?=$user[0]['email']?>">
-            </div>
-
-
-            <div class="form-group">
-              <label for="exampleInputPassword1">Celular (Whatsapp)<span style="color:#F00;">*</span></label>
-              <input type="text" class="form-control" name="celular" id="celular" value="<?=$user[0]['celular']?>">
-            </div>
-
-            <div class="form-group">
-              <label for="exampleInputPassword1">Telefone</label>
-              <input type="text" class="form-control" name="telefone" id="telefone" value="<?=$user[0]['telefone']?>">
-            </div>
-
-            <div class="col-md-6" style="margin-left:-12px;">
-            <div class="form-group">
-              <label for="exampleInputPassword1">Login<span style="color:#F00;">*</span></label>
-              <input type="text" class="form-control" name="login" id="login" value="<?=$user[0]['login']?>" readonly="true">
-            </div>
-            </div>
-            <div class="col-md-6">
-            <div class="form-group">
-              <label for="exampleInputPassword1">Senha<span style="color:#F00;">*</span></label>
-              <input type="text" class="form-control" name="senha" id="senha" value="<?=$senha['senha']?>">
-            </div>
-            </div>
-          </div>
+        <div class="row">
+            <div class="col-sm-6"><div class="form-group">
+              <label for="email">E-mail</label>
+              <input type="text" class="form-control" id="email" name="email" value="<?=$perfilH($perfilDados['email'] ?? '')?>">
+            </div></div>
+            <div class="col-sm-3"><div class="form-group">
+              <label for="celular">Celular (Whatsapp)<span class="text-danger">*</span></label>
+              <input type="text" class="form-control" id="celular" name="celular" value="<?=$perfilH($perfilDados['celular'] ?? '')?>" aria-required="true">
+            </div></div>
+            <div class="col-sm-3"><div class="form-group">
+              <label for="telefone">Telefone</label>
+              <input type="text" class="form-control" id="telefone" name="telefone" value="<?=$perfilH($perfilDados['telefone'] ?? '')?>">
+            </div></div>
+        </div>
+        <h3 class="box-title" style="font-size:18px; margin:0 0 20px;">Dados da fazenda</h3>
+        <div class="row">
+            <div class="col-sm-6"><div class="form-group">
+              <label for="fazenda">Nome da fazenda<span class="text-danger">*</span></label>
+              <input type="text" class="form-control" id="fazenda" name="fazenda" value="<?=$perfilH($perfilDados['fazenda'] ?? '')?>" aria-required="true">
+            </div></div>
+            <div class="col-sm-2"><div class="form-group">
+              <label for="prefixo">Prefixo</label>
+              <input type="text" class="form-control" id="prefixo" name="prefixo" value="<?=$perfilH($perfilDados['prefixo'] ?? '')?>">
+            </div></div>
+            <div class="col-sm-2"><div class="form-group">
+              <label for="raca">Raça padrão</label>
+              <select class="form-control select" id="raca" name="raca">
+                <option value="">Selecionar raça</option>
+                <?php if (!empty($perfilDados['raca'])): ?><option value="<?=$perfilH($perfilDados['raca'])?>" selected><?=$perfilH($perfilDados['raca'])?></option><?php endif; ?>
+                <?php foreach (DBRead('raca', 'ORDER BY nome asc') ?: array() as $raca): ?>
+                <option value="<?=$perfilH($raca['nome'])?>"><?=$perfilH($raca['nome'])?></option>
+                <?php endforeach; ?>
+              </select>
+            </div></div>
+            <div class="col-sm-2"><div class="form-group">
+              <label for="cod_rebanho">Cód. do rebanho</label>
+              <input type="text" class="form-control" id="cod_rebanho" name="cod_rebanho" value="<?=$perfilH($perfilDados['cod_rebanho'] ?? '')?>">
+            </div></div>
+        </div>
+        <div class="row">
+            <div class="col-sm-8"><div class="form-group">
+              <label for="tecnico">Técnico responsável</label>
+              <input type="text" class="form-control" id="tecnico" name="tecnico" value="<?=$perfilH($perfilDados['tecnico'] ?? '')?>">
+            </div></div>
+            <div class="col-sm-4"><div class="form-group">
+              <label for="cod_tecnico">Cód. do técnico</label>
+              <input type="text" class="form-control" id="cod_tecnico" name="cod_tecnico" value="<?=$perfilH($perfilDados['cod_tecnico'] ?? '')?>">
+            </div></div>
+        </div>
+        <h3 class="box-title" style="font-size:18px; margin:0 0 20px;">Endereço</h3>
+        <div class="row">
+            <div class="col-sm-6"><div class="form-group">
+              <label for="end">Endereço</label>
+              <input type="text" class="form-control" id="end" name="end" value="<?=$perfilH($perfilDados['end'] ?? '')?>">
+            </div></div>
+            <div class="col-sm-2"><div class="form-group">
+              <label for="num">Número</label>
+              <input type="text" class="form-control" id="num" name="num" value="<?=$perfilH($perfilDados['num'] ?? '')?>">
+            </div></div>
+            <div class="col-sm-4"><div class="form-group">
+              <label for="cep">CEP</label>
+              <input type="text" class="form-control" id="cep" name="cep" value="<?=$perfilH($perfilDados['cep'] ?? '')?>">
+            </div></div>
+        </div>
+        <div class="row">
+            <div class="col-sm-8"><div class="form-group">
+              <label for="cidade">Cidade</label>
+              <input type="text" class="form-control" id="cidade" name="cidade" value="<?=$perfilH($perfilDados['cidade'] ?? '')?>">
+            </div></div>
+            <div class="col-sm-4"><div class="form-group">
+              <label for="estado">Estado</label>
+              <select class="form-control select" id="estado" name="estado">
+                <option value="">Selecionar estado</option>
+                <?php foreach (DBRead('estado', 'ORDER BY estado asc') ?: array() as $estado): ?>
+                <option value="<?=$perfilH($estado['sigla'])?>" <?=($perfilDados['estado'] ?? '') === $estado['sigla'] ? 'selected' : ''?>><?=$perfilH($estado['estado'])?></option>
+                <?php endforeach; ?>
+              </select>
+            </div></div>
+        </div>
+        <div class="text-right">
+          <button type="submit" class="btn btn-warning">Alterar perfil</button>
+        </div>
       </div>
-      <!-- /.box -->
     </div>
-
-    <div class="col-md-6">
-      <!-- general form elements -->
-      <div class="box box-success">
-        <div class="box-header with-border">
-          <h3 class="box-title">Dados da Fazenda</h3>
-        </div>
-        <div class="box-body">
-        <!-- /.box-header -->
-
-        <div class="col-md-4" style="margin-left:-12px;">
-          <div class="form-group">
-            <label for="exampleInputPassword1">Nome da fazenda<span style="color:#F00;">*</span></label>
-            <input type="text" class="form-control" name="fazenda" id="fazenda" value="<?=$user[0]['fazenda']?>">
-          </div>
-        </div>
-
-        <div class="col-md-4" style="margin-left:-12px;">
-          <div class="form-group">
-            <label for="exampleInputPassword1">Prefixo</label>
-            <input type="text" class="form-control" name="prefixo" id="prefixo" value="<?=$user[0]['prefixo']?>">
-          </div>
-        </div>
-
-        <div class="col-md-4" style="margin-left:-12px;">
-          <div class="form-group">
-            <label for="exampleInputPassword1">Raça padrão</label>
-            <select class="form-control select" id="raca" name="raca">
-              <?if($user[0]['raca'] != ''){?> <option value="<?=$user[0]['raca']?>"><?=$user[0]['raca']?></option> <? }else{?><option value="">Selecionar raca</option> <? } ?>
-              <option></option>
-              <?
-              $raca = DBRead('raca', "ORDER BY nome asc");
-              foreach ($raca as $raca_) { ?>
-                <option value="<?=$raca_['nome']?>"><?=$raca_['nome']?></option>
-              <? } ?>
-            </select>
-          </div>
-        </div>
-
-        <div class="col-md-4" style="margin-left:-12px;">
-          <div class="form-group">
-            <label for="exampleInputPassword1">Cod. do rebanho:</label>
-            <input type="text" class="form-control" name="cod_rebanho" id="cod_rebanho" value="<?=$user[0]['cod_rebanho']?>">
-          </div>
-        </div>
-        
-        <div class="col-md-4" style="margin-left:-12px;">
-          <div class="form-group">
-            <label for="exampleInputPassword1">Cod. do responsável:</label>
-            <input type="text" class="form-control" name="cod" id="cod" value="<?=$user[0]['cod']?>">
-          </div>
-        </div>
-
-        <div class="col-md-4" style="margin-left:-12px;">
-        <div class="form-group">
-          <label for="exampleInputPassword1">Técnico responsável:</label>
-          <input type="text" class="form-control" name="tecnico" id="tecnico" value="<?=$user[0]['tecnico']?>">
-        </div>
-        </div>
-
-        <div class="col-md-4" style="margin-left:-12px;">
-        <div class="form-group">
-          <label for="exampleInputPassword1">Cód. do Técnico:</label>
-          <input type="text" class="form-control" name="cod_tecnico" id="cod_tecnico" value="<?=$user[0]['cod_tecnico']?>">
-        </div>
-        </div>
-
-        <div class="col-md-6" style="margin-left:-12px;">
-        <div class="form-group">
-          <label for="exampleInputPassword1">Endereço</label>
-          <input type="text" class="form-control" name="end" id="end" value="<?=$user[0]['end']?>">
-        </div>
-        </div>
-
-        <div class="col-md-2" style="margin-left:-12px;">
-        <div class="form-group">
-          <label for="exampleInputPassword1">Número</label>
-          <input type="text" class="form-control" name="num" id="num" value="<?=$user[0]['num']?>">
-        </div>
-        </div>
-
-        <div class="col-md-4" style="margin-left:-12px;">
-        <div class="form-group">
-          <label for="exampleInputPassword1">Cidade</label>
-          <input type="text" class="form-control" name="cidade" id="cidade" value="<?=$user[0]['cidade']?>">
-        </div>
-        </div>
-
-        <div class="col-md-3" style="margin-left:-12px;">
-        <div class="form-group">
-          <label for="exampleInputPassword1">Estado</label>
-          <select class="form-control select" id="estado" name="estado">
-          <option value="<?=$user[0]['estado']?>"><?=$user[0]['estado']?></option>
-            <option></option>
-            <?
-            $estado = DBRead('estado', "ORDER BY estado asc");
-            foreach ($estado as $estado_) {
-            ?>
-              <option value="<?=$estado_['sigla']?>"><?=$estado_['estado']?></option>
-            <? } ?>
-          </select>
-        </div>
-        </div>
-
-        <div class="col-md-3" style="margin-left:-12px;">
-        <div class="form-group">
-          <label for="exampleInputPassword1">CEP</label>
-          <input type="text" class="form-control" name="cep" id="cep" value="<?=$user[0]['cep']?>">
-        </div>
-        </div>
-
-        <div class="form-group">
-          <button type="submit" class="btn btn-warning" style="width:100%">Alterar Perfil</button>
-        </div>
-        </div>
-    </div>
- </div>
-        <!-- form start -->
-
-</form>
+  </form>
 </section>

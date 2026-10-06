@@ -3,7 +3,9 @@ require_once __DIR__ . '/../../_config.php';
 
 function voltarCadastroInseminacao($mensagem)
 {
-    echo '<script>alert(' . json_encode($mensagem, JSON_UNESCAPED_UNICODE) . '); history.back();</script>';
+    $_SESSION['alerta_cadastro_inseminacao'] = array('tipo'=>'warning', 'titulo'=>'Atenção!', 'mensagem'=>$mensagem);
+    $_SESSION['campos_cadastro_inseminacao'] = array_intersect_key($_POST, array_flip(array('lote', 'data_inicial', 'macho', 'macho_id', 'macho_origem', 'raca', 'semen', 'notificacao')));
+    header('Location: ../../geral.php?pg=cadastrar_inseminacao');
     exit;
 }
 
@@ -88,5 +90,7 @@ DBCreate('lotes_reproducao', array(
     'vivos' => 0
 ));
 
+$_SESSION['alerta_cadastro_inseminacao'] = array('tipo'=>'success', 'titulo'=>'Sucesso!', 'mensagem'=>'Lote de inseminação cadastrado com sucesso.');
+unset($_SESSION['campos_cadastro_inseminacao']);
 header('Location: ../../geral.php?pg=inseminacao&id_lote=' . (int)$idLote);
 exit;

@@ -12,7 +12,7 @@ if ($nome_macho_complementar !== '') {
         $macho_complementar = DBRead($tabela_macho_complementar, "WHERE id = '$id_pai_2' AND sexo = 'Macho'" . ($terceiro_pai_2 ? " AND ativo = 1" : ""));
     }
     if (!$macho_complementar || trim($macho_complementar[0]['nome']) !== $nome_macho_complementar) {
-        echo '<script>alert("Selecione o macho complementar na pesquisa ou deixe o campo vazio."); history.back();</script>';
+        voltarFluxoTe('Selecione o macho complementar na pesquisa ou deixe o campo vazio.');
         exit;
     }
 }

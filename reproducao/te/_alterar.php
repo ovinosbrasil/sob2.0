@@ -1,8 +1,10 @@
 <?php
 require __DIR__ . "/../../_config.php";
 header('Content-Type: text/html; charset=UTF-8');
+require_once __DIR__ . '/_alertas_te.php';
+validarCamposLoteTe(true);
 require __DIR__ . "/_validar_macho_complementar.php";
-$id_lote = $_GET['id_lote'];
+$id_lote = (int)($_GET['id_lote'] ?? 0);
 $data = $_POST['data_inicial'];
 include "../../funcoes_data/data.php";
 $data_inicial = $data;
@@ -14,46 +16,45 @@ if (!empty($_POST['data_coleta'])) {
 }
 
 
-$lote = $_POST['lote'];
+$lote = DBEscape($_POST['lote']);
 $lote_ = DBRead('transplante', "WHERE codigo = '$lote' AND id != '$id_lote'");
 
 // TESTE LOTE
-if($lote_[0]['id'] > 0){
-  echo "<script type=\"text/javascript\"> alert(\"Lote já existe.Tente novamente\"); </script>
-  <script language='javascript'>history.back()</script>";
+if(!empty($lote_[0]['id'])){
+  voltarFluxoTe('Lote já existe.Tente novamente');
 }else{
 
 $macho = $_POST['macho'];
-$verifica_macho = DBRead('animais', "WHERE nome = '$macho' AND sexo = 'Macho'");
-$verifica_macho_terceiro = DBRead('terceiros', "WHERE ativo = 1 AND nome = '$macho' AND sexo = 'Macho'");
+$machoEscapado = DBEscape($macho);
+$verifica_macho = DBRead('animais', "WHERE nome = '$machoEscapado' AND sexo = 'Macho'");
+$verifica_macho_terceiro = DBRead('terceiros', "WHERE ativo = 1 AND nome = '$machoEscapado' AND sexo = 'Macho'");
 
 //TESTE MACHO
-if(($verifica_macho[0]['id'] <= 0) && ($verifica_macho_terceiro[0]['id'] <= 0)){
-  echo "<script type=\"text/javascript\"> alert(\"Macho não existe. Tente novamente\"); </script>
-  <script language='javascript'>history.back()</script>";
+if(empty($verifica_macho[0]['id']) && empty($verifica_macho_terceiro[0]['id'])){
+  voltarFluxoTe('Macho não existe. Tente novamente');
 }else{
 
 $femea = $_POST['femea'];
-$verifica_femea = DBRead('animais', "WHERE nome = '$femea' AND sexo = 'Fêmea'");
-$verifica_femea_terceiro = DBRead('terceiros', "WHERE ativo = 1 AND nome = '$femea' AND sexo = 'Fêmea'");
+$femeaEscapado = DBEscape($femea);
+$verifica_femea = DBRead('animais', "WHERE nome = '$femeaEscapado' AND sexo = 'Fêmea'");
+$verifica_femea_terceiro = DBRead('terceiros', "WHERE ativo = 1 AND nome = '$femeaEscapado' AND sexo = 'Fêmea'");
 
 //TESTE MACHO
-if(($verifica_femea[0]['id'] <= 0) && ($verifica_femea_terceiro[0]['id'] <= 0)){
-  echo "<script type=\"text/javascript\"> alert(\"Fêmea não existe. Tente novamente\"); </script>
-  <script language='javascript'>history.back()</script>";
+if(empty($verifica_femea[0]['id']) && empty($verifica_femea_terceiro[0]['id'])){
+  voltarFluxoTe('Fêmea não existe. Tente novamente');
 }else{
 
-if($verifica_macho[0]['id'] > 0){ $id_macho = $verifica_macho[0]['id']; $terceiro_macho = 0; }
-if($verifica_macho_terceiro[0]['id'] > 0){ $id_macho = $verifica_macho_terceiro[0]['id']; $terceiro_macho = 1; }
-if($verifica_femea[0]['id'] > 0){ $id_femea = $verifica_femea[0]['id']; $terceiro_mae = 0; }
-if($verifica_femea_terceiro[0]['id'] > 0){ $id_femea = $verifica_femea_terceiro[0]['id']; $terceiro_mae = 1; }
+if(!empty($verifica_macho[0]['id'])){ $id_macho = $verifica_macho[0]['id']; $terceiro_macho = 0; }
+if(!empty($verifica_macho_terceiro[0]['id'])){ $id_macho = $verifica_macho_terceiro[0]['id']; $terceiro_macho = 1; }
+if(!empty($verifica_femea[0]['id'])){ $id_femea = $verifica_femea[0]['id']; $terceiro_mae = 0; }
+if(!empty($verifica_femea_terceiro[0]['id'])){ $id_femea = $verifica_femea_terceiro[0]['id']; $terceiro_mae = 1; }
 
 $dados = array(
 	'codigo'	=> $_POST['lote'],
 	'data'	=> $data_inicial,
   'terceiro_pai' => $terceiro_macho,
-  'pai' => DBEscape($macho),
-  'mae' => DBEscape($femea),
+  'pai' => $macho,
+  'mae' => $femea,
   'id_pai' => $id_macho,
   'id_pai_2' => $id_pai_2,
   'terceiro_pai_2' => $terceiro_pai_2,
@@ -68,8 +69,10 @@ $dados = array(
 );
 
 
-DBUpdate('transplante', $dados, "id = '$id_lote'");
+DBUpdate('transplante', array_map(function ($valor) { return $valor === null ? null : DBEscape($valor); }, $dados), "id = '$id_lote'");
 
-echo "<META HTTP-EQUIV=REFRESH CONTENT='0; URL=../../geral.php?pg=te&id_lote=$id_lote'>";
+$_SESSION['alerta_te'] = array('tipo'=>'success', 'titulo'=>'Sucesso!', 'mensagem'=>'Registro alterado com sucesso.');
+unset($_SESSION['campos_te']);
+header('Location: ../../geral.php?pg=te&id_lote=' . (int)$id_lote);
 }}}
 ?>

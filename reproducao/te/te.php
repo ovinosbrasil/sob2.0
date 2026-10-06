@@ -41,25 +41,26 @@ $dataColetaFormatada = $dataColeta ? $dataColeta->format('d/m/Y') : '';
 ?>
 <script>
 function validar_te() {
-  var ids = ['lote', 'data_inicial', 'pai', 'mae', 'raca', 'tipo_semen', 'embrioes', 'congelados', 'usados'];
-  var invalido = false;
-  ids.forEach(function (id) {
+  var campos = {lote:'Lote', data_inicial:'Data', pai:'Macho', mae:'Fêmea', embrioes:'Embriões coletados', raca:'Raça', tipo_semen:'Tipo de sêmen', congelados:'Embriões congelados', usados:'Embriões usados'};
+  var faltantes = [], primeiro;
+  Object.keys(campos).forEach(function (id) {
     var campo = document.getElementById(id);
-    if (!campo) { return; }
     var vazio = !campo.value.trim();
-    campo.style.border = vazio ? '1px solid red' : '';
-    if (vazio) { invalido = true; }
+    campo.style.borderColor = vazio ? '#dd4b39' : '';
+    campo.setAttribute('aria-invalid', String(vazio));
+    if (vazio) { faltantes.push(campos[id]); primeiro = primeiro || campo; }
   });
-  return !invalido;
+  if (faltantes.length) { SobAlertas.camposObrigatorios(faltantes); primeiro.focus(); return false; }
+  return true;
 }
+
 
 function ativarReceptora() {
   var campo = document.getElementById('receptora-te');
-  if (!campo || !campo.value.trim()) {
-    if (campo) { campo.style.border = '1px solid red'; }
-    return false;
-  }
-  campo.style.border = '';
+  var vazio = !campo.value.trim();
+  campo.style.borderColor = vazio ? '#dd4b39' : '';
+  campo.setAttribute('aria-invalid', String(vazio));
+  if (vazio) { SobAlertas.camposObrigatorios(['Adicionar receptora']); campo.focus(); return false; }
   return true;
 }
 
@@ -125,7 +126,7 @@ function confirmarExclusaoLoteTeDetalhe(botao) {
 
 <section class="content">
   <div class="box" style="border-top:0;">
-    <form method="post" action="reproducao/te/_alterar.php?id_lote=<?=$id_lote?>" onsubmit="return validar_te()">
+    <form method="post" action="reproducao/te/_alterar.php?id_lote=<?=$id_lote?>" onsubmit="return validar_te()" novalidate>
       <div class="box-body">
         <div class="row" style="display:flex; flex-wrap:wrap; align-items:flex-end;">
           <div class="col-sm-6 col-md-4"><div class="form-group">
@@ -220,11 +221,9 @@ function confirmarExclusaoLoteTeDetalhe(botao) {
 
   <div class="box" style="border-top:0;">
     <div class="box-body">
-      <?php if ($teReceptoraFlash !== null && !empty($teReceptoraFlash['erro'])): ?>
-      <div class="alert alert-danger" role="alert"><?=htmlspecialchars($teReceptoraFlash['erro'], ENT_QUOTES, 'UTF-8')?></div>
-      <?php endif; ?>
 
-      <form id="form-adicionar-receptora-te" method="post" action="reproducao/te/_cadastrar_femea.php?id_lote=<?=$id_lote?>" onsubmit="return ativarReceptora()">
+
+      <form id="form-adicionar-receptora-te" method="post" action="reproducao/te/_cadastrar_femea.php?id_lote=<?=$id_lote?>" onsubmit="return ativarReceptora()" novalidate>
         <input type="hidden" name="csrf_token" value="<?=htmlspecialchars($_SESSION['receptora_csrf'], ENT_QUOTES, 'UTF-8')?>">
         <div class="row" style="display:flex; flex-wrap:wrap; align-items:flex-end;">
           <div class="col-sm-6 col-md-4"><div class="form-group">

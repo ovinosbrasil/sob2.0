@@ -1,43 +1,35 @@
-<?
-include "../../_config.php";
+<?php
+require_once __DIR__ . '/../../_config.php';
 
-$id_lote = $_GET['id_lote'];
-$status = $_GET['status'];
+$idControle = filter_var($_GET['id_lote'] ?? 0, FILTER_VALIDATE_INT);
+$status = filter_var($_GET['status'] ?? 0, FILTER_VALIDATE_INT);
 
-$dados = array(
-  'ultrassom' => $status,
-  'data_ultrassom' => (new DateTimeImmutable('now', new DateTimeZone('America/Bahia')))->format('Y-m-d')
-);
+if (!$idControle || !in_array($status, array(1, 2), true)) {
+    $_SESSION['alerta_cadastro_inseminacao'] = array('tipo'=>'warning', 'titulo'=>'Atenção!', 'mensagem'=>'Informe um registro e um status de ultrassom válidos.');
+    header('Location: ../../geral.php?pg=lista_inseminacao');
+    exit;
+}
+$idControle = (int)$idControle;
+$controle = DBRead('inseminacao_controle', "WHERE id = '$idControle'") ?: array();
+if (!$controle) {
+    $_SESSION['alerta_cadastro_inseminacao'] = array('tipo'=>'warning', 'titulo'=>'Atenção!', 'mensagem'=>'Registro de ultrassom não encontrado.');
+    header('Location: ../../geral.php?pg=lista_inseminacao');
+    exit;
+}
 
-DBUpdate('inseminacao_controle', $dados, "id = '$id_lote'");
-$monta = DBRead('inseminacao_controle', "WHERE id = '$id_lote'");
-$id_lote = $monta[0]['id_lote'];
+$idLote = (int)$controle[0]['id_lote'];
+DBUpdate('inseminacao_controle', array('ultrassom' => $status, 'data_ultrassom' => (new DateTimeImmutable('now', new DateTimeZone('America/Bahia')))->format('Y-m-d')), "id = '$idControle'");
 
-//RANKING IA
-$qtd=$ultrassom=$nascimento=0;
-$ultrassom = DBRead('inseminacao_controle', "WHERE id_lote = '$id_lote' AND ultrassom = '1'");
-$nascimento = DBRead('inseminacao_controle', "WHERE id_lote = '$id_lote' AND status_nascimento = '1'");
-$dados = DBRead('inseminacao_controle', "WHERE id_lote = '$id_lote'");
-$qtd = count($dados);
-  if($ultrassom[0]['id'] > 0){
-    $ultrassom = count($ultrassom);
-    $ultrassom = ($ultrassom*100)/$qtd;
-  }else{
-    $ultrassom = 0;
-  }
-  if($nascimento[0]['id'] > 0){
-    $nascimento = count($nascimento);
-    $nascimento = ($nascimento*100)/$qtd;
-  }else{
-    $nascimento = 0;
-  }
-$dados = array(
-  'ultrassom' => $ultrassom,
-  'crias'   =>  $nascimento,
-  'femeas' => $qtd
-);
-DBUpdate('lotes_reproducao', $dados, "id_lote = '$id_lote' AND tipo = '1'");
-//RANKING IA FIM
+$controles = DBRead('inseminacao_controle', "WHERE id_lote = '$idLote'") ?: array();
+$positivos = DBRead('inseminacao_controle', "WHERE id_lote = '$idLote' AND ultrassom = '1'") ?: array();
+$nascimentos = DBRead('inseminacao_controle', "WHERE id_lote = '$idLote' AND status_nascimento = '1'") ?: array();
+$total = count($controles);
+DBUpdate('lotes_reproducao', array(
+    'ultrassom' => $total ? count($positivos) * 100 / $total : 0,
+    'crias' => $total ? count($nascimentos) * 100 / $total : 0,
+    'femeas' => $total
+), "id_lote = '$idLote' AND tipo = '1'");
 
-echo "<META HTTP-EQUIV=REFRESH CONTENT='0; URL=../../geral.php?pg=inseminacao&id_lote=$id_lote'>";
-?>
+$_SESSION['alerta_cadastro_inseminacao'] = array('tipo'=>'success', 'titulo'=>'Sucesso!', 'mensagem'=>'Ultrassom alterado para ' . ($status === 1 ? 'positivo' : 'negativo') . ' com sucesso.');
+header('Location: ../../geral.php?pg=inseminacao&id_lote=' . $idLote);
+exit;

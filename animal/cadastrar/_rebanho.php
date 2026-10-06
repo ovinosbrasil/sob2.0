@@ -243,6 +243,7 @@ DBUpdate('matriz', $dados, "id_femea = '$id_mae'");
 
 $id_animal = DBRead('animais', "WHERE nome = '$nome'");
 $id_animal = $id_animal[0]['id'];
+$_SESSION['alerta_cadastro_animal'] = array('tipo'=>'success', 'titulo'=>'Sucesso!', 'mensagem'=>'Animal cadastrado com sucesso.');
 echo "<META HTTP-EQUIV=REFRESH CONTENT='0; URL=../../geral.php?pg=animal&id_animal=$id_animal'>";
 }}}
 ?>

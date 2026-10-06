@@ -1,11 +1,11 @@
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<?
+<?php
+require_once __DIR__ . "/../../_config.php";
 function geraTimestamp($data) {
   $partes = explode('/', $data);
   return mktime(0, 0, 0, $partes[1], $partes[0], $partes[2]);
 }
 
-include "../../_config.php";
+
 
 $nome = $_POST['nome_animal'];
 
@@ -213,6 +213,7 @@ DBUpdate('matriz', $dados, "id_femea = '$id_mae'");
 
 $id_animal = DBRead('animais', "WHERE nome = '$nome'");
 $id_animal = $id_animal[0]['id'];
+$_SESSION['alerta_cadastro_animal'] = array('tipo'=>'success', 'titulo'=>'Sucesso!', 'mensagem'=>'Animal cadastrado com sucesso.');
 echo "<META HTTP-EQUIV=REFRESH CONTENT='0; URL=../../geral.php?pg=animal&id_animal=$id_animal'>";
 }}}
 ?>

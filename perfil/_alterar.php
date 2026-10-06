@@ -1,7 +1,12 @@
 <?
 include "../_config.php";
-$login = $_POST['login'];
-$senha = $_POST['senha'];
+foreach (array('nome', 'cpf', 'celular', 'fazenda') as $campo) {
+    if (!isset($_POST[$campo]) || !is_string($_POST[$campo]) || trim($_POST[$campo]) === '') {
+        $_SESSION['alerta_perfil'] = array('tipo'=>'warning', 'titulo'=>'Atenção!', 'mensagem'=>'Preencha os campos obrigatórios.');
+        header('Location: ../geral.php?pg=perfil');
+        exit;
+    }
+}
 $responsavel = str_replace("'", '"',$_POST['nome']);
 $email = str_replace("'", '"',$_POST['email']);
 $fazenda = str_replace("'", '"',$_POST['fazenda']);
@@ -19,7 +24,6 @@ $dados = array(
 	'telefone'			=> $_POST['telefone'],
 	'celular'			=> $_POST['celular'],
 	'cpf'		=> $_POST['cpf'],
-	'senha'	=> $_POST['senha'],
 	'fazenda'				=> $fazenda,
 	'prefixo'				=> $prefixo,
 	'raca'				=> $_POST['raca'],
@@ -34,6 +38,12 @@ $dados = array(
 	'cod_tecnico'	=> $cod_tecnico
 
 );
-DBUpdate('admin', $dados);
-echo "<META HTTP-EQUIV=REFRESH CONTENT='0; URL=_alterar2.php?login=$login&senha=$senha'>";
+if (!DBUpdate('admin', $dados)) {
+    $_SESSION['alerta_perfil'] = array('tipo'=>'danger', 'titulo'=>'Erro!', 'mensagem'=>'Não foi possível alterar o registro.');
+    header('Location: ../geral.php?pg=perfil');
+    exit;
+}
+$_SESSION['alerta_perfil'] = array('tipo'=>'success', 'titulo'=>'Sucesso!', 'mensagem'=>'Registro alterado com sucesso.');
+header('Location: ../geral.php?pg=perfil');
+exit;
 ?>
