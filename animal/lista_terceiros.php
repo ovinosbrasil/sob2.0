@@ -1,12 +1,9 @@
 <?php
-$sexo = $_GET['sexo'] ?? '';
-if (!in_array($sexo, array('', 'Macho', 'Fêmea'), true)) {
-  $sexo = '';
-}
-$situacaoTerceiro = $_GET['situacao'] ?? 'todos';
-if (!in_array($situacaoTerceiro, array('todos', 'ativos', 'inativos'), true)) { $situacaoTerceiro = 'todos'; }
-$filtroSexo = $sexo === '' ? '' : "WHERE sexo = '$sexo'";
-if ($situacaoTerceiro !== 'todos') { $filtroSexo .= ($filtroSexo ? ' AND ' : 'WHERE ') . 'ativo = ' . ($situacaoTerceiro === 'ativos' ? '1' : '0'); }
+require_once __DIR__ . '/_filtros_terceiros.php';
+$filtros = filtrosTerceiros($_GET);
+$sexo = $filtros['sexo'];
+$situacaoTerceiro = $filtros['situacao'];
+$filtroSexo = condicaoTerceiros($filtros);
 $contagem = DBRead('terceiros', $filtroSexo, 'COUNT(*) AS total');
 $qtd = (int)($contagem[0]['total'] ?? 0);
 $porPagina = filter_var($_GET['por_pagina'] ?? 10, FILTER_VALIDATE_INT);
@@ -16,7 +13,7 @@ $paginaInformada = filter_var($_GET['pag'] ?? 0, FILTER_VALIDATE_INT);
 $pagina = min(max(0, $paginaInformada === false ? 0 : $paginaInformada), max(0, $qtd_pag - 1));
 $loop = $pagina * $porPagina;
 $animais = $qtd > 0 ? (DBRead('terceiros', "$filtroSexo ORDER BY id desc LIMIT $loop,$porPagina") ?: array()) : array();
-$filtros = array('sexo' => $sexo, 'situacao' => $situacaoTerceiro);
+$parametrosPdf = htmlspecialchars(http_build_query($filtros), ENT_QUOTES, 'UTF-8');
 $urlPagina = 'geral.php?pg=lista_terceiros&amp;sexo=' . rawurlencode($sexo) . '&amp;situacao=' . $situacaoTerceiro . '&amp;por_pagina=' . $porPagina;
 ?>
 
@@ -60,7 +57,10 @@ $urlPagina = 'geral.php?pg=lista_terceiros&amp;sexo=' . rawurlencode($sexo) . '&
               </div>
               <div class="form-group col-sm-3">
                 <label class="hidden-xs" aria-hidden="true">&nbsp;</label>
-                <a class="btn btn-default btn-block" href="geral.php?pg=lista_terceiros">Limpar</a>
+                <div style="display:flex; gap:8px;">
+                  <a class="btn btn-primary" style="flex:1;" href="animal/_imprimir_terceiros.php?<?=$parametrosPdf?>">Gerar pdf</a>
+                  <a class="btn btn-default" style="flex:1;" href="geral.php?pg=lista_terceiros">Limpar</a>
+                </div>
               </div>
             </div>
             <noscript><button type="submit" class="btn btn-default">Filtrar</button></noscript>

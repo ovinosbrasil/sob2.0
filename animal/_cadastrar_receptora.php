@@ -9,14 +9,17 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 $nome = isset($_POST['nome']) && is_string($_POST['nome']) ? trim($_POST['nome']) : '';
 $token = isset($_POST['csrf_token']) && is_string($_POST['csrf_token']) ? $_POST['csrf_token'] : '';
 $erro = '';
+$tipoAlerta = 'danger';
 $retornoTe = isset($_POST['retorno']) && $_POST['retorno'] === 'te';
 $idLoteRetorno = filter_input(INPUT_POST, 'id_lote', FILTER_VALIDATE_INT);
 if (empty($_SESSION['receptora_csrf']) || !hash_equals($_SESSION['receptora_csrf'], $token)) {
     $erro = 'Sua sessão expirou. Atualize a página e tente novamente.';
 } elseif ($nome === '') {
-    $erro = 'Informe o nome da receptora.';
+    $erro = 'Preencha os campos obrigatórios: Nome.';
+    $tipoAlerta = 'warning';
 } elseif (!preg_match('//u', $nome) || preg_match_all('/./us', $nome) > 50) {
     $erro = 'O nome deve conter até 50 caracteres válidos.';
+    $tipoAlerta = 'warning';
 } else {
     $link = DBConnect();
     try {
@@ -43,6 +46,8 @@ if (empty($_SESSION['receptora_csrf']) || !hash_equals($_SESSION['receptora_csrf
 $flash = array(
     'erro' => $erro,
     'nome' => $erro !== '' ? $nome : '',
+    'contexto' => 'cadastro',
+    'tipo_alerta' => $erro === '' ? 'success' : $tipoAlerta,
 );
 if ($retornoTe && $idLoteRetorno && $idLoteRetorno > 0) {
     $_SESSION['te_cadastro_receptora_flash'] = $flash;

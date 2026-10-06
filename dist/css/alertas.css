@@ -1,0 +1,65 @@
+.sob-alertas {
+  position: fixed;
+  top: 12px;
+  right: 12px;
+  z-index: 100000;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 356px;
+  max-width: calc(100vw - 24px);
+  max-height: calc(100vh - 24px);
+  overflow-y: auto;
+  pointer-events: none;
+}
+.sob-alerta {
+  --sob-alerta-cor: #008b4b;
+  position: relative;
+  display: grid;
+  grid-template-columns: 36px minmax(0, 1fr);
+  gap: 18px;
+  padding: 20px 30px 10px 20px;
+  border-radius: 11px;
+  background: var(--sob-alerta-fundo);
+  border: 1px solid var(--sob-alerta-borda);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, .09);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  color: #fff;
+  font-family: 'Source Sans Pro', Arial, sans-serif;
+  pointer-events: auto;
+  animation: sob-alerta-entrada .2s ease-out;
+}
+.sob-alerta--success { --sob-alerta-cor: #00a65a; --sob-alerta-fundo: rgba(0, 166, 90, .88); --sob-alerta-borda: rgba(0, 166, 90, .25); }
+.sob-alerta--warning { --sob-alerta-cor: #f56a12; --sob-alerta-fundo: rgba(245, 106, 18, .88); --sob-alerta-borda: rgba(245, 106, 18, .25); }
+.sob-alerta--danger { --sob-alerta-cor: #ed1738; --sob-alerta-fundo: rgba(237, 23, 56, .88); --sob-alerta-borda: rgba(237, 23, 56, .25); }
+.sob-alerta__icone { width: 36px; height: 36px; }
+.sob-alerta__icone svg { display: block; width: 100%; height: 100%; }
+.sob-alerta__titulo { margin: 0 0 3px; font-size: 18px; font-weight: 700; line-height: 1.2; }
+.sob-alerta__mensagem { margin: 0; font-size: 15px; line-height: 1.4; overflow-wrap: anywhere; white-space: pre-wrap; }
+.sob-alerta__fechar {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  color: inherit;
+  font-size: 23px;
+  font-weight: 700;
+  line-height: 24px;
+  cursor: pointer;
+}
+.sob-alerta__fechar:hover { background: rgba(0, 0, 0, .05); }
+.sob-alerta__fechar:focus-visible { outline: 2px solid currentColor; outline-offset: 2px; }
+.sob-alerta__tempo { height: 3px; margin-top: 12px; overflow: hidden; border-radius: 4px; background: rgba(255, 255, 255, .3); }
+.sob-alerta__progresso { display: block; height: 100%; background: currentColor; opacity: .9; transform-origin: left; animation: sob-alerta-tempo linear forwards; }
+@keyframes sob-alerta-entrada { from { opacity: 0; transform: translateX(15px); } to { opacity: 1; transform: translateX(0); } }
+@keyframes sob-alerta-tempo { to { transform: scaleX(0); } }
+@media (prefers-reduced-motion: reduce) {
+  .sob-alerta { animation: none; }
+  .sob-alerta__progresso { animation: none; }
+}

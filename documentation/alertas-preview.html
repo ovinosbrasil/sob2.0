@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Prévia do componente de alertas</title>
+  <link rel="stylesheet" href="../dist/css/alertas.css">
+  <style>
+    body { margin: 0; background: #ecf0f5; font: 16px Arial, sans-serif; color: #263238; }
+    header { padding: 16px 24px; background: #00a65a; color: white; font-weight: bold; }
+    main { margin: 24px; padding: 24px; max-width: 600px; background: white; border-radius: 6px; }
+    button { padding: 10px 16px; margin: 4px; cursor: pointer; }
+    h1 { font-size: 24px; }
+  </style>
+</head>
+<body>
+  <header>Ovinos Brasil</header>
+  <main>
+    <h1>Prévia dos alertas</h1>
+    <p>Componente isolado para conferir aparência e comportamento.</p>
+    <button data-tipo="success">Cadastro realizado</button>
+    <button data-tipo="warning">Campos obrigatórios</button>
+    <button data-tipo="danger">Erro</button>
+    <p>Os alertas fecham após seis segundos. Passe o mouse ou use Tab para pausar.</p>
+  </main>
+  <script src="../dist/js/alertas.js"></script>
+  <script>
+    var padroes = {
+      success: function () { SobAlertas.cadastroRealizado(); },
+      warning: function () { SobAlertas.camposObrigatorios(); },
+      danger: function () { SobAlertas.erro(); }
+    };
+    document.querySelectorAll('[data-tipo]').forEach(function (botao) {
+      botao.addEventListener('click', function () {
+        padroes[botao.dataset.tipo]();
+      });
+    });
+    ['success', 'warning', 'danger'].forEach(function (tipo) {
+      padroes[tipo]();
+    });
+  </script>
+</body>
+</html>

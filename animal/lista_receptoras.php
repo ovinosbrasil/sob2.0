@@ -4,154 +4,12 @@ if (empty($_SESSION['receptora_csrf'])) {
 }
 $receptoraFlash = isset($_SESSION['receptora_flash']) ? $_SESSION['receptora_flash'] : null;
 unset($_SESSION['receptora_flash']);
-$receptoras = array();
-$mediasPorParto = array();
-$historicosReceptoras = array();
-$criasPorParto = array();
-$buscaReceptora = isset($_GET['busca']) && is_string($_GET['busca']) ? trim($_GET['busca']) : '';
-$filtroPaginacao = '&amp;busca=' . rawurlencode($buscaReceptora);
-$totalReceptoras = 0;
-$porPagina = filter_var($_GET['por_pagina'] ?? 10, FILTER_VALIDATE_INT);
-if (!in_array($porPagina, array(10, 20, 50, 100), true)) { $porPagina = 10; }
-$offsetReceptoras = 0;
-$paginaReceptoras = filter_var($_GET['pag'] ?? 1, FILTER_VALIDATE_INT);
-$paginaReceptoras = max(1, (int) $paginaReceptoras);
-$totalPaginas = 1;
-$erroReceptoras = '';
-$linkReceptoras = DBConnect();
-try {
-    if (!mysqli_set_charset($linkReceptoras, 'utf8mb4')) {
-        throw new RuntimeException('Falha ao configurar conexão.');
-    }
-    $filtroNome = $buscaReceptora !== '' ? " WHERE nome LIKE ? ESCAPE '!'" : '';
-    $padraoBusca = '%' . strtr($buscaReceptora, array('!' => '!!', '%' => '!%', '_' => '!_')) . '%';
-    $consultaTotal = mysqli_prepare($linkReceptoras, 'SELECT COUNT(*) AS total FROM receptora' . $filtroNome);
-    if (!$consultaTotal) {
-        throw new RuntimeException('Falha ao preparar pesquisa.');
-    }
-    if ($filtroNome !== '') {
-        mysqli_stmt_bind_param($consultaTotal, 's', $padraoBusca);
-    }
-    if (!mysqli_stmt_execute($consultaTotal)) {
-        throw new RuntimeException('Falha ao pesquisar receptoras.');
-    }
-    $resultado = mysqli_stmt_get_result($consultaTotal);
-    mysqli_stmt_close($consultaTotal);
-    if (!$resultado) {
-        throw new RuntimeException('Falha ao consultar receptoras.');
-    }
-    $totalReceptoras = (int) mysqli_fetch_assoc($resultado)['total'];
-    $totalPaginas = max(1, (int) ceil($totalReceptoras / $porPagina));
-    $paginaReceptoras = min($paginaReceptoras, $totalPaginas);
-    $offsetReceptoras = ($paginaReceptoras - 1) * $porPagina;
-    $consultaLista = mysqli_prepare($linkReceptoras, "SELECT r.id, r.nome, r.ativo,
-            COUNT(tc.id) AS lotes,
-            COALESCE(SUM(tc.ultrassom = 1), 0) AS ultrassom_positivo,
-            COALESCE(SUM(tc.ultrassom = 2), 0) AS ultrassom_negativo,
-            COALESCE(SUM(tc.ultrassom = 0), 0) AS ultrassom_nao_informado,
-            COALESCE(SUM(tc.status_nascimento = 1), 0) AS nascidos,
-            COALESCE(SUM(tc.status_nascimento = 0), 0) AS nao_nascidos,
-            COALESCE(
-                (SELECT historico.ultrassom
-                 FROM transplante_controle AS historico
-                 INNER JOIN transplante AS lote ON lote.id = historico.id_lote
-                 WHERE historico.id_receptora = r.id
-                 ORDER BY lote.id DESC, historico.id DESC LIMIT 1) = 2
-                AND
-                (SELECT historico.ultrassom
-                 FROM transplante_controle AS historico
-                 INNER JOIN transplante AS lote ON lote.id = historico.id_lote
-                 WHERE historico.id_receptora = r.id
-                 ORDER BY lote.id DESC, historico.id DESC LIMIT 1 OFFSET 1) = 2,
-                0
-            ) AS duas_ultimas_negativas
-        FROM (SELECT id, nome, ativo FROM receptora $filtroNome ORDER BY id DESC LIMIT $offsetReceptoras, $porPagina) AS r
-        LEFT JOIN transplante_controle AS tc ON tc.id_receptora = r.id
-        GROUP BY r.id, r.nome, r.ativo
-        ORDER BY r.id DESC");
-    if (!$consultaLista) {
-        throw new RuntimeException('Falha ao preparar listagem.');
-    }
-    if ($filtroNome !== '') {
-        mysqli_stmt_bind_param($consultaLista, 's', $padraoBusca);
-    }
-    if (!mysqli_stmt_execute($consultaLista)) {
-        throw new RuntimeException('Falha ao pesquisar receptoras.');
-    }
-    $resultado = mysqli_stmt_get_result($consultaLista);
-    mysqli_stmt_close($consultaLista);
-    if (!$resultado) {
-        throw new RuntimeException('Falha ao listar receptoras.');
-    }
-    while ($linha = mysqli_fetch_assoc($resultado)) {
-        $receptoras[] = $linha;
-    }
-    // Agrupa os animais vinculados diretamente à receptora por data do parto.
-    if ($receptoras) {
-        $idsReceptoras = implode(',', array_map('intval', array_column($receptoras, 'id')));
-        $resultadoCrias = mysqli_query($linkReceptoras, "SELECT cria.id_receptora, cria.data_de_nascimento,
-                cria.nome AS cria, CASE WHEN cria.terceiro_pai = 1 THEN externo.nome ELSE pai.nome END AS pai
-            FROM animais AS cria
-            LEFT JOIN animais AS pai ON pai.id = cria.pai AND COALESCE(cria.terceiro_pai, 0) = 0
-            LEFT JOIN terceiros AS externo ON externo.id = cria.pai AND cria.terceiro_pai = 1
-            WHERE cria.id_receptora IN ($idsReceptoras)
-              AND cria.data_de_nascimento IS NOT NULL
-              AND CAST(cria.data_de_nascimento AS CHAR) <> '0000-00-00'
-            ORDER BY cria.nome, cria.id");
-        if (!$resultadoCrias) {
-            throw new RuntimeException('Falha ao consultar crias e pais das receptoras.');
-        }
-        while ($cria = mysqli_fetch_assoc($resultadoCrias)) {
-            $criasPorParto[(int) $cria['id_receptora']][$cria['data_de_nascimento']][] = $cria;
-        }
-        $resultadoHistorico = mysqli_query($linkReceptoras, "SELECT tc.id_receptora, tc.id_lote,
-                tc.ultrassom, tc.status_nascimento, t.codigo, t.data,
-                partos.data_de_nascimento, partos.peso_parto
-            FROM transplante_controle AS tc
-            LEFT JOIN transplante AS t ON t.id = tc.id_lote
-            LEFT JOIN (
-                SELECT a.id_receptora, a.data_de_nascimento,
-                    CASE WHEN COUNT(*) = COUNT(CASE WHEN a.peso2 > 0 THEN 1 END)
-                         THEN SUM(a.peso2) ELSE NULL END AS peso_parto
-                FROM animais AS a
-                WHERE a.id_receptora IN ($idsReceptoras)
-                  AND a.data_de_nascimento IS NOT NULL
-                  AND CAST(a.data_de_nascimento AS CHAR) <> '0000-00-00'
-                GROUP BY a.id_receptora, a.data_de_nascimento
-            ) AS partos ON partos.id_receptora = tc.id_receptora
-                AND partos.data_de_nascimento BETWEEN DATE_ADD(t.data, INTERVAL 146 DAY)
-                                                   AND DATE_ADD(t.data, INTERVAL 161 DAY)
-            WHERE tc.id_receptora IN ($idsReceptoras)
-            ORDER BY tc.id_lote DESC, tc.id DESC, partos.data_de_nascimento");
-        if (!$resultadoHistorico) {
-            throw new RuntimeException('Falha ao consultar histórico das receptoras.');
-        }
-        while ($historico = mysqli_fetch_assoc($resultadoHistorico)) {
-            $historicosReceptoras[(int) $historico['id_receptora']][] = $historico;
-        }
-        $resultadoMedias = mysqli_query($linkReceptoras, "SELECT partos.id_receptora, AVG(partos.peso_parto) AS media_peso
-            FROM (
-                SELECT a.id_receptora, a.data_de_nascimento, SUM(a.peso2) AS peso_parto
-                FROM animais AS a
-                WHERE a.id_receptora IN ($idsReceptoras)
-                  AND a.data_de_nascimento IS NOT NULL
-                  AND CAST(a.data_de_nascimento AS CHAR) <> '0000-00-00'
-                GROUP BY a.id_receptora, a.data_de_nascimento
-                HAVING COUNT(*) = COUNT(CASE WHEN a.peso2 > 0 THEN 1 END)
-            ) AS partos
-            GROUP BY partos.id_receptora");
-        if (!$resultadoMedias) {
-            throw new RuntimeException('Falha ao calcular a média por parto.');
-        }
-        while ($mediaParto = mysqli_fetch_assoc($resultadoMedias)) {
-            $mediasPorParto[(int) $mediaParto['id_receptora']] = (float) $mediaParto['media_peso'];
-        }
-    }
-} catch (Exception $e) {
-    $erroReceptoras = 'Não foi possível carregar as receptoras. Verifique se as migrações de receptoras foram aplicadas.';
-}
-DBClose($linkReceptoras);
+require_once __DIR__ . '/_consulta_receptoras.php';
+extract(consultarReceptoras($_GET), EXTR_OVERWRITE);
 ?>
+<link rel="stylesheet" href="dist/css/alertas.css?v=<?=filemtime(__DIR__ . '/../dist/css/alertas.css')?>">
+<script src="dist/js/alertas.js?v=<?=filemtime(__DIR__ . '/../dist/js/alertas.js')?>"></script>
+<script src="animal/cadastro_receptora.js?v=<?=filemtime(__DIR__ . '/cadastro_receptora.js')?>"></script>
 <style>
 .table > tbody > tr.receptora-inativa > td:not(:last-child) {
   opacity: .5;
@@ -165,7 +23,7 @@ DBClose($linkReceptoras);
   </ol>
 </section>
 <section class="content">
-  <?php if ($receptoraFlash !== null): ?>
+  <?php if ($receptoraFlash !== null && !in_array($receptoraFlash['contexto'] ?? '', array('cadastro', 'exclusao', 'status'), true)): ?>
     <div class="alert <?= $receptoraFlash['erro'] !== '' ? 'alert-danger' : 'alert-success' ?>" role="alert">
       <?= htmlspecialchars($receptoraFlash['erro'] !== '' ? $receptoraFlash['erro'] : (isset($receptoraFlash['sucesso']) ? $receptoraFlash['sucesso'] : 'Receptora cadastrada com sucesso.'), ENT_QUOTES, 'UTF-8') ?>
     </div>
@@ -180,11 +38,14 @@ DBClose($linkReceptoras);
             <label for="busca_receptora">Pesquisar receptora</label>
             <input type="search" class="form-control" id="busca_receptora" name="busca" placeholder="Nome da receptora" value="<?=htmlspecialchars($buscaReceptora, ENT_QUOTES, 'UTF-8')?>">
           </div>
-          <button type="submit" class="btn btn-primary">Pesquisar</button>
-          <a href="geral.php?pg=lista_receptoras" class="btn btn-default">Limpar</a>
+          <div style="display:flex; gap:8px; width:388px; max-width:100%;">
+            <a id="pdf-receptoras" class="btn btn-primary" style="flex:1;" href="animal/_imprimir_receptoras.php?busca=<?=rawurlencode($buscaReceptora)?>">Gerar pdf</a>
+            <a href="geral.php?pg=lista_receptoras" class="btn btn-default" style="flex:1;">Limpar</a>
+          </div>
         </form>
         <button type="button" class="btn btn-success" data-toggle="modal" data-target="#cadastro-receptora"><i class="fa fa-plus" aria-hidden="true"></i> Cadastrar receptora</button>
       </div>
+      <div id="resultados-receptoras" aria-live="polite">
       <?php if ($erroReceptoras !== ''): ?>
         <div class="alert alert-danger" role="alert"><?= $erroReceptoras ?></div>
       <?php else: ?>
@@ -249,7 +110,6 @@ DBClose($linkReceptoras);
           </table>
         </div>
       <?php endif; ?>
-    </div>
     <?php if ($erroReceptoras === ''): ?>
       <?php
       $filtros = array('busca' => $buscaReceptora);
@@ -314,22 +174,21 @@ DBClose($linkReceptoras);
             <?php endif; ?>
           </div>
     <?php endif; ?>
+      </div>
+    </div>
   </div>
 </section>
 
 <div class="modal fade" id="cadastro-receptora" tabindex="-1" role="dialog" aria-labelledby="titulo-cadastro-receptora">
   <div class="modal-dialog" role="document" style="width:440px; max-width:calc(100vw - 32px); margin:10vh auto;">
     <div class="modal-content" style="border:0; border-radius:12px;">
-      <form action="animal/_cadastrar_receptora.php" method="post">
+      <form action="animal/_cadastrar_receptora.php" method="post" novalidate onsubmit="return validarCadastroReceptora(this)">
         <div class="modal-header">
           <button type="button" class="close" data-dismiss="modal" aria-label="Fechar">&times;</button>
           <h4 class="modal-title" id="titulo-cadastro-receptora">Cadastrar receptora</h4>
         </div>
         <div class="modal-body">
           <input type="hidden" name="csrf_token" value="<?=htmlspecialchars($_SESSION['receptora_csrf'], ENT_QUOTES, 'UTF-8')?>">
-          <?php if ($receptoraFlash !== null && $receptoraFlash['erro'] !== '' && !isset($receptoraFlash['sucesso'])): ?>
-          <div class="alert alert-danger" role="alert"><?=htmlspecialchars($receptoraFlash['erro'], ENT_QUOTES, 'UTF-8')?></div>
-          <?php endif; ?>
           <div class="form-group">
             <label for="nome_receptora">Nome <span class="text-danger">*</span></label>
             <input type="text" class="form-control" id="nome_receptora" name="nome" maxlength="50" required placeholder="Nome da receptora" value="<?=htmlspecialchars($receptoraFlash['nome'] ?? '', ENT_QUOTES, 'UTF-8')?>">
@@ -344,6 +203,7 @@ DBClose($linkReceptoras);
   </div>
 </div>
 
+<div id="historicos-receptoras">
 <?php if ($erroReceptoras === ''): ?>
   <?php foreach ($receptoras as $receptora): ?>
     <div class="modal fade" id="historico-receptora-<?= (int) $receptora['id'] ?>" tabindex="-1" role="dialog" aria-labelledby="titulo-historico-<?= (int) $receptora['id'] ?>">
@@ -396,6 +256,8 @@ DBClose($linkReceptoras);
     </div>
   <?php endforeach; ?>
 <?php endif; ?>
+</div>
+<script src="animal/pesquisa_receptoras.js"></script>
 <script>
 function confirmarExclusaoReceptora(event, formulario) {
     event.preventDefault();
@@ -407,13 +269,29 @@ function confirmarExclusaoReceptora(event, formulario) {
     });
 }
 document.addEventListener('DOMContentLoaded', function () {
+    <?php if (($receptoraFlash['contexto'] ?? '') === 'cadastro'): ?>
+      <?php if ($receptoraFlash['erro'] === ''): ?>
+        SobAlertas.cadastroRealizado({mensagem: 'Receptora cadastrada com sucesso.'});
+      <?php elseif (($receptoraFlash['tipo_alerta'] ?? '') === 'warning'): ?>
+        SobAlertas.mostrar({tipo: 'warning', mensagem: <?=json_encode($receptoraFlash['erro'], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT)?>});
+      <?php else: ?>
+        SobAlertas.erro({mensagem: <?=json_encode($receptoraFlash['erro'], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT)?>});
+      <?php endif; ?>
+    <?php endif; ?>
+    <?php if (in_array($receptoraFlash['contexto'] ?? '', array('exclusao', 'status'), true)): ?>
+      <?php if ($receptoraFlash['erro'] === ''): ?>
+        SobAlertas.mostrar({tipo: 'success', mensagem: <?=json_encode($receptoraFlash['sucesso'], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT)?>});
+      <?php else: ?>
+        SobAlertas.erro({mensagem: <?=json_encode($receptoraFlash['erro'], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT)?>});
+      <?php endif; ?>
+    <?php endif; ?>
     jQuery('#cadastro-receptora').on('shown.bs.modal', function () {
         document.getElementById('nome_receptora').focus();
     });
     <?php if ($receptoraFlash !== null && $receptoraFlash['erro'] !== '' && !isset($receptoraFlash['sucesso'])): ?>
     jQuery('#cadastro-receptora').modal('show');
     <?php endif; ?>
-    jQuery('.receptora-historico').on('click', function (event) {
+    jQuery(document).on('click', '.receptora-historico', function (event) {
         if (jQuery(event.target).closest('button, a, input, select, textarea, label, form').length) {
             return;
         }

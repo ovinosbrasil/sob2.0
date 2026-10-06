@@ -36,6 +36,6 @@ if (empty($_SESSION['receptora_csrf']) || !hash_equals($_SESSION['receptora_csrf
     }
     DBClose($link);
 }
-$_SESSION['receptora_flash'] = array('erro' => $erro, 'nome' => '', 'sucesso' => 'Receptora excluída com sucesso.');
+$_SESSION['receptora_flash'] = array('erro' => $erro, 'nome' => '', 'sucesso' => 'Receptora excluída com sucesso.', 'contexto' => 'exclusao');
 header('Location: ../geral.php?pg=lista_receptoras&pag=' . $pagina . '&por_pagina=' . $porPagina . '&busca=' . rawurlencode($busca), true, 303);
 exit;

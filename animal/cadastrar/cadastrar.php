@@ -473,67 +473,15 @@ $dataNascimentoValida = $dataNascimentoValidada && $dataNascimentoValidada->form
   </div>
   <div class="box" style="border-top:0;">
     <div class="box-body">
-            <? { ?>
-            <h3 class="box-title" style="font-size:16px; margin:0 0 15px;">Últimos nascimentos cadastrados</h3>
-          <div class="table-responsive">
-          <table class="table table-bordered table-striped">
-            <thead><tr>
-              <th>Data de nascimento</th>
-              <th>Animal</th>
-              <th>Sexo</th>
-              <th>Pai</th>
-              <th>Mãe</th>
-            </tr></thead>
-            <tbody>
-            <?
-            $nasc = DBRead('animais', "WHERE entrada = 0 ORDER BY id desc LIMIT 15");
-            if (!$nasc) { echo '<tr><td colspan="5" class="text-center">Nenhum nascimento cadastrado.</td></tr>'; }
-            foreach (($nasc ?: []) as $nasc_) {
-
-              $data = $nasc_['data_de_nascimento'];
-              $data_atual = $data;
-              $data = '0';
-              $data['0'] = $data_atual['8'];
-              $data['1'] = $data_atual['9'];
-              $data['2'] = "/";
-              $data['3'] = $data_atual['5'];
-              $data['4'] = $data_atual['6'];
-              $data['5'] = "/";
-              $data['6'] = $data_atual['0'];
-              $data['7'] = $data_atual['1'];
-              $data['8'] = $data_atual['2'];
-              $data['9'] = $data_atual['3'];
-              $data_nascimento = $data;
-
-
-              $id_pai = $nasc_['pai'];
-              if($nasc_['terceiro_pai']){
-                $pai = DBRead('terceiros', "WHERE id = '$id_pai'");
-              }else{
-                $pai = DBRead('animais', "WHERE id = '$id_pai'");
-              }
-
-              $id_mae = $nasc_['mae'];
-              if($nasc_['terceiro_mae']){
-                $mae = DBRead('terceiros', "WHERE id = '$id_mae'");
-              }else{
-                $mae = DBRead('animais', "WHERE id = '$id_mae'");
-              }
-            ?>
-            <? if($nasc_['status'] > 0){ ?> <tr style="color:red;"> <? }else{ ?> <tr> <? } ?>
-              <td><?=$data_nascimento?></td>
-              <td style="cursor:pointer;" onclick="abrir_animal(<?=$nasc_['id']?>)"><?=$nasc_['nome']?></td>
-              <td><?=$nasc_['sexo']?></td>
-              <? if($nasc_['terceiro_pai']){ ?> <td onclick="abrir_terceiro(<?=$pai[0]['id']?>)" style="cursor:pointer;"><?=$pai[0]['nome']?></td> <? } ?>
-              <? if(!$nasc_['terceiro_pai']){ ?> <td onclick="abrir_animal(<?=$pai[0]['id']?>)" style="cursor:pointer;"><?=$pai[0]['nome']?></td> <? } ?>
-              <? if($nasc_['terceiro_mae']){ ?> <td onclick="abrir_terceiro(<?=$mae[0]['id']?>)" style="cursor:pointer;"><?=$mae[0]['nome']?></td> <? } ?>
-              <? if(!$nasc_['terceiro_mae']){ ?> <td onclick="abrir_animal(<?=$mae[0]['id']?>)" style="cursor:pointer;"><?=$mae[0]['nome']?></td> <? } ?>
-            </tr>
-          <? } ?>
-            </tbody>
-            </table>
-          </div>
-          <? } ?>
+      <h3 class="box-title" style="font-size:16px; margin:0 0 15px;">Últimos nascimentos cadastrados</h3>
+      <div id="lista-ultimos-nascimentos" aria-live="polite">
+        <?php
+        require_once __DIR__ . '/_lista_nascimentos.php';
+        renderListaNascimentos(consultarUltimosNascimentos($_GET));
+        ?>
+      </div>
+      <p id="erro-lista-nascimentos" class="text-danger" role="alert"></p>
+      <script src="animal/cadastrar/lista_nascimentos.js"></script>
           <? if($nome_mae && !$dataNascimentoValida){ ?>
             <p role="alert">Informe uma data de nascimento válida no formato dia/mês/ano para consultar os lotes da matriz.</p>
           <? }elseif ($nome_mae){ ?>

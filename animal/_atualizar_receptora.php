@@ -48,6 +48,7 @@ $_SESSION['receptora_flash'] = array(
     'erro' => $erro,
     'nome' => '',
     'sucesso' => 'Status da receptora atualizado com sucesso.',
+    'contexto' => 'status',
 );
 header('Location: ../geral.php?pg=lista_receptoras&pag=' . $pagina . '&busca=' . rawurlencode($busca) . '&por_pagina=' . $porPagina, true, 303);
 exit;

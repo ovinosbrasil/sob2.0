@@ -1,44 +1,31 @@
+<?php
+$tarefaFlash = $_SESSION['tarefa_flash'] ?? null;
+unset($_SESSION['tarefa_flash']);
+$tarefaValores = $tarefaFlash['valores'] ?? array();
+if (empty($_SESSION['tarefa_exclusao_csrf'])) {
+    $_SESSION['tarefa_exclusao_csrf'] = bin2hex(random_bytes(32));
+}
+?>
+<link rel="stylesheet" href="dist/css/alertas.css?v=<?=filemtime(__DIR__ . '/dist/css/alertas.css')?>">
+<script src="dist/js/alertas.js?v=<?=filemtime(__DIR__ . '/dist/js/alertas.js')?>"></script>
+<script src="alerta/cadastro_tarefa.js?v=<?=filemtime(__DIR__ . '/alerta/cadastro_tarefa.js')?>"></script>
+<?php if ($tarefaFlash): ?>
+<script>
+SobAlertas.mostrar(<?=json_encode(array('tipo' => $tarefaFlash['tipo'], 'mensagem' => $tarefaFlash['mensagem']), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT)?>);
+</script>
+<?php endif; ?>
 <script type="text/javascript">
-function validar(){
-  saida = 0;
-  if(!document.getElementById("titulo").value){
-    document.getElementById("titulo").style.border = "1px solid red";
-    saida = 1;
-  }else{document.getElementById("titulo").style.border = "1px solid green";}
-
-  if(!document.getElementById("data").value){
-    document.getElementById("data").style.border = "1px solid red";
-    saida = 1;
-  }else{document.getElementById("data").style.border = "1px solid green";}
-
-  if(saida){ return false; }else{ return true; }
-}
-
-function excluir_alerta(id_alerta){
-  if(window.XMLHttpRequest) { PP = new XMLHttpRequest();} else if(window.ActiveXObject) { PP = new ActiveXObject("Microsoft.XMLHTTP"); }
-  // Arquivo PHP juntamente com o valor digitado no campo (método GET)
-  var url = "alerta/palco_excluir.php?id_alerta="+id_alerta;
-  // Chamada do método open para processar a requisição
-  PP.open("Get", url, true);
-  // Quando o objeto recebe o retorno, chamamos a seguinte função;
-  PP.onreadystatechange = function() {
-  if (PP.readyState == 4) {
-  resposta = PP.responseText;
-  document.getElementById("palco_excluir").innerHTML = resposta;
-  }
-  }
-  PP.send(null);
-  document.getElementById("transparencia").style.display = 'block';
-  document.getElementById("palco_excluir").style.display = 'block';
-}
-
-function fechar_excluir_alerta(){
-  document.getElementById("transparencia").style.display = 'none';
-  document.getElementById("palco_excluir").style.display = 'none';
-}
-
-function ativar_excluir_alerta(id_alerta){
-    window.location.href = "alerta/_excluir_alerta.php?id_alerta="+id_alerta;
+function excluir_alerta(botao){
+  confirmarExclusao({
+    titulo: 'Excluir tarefa?',
+    nome: botao.getAttribute('data-titulo'),
+    descricao: 'Confirme se deseja excluir esta tarefa do calendário de manejo. Esta ação não pode ser desfeita.',
+    aoConfirmar: function () {
+      var formulario = document.getElementById('excluir-tarefa-form');
+      formulario.elements.id_alerta.value = botao.getAttribute('data-id');
+      formulario.submit();
+    }
+  });
 }
 
 </script>
@@ -165,37 +152,37 @@ $vendidos = count($vendidos);
           <h3 class="box-title">Calendário de manejo</h3>
         </div>
 
-      <form method="post" action="alerta/_cadastrar.php" onsubmit="return validar()">
+      <form method="post" action="alerta/_cadastrar.php" onsubmit="return validarTarefa()" novalidate>
         <!-- /.box-header -->
         <div class="box-body">
 
         <div class="col-md-3">
           <div class="form-group">
-              <label for="exampleInputPassword1">Título<span style="color:#F00;">*</span></label>
-              <input type="text" class="form-control" id="titulo" name="titulo">
+              <label for="titulo">Título<span style="color:#F00;">*</span></label>
+              <input type="text" class="form-control" id="titulo" name="titulo" required value="<?=htmlspecialchars($tarefaValores['titulo'] ?? '', ENT_QUOTES, 'UTF-8')?>">
           </div>
         </div>
 
         <div class="col-md-3">
           <div class="form-group">
-              <label for="exampleInputPassword1">Data<span style="color:#F00;">*</span></label>
+              <label for="data">Data<span style="color:#F00;">*</span></label>
               <div class="input-group date">
                 <div class="input-group-addon">
                   <i class="fa fa-calendar"></i>
                 </div>
-                <input type="text" class="form-control pull-right" id="data" name="data">
+                <input type="text" class="form-control pull-right" id="data" name="data" required value="<?=htmlspecialchars($tarefaValores['data'] ?? '', ENT_QUOTES, 'UTF-8')?>">
               </div>
           </div>
         </div>
 
         <div class="col-md-3">
           <div class="form-group">
-              <label for="exampleInputPassword1">Prioridade</label>
+              <label for="prioridade">Prioridade</label>
               <select class="form-control select" id="prioridade" name="prioridade">
               <option value="x">Selecionar</option>
                 <option></option>
-                <option value="1">Sim</option>
-                <option value="0">Não</option>
+                <option value="1" <?=($tarefaValores['prioridade'] ?? '') === '1' ? 'selected' : ''?>>Sim</option>
+                <option value="0" <?=($tarefaValores['prioridade'] ?? '') === '0' ? 'selected' : ''?>>Não</option>
               </select>
           </div>
         </div>
@@ -227,9 +214,9 @@ $vendidos = count($vendidos);
 
         <? if($alerta_['status']){ ?>
             <div class="alert alert-danger alert-dismissible" style="width:98%; margin-left:1%;"> <? }else{ ?> <div class="alert alert-success alert-dismissible" style="width:98%; margin-left:1%;"> <? } ?>
-            <button type="button" class="close" aria-hidden="true" onclick="excluir_alerta(<?=$id_alerta?>)">&times;</button>
+            <button type="button" class="close" aria-label="Excluir tarefa" data-id="<?=(int)$id_alerta?>" data-titulo="<?=htmlspecialchars($alerta_['titulo'], ENT_QUOTES, 'UTF-8')?>" onclick="excluir_alerta(this)">&times;</button>
             <h4><i class="icon fa fa-warning"></i> Data: <?=$data?> </h4>
-            <?=$alerta_['titulo']?>
+            <?=htmlspecialchars($alerta_['titulo'], ENT_QUOTES, 'UTF-8')?>
             </div>
         <? } ?>
         <br/>
@@ -238,3 +225,8 @@ $vendidos = count($vendidos);
 </div>
 </section>
 <!-- /.content -->
+
+<form id="excluir-tarefa-form" action="alerta/_excluir_alerta.php" method="post" hidden>
+  <input type="hidden" name="id_alerta" value="">
+  <input type="hidden" name="csrf_token" value="<?=htmlspecialchars($_SESSION['tarefa_exclusao_csrf'], ENT_QUOTES, 'UTF-8')?>">
+</form>
