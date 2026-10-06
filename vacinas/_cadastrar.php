@@ -1,6 +1,6 @@
 <?php
 require_once __DIR__ . '/../_config.php';
-function voltarCadastroVacinaIndividual($mensagem,array $dados=array()){$dados['pg']='cadastrar_vacina';$dados['erro']=$mensagem;header('Location: ../geral.php?'.http_build_query($dados),true,303);exit;}
+function voltarCadastroVacinaIndividual($mensagem,array $dados=array()){$_SESSION['alerta_vacina']=array('tipo'=>'warning','titulo'=>'Atenção!','mensagem'=>$mensagem);$dados['pg']='cadastrar_vacina';header('Location: ../geral.php?'.http_build_query($dados),true,303);exit;}
 if($_SERVER['REQUEST_METHOD']!=='POST'){header('Location: ../geral.php?pg=cadastrar_vacina');exit;}
 $nomes=array_values(array_map(function($v){return trim((string)$v);},(array)($_POST['animal']??array())));
 $idsRecebidos=array_values((array)($_POST['animal_id']??array()));$origens=array_values((array)($_POST['animal_origem']??array()));
@@ -23,4 +23,5 @@ try{
     foreach($animais as $idAnimal){mysqli_stmt_bind_param($stmt,'iiss',$idAnimal,$idVacina,$dataBanco,$observacao);if(!mysqli_stmt_execute($stmt))throw new RuntimeException('Falha ao cadastrar a vacina.');}
     mysqli_stmt_close($stmt);mysqli_commit($link);DBClose($link);
 }catch(Throwable $erroCadastro){mysqli_rollback($link);DBClose($link);voltarCadastroVacinaIndividual('Não foi possível cadastrar as vacinas.',$retorno);}
+$_SESSION['alerta_vacina']=array('tipo'=>'success','titulo'=>'Sucesso!','mensagem'=>count($animais)===1?'Vacina cadastrada com sucesso.':'Vacina cadastrada para '.count($animais).' animais com sucesso.');
 header('Location: ../geral.php?pg=vacinas',true,303);exit;

@@ -31,5 +31,8 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST' || !$idSemen || $idSemen < 1) {
 if ($erro !== '') {
     $_SESSION['semen_flash'] = array('erro' => $erro);
 }
+$_SESSION['alerta_semen'] = $erro !== ''
+    ? array('tipo'=>'warning', 'titulo'=>'Atenção!', 'mensagem'=>$erro)
+    : array('tipo'=>'success', 'titulo'=>'Sucesso!', 'mensagem'=>'Quantidade de sêmen alterada com sucesso.');
 header('Location: ../../geral.php?pg=semen', true, 303);
 exit;

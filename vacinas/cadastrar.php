@@ -21,12 +21,31 @@ function adicionarAnimalVacina(){
   item.querySelector('.sob-busca-animais__input').focus();
 }
 function removerAnimalVacina(botao){botao.closest('.animal-vacina-item').remove();}
+function validarCadastroVacina(formulario) {
+  var faltantes = [], primeiro;
+  formulario.querySelectorAll('[data-busca-animais]').forEach(function (componente, indice) {
+    var campo = componente.querySelector('.sob-busca-animais__input');
+    var vazio = !campo.value.trim() || !componente.querySelector('[data-busca-animais-id]').value;
+    campo.style.borderColor = vazio ? '#dd4b39' : '';
+    campo.setAttribute('aria-invalid', String(vazio));
+    if (vazio) { faltantes.push(indice === 0 ? 'Animal' : 'Outro animal ' + indice); primeiro = primeiro || campo; }
+  });
+  var nomes = {vacina:'Vacina', data_vacina:'Data'};
+  Object.keys(nomes).forEach(function (id) {
+    var campo = document.getElementById(id), vazio = !campo.value.trim();
+    campo.style.borderColor = vazio ? '#dd4b39' : '';
+    campo.setAttribute('aria-invalid', String(vazio));
+    if (vazio) { faltantes.push(nomes[id]); primeiro = primeiro || campo; }
+  });
+  if (faltantes.length) { SobAlertas.camposObrigatorios(faltantes); primeiro.focus(); return false; }
+  return true;
+}
 </script>
 <section class="content-header"><h1>Cadastrar vacina</h1><ol class="breadcrumb"><li><a href="geral.php?pg=vacinas"><i class="fa fa-eyedropper"></i> Vacinas</a></li><li class="active">Cadastrar</li></ol></section>
 <section class="content">
-<?php if($erro!==''):?><div class="alert alert-danger"><?=htmlspecialchars($erro,ENT_QUOTES,'UTF-8')?></div><?php endif;?>
+<?php if($erro!==''): $_SESSION['alerta_vacina']=array('tipo'=>'warning','titulo'=>'Atenção!','mensagem'=>$erro); endif;?>
 <div class="box" style="border-top:0;"><div class="box-body">
-<form method="post" action="vacinas/_cadastrar.php">
+<form method="post" action="vacinas/_cadastrar.php" onsubmit="return validarCadastroVacina(this)" novalidate>
   <div class="row"><div class="col-sm-12 col-md-6"><?php campoAnimalVacina(0,$nomes[0]??'',(int)($ids[0]??0),$origens[0]??'',false);?><div id="outros-animais-vacina"><?php for($i=1;$i<$quantidade;$i++)campoAnimalVacina($i,$nomes[$i]??'',(int)($ids[$i]??0),$origens[$i]??'',true);?></div></div></div>
   <div class="row" style="display:flex;flex-wrap:wrap;align-items:flex-end;">
     <div class="form-group col-sm-6 col-md-4"><label for="vacina">Vacina <span class="text-danger">*</span></label><div class="input-group"><select class="form-control" id="vacina" name="vacina" required><option value="">Selecionar</option><?php foreach($vacinas as $v):?><option value="<?=(int)$v['id']?>" <?=$vacinaId===(int)$v['id']?'selected':''?>><?=htmlspecialchars($v['nome'],ENT_QUOTES,'UTF-8')?></option><?php endforeach;?></select><span class="input-group-btn"><button type="button" class="btn btn-success" data-toggle="modal" data-target="#cadastro-nova-vacina">Novo</button></span></div></div>

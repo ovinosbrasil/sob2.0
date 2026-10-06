@@ -88,20 +88,35 @@ function semenUrlPagina($pagina, $porPagina)
 <script>
 function validarSemen() {
   var componente = document.querySelector('#form-cadastrar-semen [data-busca-animais]');
-  var campoId = componente ? componente.querySelector('[data-busca-animais-id]') : null;
-  var ids = ['data-semen', 'qtd-semen'];
-  var invalido = !campoId || !campoId.value;
-  if (componente) {
-    var entrada = componente.querySelector('.sob-busca-animais__input');
-    entrada.style.border = invalido ? '1px solid red' : '';
-  }
-  ids.forEach(function (id) {
-    var campo = document.getElementById(id);
-    var vazio = !campo || !campo.value.trim();
-    if (campo) { campo.style.border = vazio ? '1px solid red' : ''; }
-    if (vazio) { invalido = true; }
+  var campoId = componente.querySelector('[data-busca-animais-id]');
+  var entrada = componente.querySelector('.sob-busca-animais__input');
+  var faltantes = [], primeiro;
+  var machoInvalido = !campoId.value;
+  entrada.style.borderColor = machoInvalido ? '#dd4b39' : '';
+  entrada.setAttribute('aria-invalid', String(machoInvalido));
+  if (machoInvalido) { faltantes.push('Macho'); primeiro = entrada; }
+  var nomes = {'data-semen':'Data', 'qtd-semen':'Quantidade'};
+  Object.keys(nomes).forEach(function (id) {
+    var campo = document.getElementById(id), vazio = !campo.value.trim();
+    campo.style.borderColor = vazio ? '#dd4b39' : '';
+    campo.setAttribute('aria-invalid', String(vazio));
+    if (vazio) { faltantes.push(nomes[id]); primeiro = primeiro || campo; }
   });
-  return !invalido;
+  if (faltantes.length) { SobAlertas.camposObrigatorios(faltantes); primeiro.focus(); return false; }
+  return conferirQuantidadeSemen('qtd-semen', 1);
+}
+function conferirQuantidadeSemen(id, minimo) {
+  var campo = document.getElementById(id);
+  var valido = /^\d+$/.test(campo.value) && Number(campo.value) >= minimo;
+  campo.style.borderColor = valido ? '' : '#dd4b39';
+  campo.setAttribute('aria-invalid', String(!valido));
+  if (!valido) { SobAlertas.mostrar({tipo:'warning', titulo:'Atenção!', mensagem:'Informe uma quantidade inteira maior ou igual a ' + minimo + '.'}); campo.focus(); }
+  return valido;
+}
+function validarQuantidadeSemen() {
+  var campo = document.getElementById('qtd-alterar-semen');
+  if (!campo.value.trim()) { campo.style.borderColor = '#dd4b39'; SobAlertas.camposObrigatorios(['Quantidade']); campo.focus(); return false; }
+  return conferirQuantidadeSemen('qtd-alterar-semen', 0);
 }
 
 function abrirAlteracaoSemen(botao) {
@@ -144,12 +159,10 @@ function confirmarExclusaoVendaSemen(botao) {
 </section>
 
 <section class="content">
-  <?php if ($semenFlash !== null && !empty($semenFlash['erro'])): ?>
-  <div class="alert alert-danger" role="alert"><?=htmlspecialchars($semenFlash['erro'], ENT_QUOTES, 'UTF-8')?></div>
-  <?php endif; ?>
+
 
   <div class="box" style="border-top:0;">
-    <form id="form-cadastrar-semen" method="post" action="reproducao/semen/_cadastrar.php" onsubmit="return validarSemen()">
+    <form id="form-cadastrar-semen" method="post" action="reproducao/semen/_cadastrar.php" onsubmit="return validarSemen()" novalidate>
       <input type="hidden" name="csrf_token" value="<?=htmlspecialchars($_SESSION['semen_csrf'], ENT_QUOTES, 'UTF-8')?>">
       <div class="box-body">
         <div class="row">
@@ -304,7 +317,7 @@ function confirmarExclusaoVendaSemen(botao) {
 <div class="modal fade" id="modal-alterar-semen" tabindex="-1" role="dialog" aria-labelledby="titulo-alterar-semen">
   <div class="modal-dialog" role="document" style="width:440px;max-width:calc(100vw - 32px);margin:10vh auto;">
     <div class="modal-content" style="border:0;border-radius:12px;">
-      <form id="form-alterar-semen" method="post">
+      <form id="form-alterar-semen" method="post" onsubmit="return validarQuantidadeSemen()" novalidate>
         <div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Fechar">&times;</button><h4 class="modal-title" id="titulo-alterar-semen">Alterar quantidade</h4></div>
         <div class="modal-body">
           <input type="hidden" name="csrf_token" value="<?=htmlspecialchars($_SESSION['semen_csrf'], ENT_QUOTES, 'UTF-8')?>">

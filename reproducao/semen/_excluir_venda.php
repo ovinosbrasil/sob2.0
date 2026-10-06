@@ -21,9 +21,10 @@ try {
     mysqli_stmt_execute($stmt);
     mysqli_stmt_close($stmt);
     mysqli_commit($link);
+    $_SESSION['alerta_semen'] = array('tipo'=>'success', 'titulo'=>'Sucesso!', 'mensagem'=>'Venda de sêmen excluída com sucesso.');
 } catch (Exception $e) {
     mysqli_rollback($link);
-    $_SESSION['semen_flash'] = array('erro' => 'Não foi possível excluir a venda. Tente novamente.');
+    $_SESSION['alerta_semen'] = array('tipo'=>'danger', 'titulo'=>'Erro!', 'mensagem'=>'Não foi possível excluir a venda. Tente novamente.');
 }
 DBClose($link);
 header('Location: ../../geral.php?pg=semen', true, 303);

@@ -68,6 +68,10 @@ if ($buscarCadastro) {
     }
 }
 
+if ($buscarCadastro && ($cadErro !== '' || !$cadLotes)) {
+    $_SESSION['alerta_ultrassom'] = array('tipo'=>'warning', 'titulo'=>'Atenção!', 'mensagem'=>$cadErro !== '' ? $cadErro : 'Não há lotes pendentes de ultrassom para esta fêmea.');
+}
+
 $configuracoes = array(
     0 => array('tabela'=>'monta', 'controle'=>'monta_controle', 'fk'=>'id_monta', 'macho'=>'id_animal', 'terceiro'=>'terceiro'),
     1 => array('tabela'=>'inseminacao', 'controle'=>'inseminacao_controle', 'fk'=>'id_lote', 'macho'=>'id_macho', 'terceiro'=>'terceiro'),
@@ -164,6 +168,29 @@ if ($tipo === 1) {
 $urlPagina = 'geral.php?' . htmlspecialchars(http_build_query($parametrosPagina), ENT_QUOTES, 'UTF-8');
 ?>
 <script>
+function validarCadastroUltrassom() {
+  var campos = {'cad-femea-ultrassom':'Fêmea', 'cad-situacao-ultrassom':'Situação', 'cad-data-ultrassom':'Data'};
+  var faltantes = [], primeiro;
+  Object.keys(campos).forEach(function (id) {
+    var campo = document.getElementById(id);
+    var vazio = !campo.value.trim();
+    if (id === 'cad-femea-ultrassom') {
+      var componente = campo.closest('[data-busca-animais]');
+      vazio = vazio || !componente.querySelector('[data-busca-animais-id]').value;
+    }
+    campo.style.borderColor = vazio ? '#dd4b39' : '';
+    campo.setAttribute('aria-invalid', String(vazio));
+    if (vazio) { faltantes.push(campos[id]); primeiro = primeiro || campo; }
+  });
+  if (faltantes.length) { SobAlertas.camposObrigatorios(faltantes); primeiro.focus(); return false; }
+  return true;
+}
+function validarLoteUltrassom(formulario) {
+  if (!formulario.querySelector('input[name="vinculo"]:checked')) {
+    SobAlertas.camposObrigatorios(['Lote de reprodução']); return false;
+  }
+  return true;
+}
 function submeterFiltrosUltrassom() {
   var formulario = document.getElementById('filtros-ultrassom');
   if (formulario) { formulario.submit(); }
@@ -185,7 +212,7 @@ function selecionarLoteModalUltrassom(linha) {
 document.addEventListener('DOMContentLoaded', function () {
   var marcado = document.querySelector('#modal-lotes-ultrassom input[name="vinculo"]:checked');
   if (marcado) { selecionarLoteModalUltrassom(marcado.closest('tr')); }
-  <?php if ($buscarCadastro): ?>$('#modal-lotes-ultrassom').modal('show');<?php endif; ?>
+  <?php if ($buscarCadastro && $cadErro === '' && $cadLotes): ?>$('#modal-lotes-ultrassom').modal('show');<?php endif; ?>
 });
 </script>
 <section class="content-header">
@@ -194,7 +221,7 @@ document.addEventListener('DOMContentLoaded', function () {
 </section>
 <section class="content">
   <div class="box" style="border-top:0;"><div class="box-body">
-    <form action="geral.php" method="get">
+    <form action="geral.php" method="get" onsubmit="return validarCadastroUltrassom()" novalidate>
       <input type="hidden" name="pg" value="lista_ultrassom"><input type="hidden" name="buscar_cadastro" value="1">
       <?php if ($tipo === 1): ?><input type="hidden" name="tipo" value="1"><?php if ($reproducao !== null): ?><input type="hidden" name="reproducao" value="<?=$reproducao?>"><?php endif; ?><?php if ($idLote): ?><input type="hidden" name="id_lote" value="<?=$idLote?>"><?php endif; ?><?php endif; ?>
       <div class="row" style="display:flex; flex-wrap:wrap; align-items:flex-end;">
@@ -306,7 +333,7 @@ document.addEventListener('DOMContentLoaded', function () {
   <div class="modal fade" id="modal-lotes-ultrassom" tabindex="-1" role="dialog" aria-labelledby="titulo-modal-lotes-ultrassom">
     <div class="modal-dialog modal-lg" role="document"><div class="modal-content">
       <div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Fechar"><span aria-hidden="true">&times;</span></button><h4 class="modal-title" id="titulo-modal-lotes-ultrassom">Lotes disponíveis para <?=ultraH($cadFemea)?></h4></div>
-      <form action="reproducao/ultrassom/_cadastrar_registro.php" method="post">
+      <form action="reproducao/ultrassom/_cadastrar_registro.php" method="post" onsubmit="return validarLoteUltrassom(this)" novalidate>
         <div class="modal-body">
           <?php if ($cadErro !== ''): ?><div class="alert alert-danger"><?=ultraH($cadErro)?></div><?php endif; ?>
           <input type="hidden" name="femea_id" value="<?=$cadFemeaId?>"><input type="hidden" name="femea" value="<?=ultraH($cadFemea)?>"><input type="hidden" name="femea_origem" value="<?=ultraH($cadOrigem)?>"><input type="hidden" name="situacao" value="<?=$cadSituacao?>"><input type="hidden" name="data" value="<?=ultraH($cadDataTexto)?>">

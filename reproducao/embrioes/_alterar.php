@@ -17,5 +17,8 @@ else {
     DBClose($link);
 }
 if ($erro !== '') { $_SESSION['embriao_flash'] = array('erro'=>$erro); }
+$_SESSION['alerta_embrioes'] = $erro !== ''
+    ? array('tipo'=>'warning', 'titulo'=>'Atenção!', 'mensagem'=>$erro)
+    : array('tipo'=>'success', 'titulo'=>'Sucesso!', 'mensagem'=>'Quantidade de embriões alterada com sucesso.');
 header('Location: ../../geral.php?pg=embrioes', true, 303);
 exit;

@@ -115,6 +115,7 @@ try {
     mysqli_commit($link);
     $emTransacao = false;
     DBClose($link);
+    $_SESSION['alerta_semen'] = array('tipo'=>'success', 'titulo'=>'Sucesso!', 'mensagem'=>'Venda de sêmen cadastrada com sucesso.');
     header('Location: ../../geral.php?pg=semen', true, 303);
     exit;
 } catch (Exception $e) {
@@ -130,6 +131,7 @@ try {
     }
 }
 
+$_SESSION['alerta_semen'] = array('tipo'=>'warning', 'titulo'=>'Atenção!', 'mensagem'=>$erro);
 $_SESSION['semen_venda_flash'] = array('erro' => $erro, 'dados' => $dadosFormulario);
 header('Location: ../../geral.php?pg=vender_semen&id_embriao=' . (int)$idSemen, true, 303);
 exit;

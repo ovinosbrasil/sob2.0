@@ -71,5 +71,8 @@ if ($erro !== '') {
         'qualidade' => $qualidade,
     );
 }
+$_SESSION['alerta_semen'] = $erro !== ''
+    ? array('tipo'=>'warning', 'titulo'=>'Atenção!', 'mensagem'=>$erro)
+    : array('tipo'=>'success', 'titulo'=>'Sucesso!', 'mensagem'=>'Sêmen cadastrado com sucesso.');
 header('Location: ../../geral.php?pg=semen', true, 303);
 exit;

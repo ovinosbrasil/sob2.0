@@ -21,15 +21,22 @@ $dadosVenda = $vendaFlash['dados'] ?? array();
 ?>
 <script>
 function validarVendaEmbriao() {
-  var ids = ['comprador', 'data-venda-embriao', 'tipo-venda-embriao', 'valor-venda-embriao', 'qtd-venda-embriao'];
-  var invalido = false;
-  ids.forEach(function (id) {
-    var campo = document.getElementById(id);
-    var vazio = !campo || !campo.value.trim();
-    if (campo) { campo.style.border = vazio ? '1px solid red' : ''; }
-    if (vazio) { invalido = true; }
+  var nomes = {comprador:'Cliente', 'data-venda-embriao':'Data', 'tipo-venda-embriao':'Tipo de venda', 'valor-venda-embriao':'Valor', 'qtd-venda-embriao':'Quantidade'};
+  var faltantes = [], primeiro;
+  Object.keys(nomes).forEach(function (id) {
+    var campo = document.getElementById(id), vazio = !campo.value.trim();
+    campo.style.borderColor = vazio ? '#dd4b39' : '';
+    campo.setAttribute('aria-invalid', String(vazio));
+    if (vazio) { faltantes.push(nomes[id]); primeiro = primeiro || campo; }
   });
-  return !invalido;
+  if (faltantes.length) { SobAlertas.camposObrigatorios(faltantes); primeiro.focus(); return false; }
+  var quantidade = document.getElementById('qtd-venda-embriao');
+  if (!/^\d+$/.test(quantidade.value) || Number(quantidade.value) < 1 || Number(quantidade.value) > Number(quantidade.max)) {
+    quantidade.style.borderColor = '#dd4b39';
+    SobAlertas.mostrar({tipo:'warning', titulo:'Atenção!', mensagem:'Informe uma quantidade inteira entre 1 e ' + quantidade.max + '.'});
+    quantidade.focus(); return false;
+  }
+  return true;
 }
 </script>
 
@@ -47,12 +54,10 @@ function validarVendaEmbriao() {
   <div class="alert alert-warning">Registro de embrião não encontrado ou sem unidades disponíveis.</div>
   <a href="geral.php?pg=embrioes" class="btn btn-default">Voltar ao Banco de Embriões</a>
   <?php else: ?>
-  <?php if ($vendaFlash !== null && !empty($vendaFlash['erro'])): ?>
-  <div class="alert alert-danger" role="alert"><?=htmlspecialchars($vendaFlash['erro'], ENT_QUOTES, 'UTF-8')?></div>
-  <?php endif; ?>
+
 
   <div class="box" style="border-top:0;">
-    <form action="reproducao/embrioes/_vender.php?id_embriao=<?=(int)$idEmbriao?>" method="post" onsubmit="return validarVendaEmbriao()">
+    <form action="reproducao/embrioes/_vender.php?id_embriao=<?=(int)$idEmbriao?>" method="post" onsubmit="return validarVendaEmbriao()" novalidate>
       <input type="hidden" name="csrf_token" value="<?=htmlspecialchars($_SESSION['embriao_venda_csrf'], ENT_QUOTES, 'UTF-8')?>">
       <div class="box-body">
         <div class="row">

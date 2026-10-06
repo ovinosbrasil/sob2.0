@@ -19,24 +19,17 @@ foreach ($peso as $registroPeso) {
 ?>
 
 <script type="text/javascript">
-function validar(){
-  saida = 0;
-	if(!document.getElementById("animal").value){
-    document.getElementById("animal").style.border = "1px solid red";
-    saida = 1;
-  }else{document.getElementById("animal").style.border = "1px solid green";}
-
-  if(!document.getElementById("data").value){
-    document.getElementById("data").style.border = "1px solid red";
-    saida = 1;
-  }else{document.getElementById("data").style.border = "1px solid green";}
-
-  if(document.getElementById("valor").value == ''){
-    document.getElementById("valor").style.border = "1px solid red";
-    saida = 1;
-  }else{document.getElementById("valor").style.border = "1px solid green";}
-
-  if(saida){ return false; }else{ return true; }
+function validarPesagem(){
+  var faltantes=[],primeiro=null;
+  [['animal','Animal'],['data','Data'],['valor','Peso (kg)']].forEach(function(item){
+    var campo=document.getElementById(item[0]),invalido=!campo.value.trim();
+    campo.style.borderColor=invalido?'#dd4b39':'';
+    if(invalido){campo.setAttribute('aria-invalid','true');faltantes.push(item[1]);if(!primeiro)primeiro=campo;}else{campo.removeAttribute('aria-invalid');}
+  });
+  if(faltantes.length){SobAlertas.camposObrigatorios(faltantes);primeiro.focus();return false;}
+  var campo=document.getElementById('valor'),valor=campo.value.trim().replace(/\./g,'').replace(',','.');
+  if(!/^\d+(?:\.\d{1,3})?$/.test(valor)||Number(valor)<=0){campo.style.borderColor='#dd4b39';campo.setAttribute('aria-invalid','true');SobAlertas.mostrar({tipo:'warning',titulo:'Atenção!',mensagem:'Informe um peso maior que zero, com até três casas decimais.'});campo.focus();return false;}
+  return true;
 }
 
 document.addEventListener('buscaanimais:selecionado', function (evento) {
@@ -73,7 +66,7 @@ function excluir_peso(botao) {
     <div class="box-header with-border">
       <h3 class="box-title">Cadastrar pesagem</h3>
     </div>
-    <form method="post" action="pesagem/_pesagem.php" onsubmit="return validar()">
+    <form method="post" action="pesagem/_pesagem.php" onsubmit="return validarPesagem()" novalidate>
       <div class="box-body">
         <div class="row" style="display:flex; flex-wrap:wrap; align-items:flex-end;">
           <div class="col-sm-6 col-md-4">
@@ -96,14 +89,14 @@ function excluir_peso(botao) {
               <label for="data">Data<span class="text-danger">*</span></label>
               <div class="input-group date">
                 <div class="input-group-addon"><i class="fa fa-calendar" aria-hidden="true"></i></div>
-                <input type="text" class="form-control" id="data" name="data" value="<?=$hoje?>" required <?=$animal ? '' : 'disabled'?>>
+                <input type="text" class="form-control" id="data" name="data" value="<?=htmlspecialchars($_GET['data'] ?? $hoje, ENT_QUOTES, 'UTF-8')?>" required <?=$animal ? '' : 'disabled'?>>
               </div>
             </div>
           </div>
           <div class="col-sm-6 col-md-4">
             <div class="form-group">
               <label for="valor">Peso (kg)<span class="text-danger">*</span></label>
-              <input type="text" class="form-control" id="valor" name="valor" data-casas-decimais="3" data-separador-decimal="," data-separador-milhar="." inputmode="decimal" placeholder="Ex.: 2,675" required <?=$animal ? '' : 'disabled'?>>
+              <input type="text" class="form-control" id="valor" name="valor" value="<?=htmlspecialchars($_GET['valor'] ?? '', ENT_QUOTES, 'UTF-8')?>" data-casas-decimais="3" data-separador-decimal="," data-separador-milhar="." inputmode="decimal" placeholder="Ex.: 2,675" required <?=$animal ? '' : 'disabled'?>>
             </div>
           </div>
           <div class="col-sm-12 text-right">

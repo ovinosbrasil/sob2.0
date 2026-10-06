@@ -88,22 +88,38 @@ function embriaoUrlPagina($pagina, $porPaginaEmbriao)
 <script>
 function validarEmbriao() {
   var componentes = document.querySelectorAll('#form-cadastrar-embriao [data-busca-animais]');
-  var ids = ['data-embriao', 'qtd-embriao', 'botijao-embriao'];
-  var invalido = false;
-  componentes.forEach(function (componente) {
+  var faltantes = [], primeiro;
+  componentes.forEach(function (componente, indice) {
     var campoId = componente.querySelector('[data-busca-animais-id]');
     var entrada = componente.querySelector('.sob-busca-animais__input');
     var vazio = !campoId || !campoId.value;
-    entrada.style.border = vazio ? '1px solid red' : '';
-    if (vazio) { invalido = true; }
+    entrada.style.borderColor = vazio ? '#dd4b39' : '';
+    entrada.setAttribute('aria-invalid', String(vazio));
+    if (vazio) { faltantes.push(indice === 0 ? 'Macho' : 'Fêmea'); primeiro = primeiro || entrada; }
   });
-  ids.forEach(function (id) {
-    var campo = document.getElementById(id);
-    var vazio = !campo || !campo.value.trim();
-    if (campo) { campo.style.border = vazio ? '1px solid red' : ''; }
-    if (vazio) { invalido = true; }
+  var nomes = {'data-embriao':'Data', 'qtd-embriao':'Quantidade', 'botijao-embriao':'Botijão'};
+  Object.keys(nomes).forEach(function (id) {
+    var campo = document.getElementById(id), vazio = !campo.value.trim();
+    campo.style.borderColor = vazio ? '#dd4b39' : '';
+    campo.setAttribute('aria-invalid', String(vazio));
+    if (vazio) { faltantes.push(nomes[id]); primeiro = primeiro || campo; }
   });
-  return !invalido;
+  if (faltantes.length) { SobAlertas.camposObrigatorios(faltantes); primeiro.focus(); return false; }
+  return conferirQuantidadeEmbriao('qtd-embriao', 1);
+}
+
+function conferirQuantidadeEmbriao(id, minimo) {
+  var campo = document.getElementById(id);
+  var valido = /^\d+$/.test(campo.value) && Number(campo.value) >= minimo;
+  campo.style.borderColor = valido ? '' : '#dd4b39';
+  campo.setAttribute('aria-invalid', String(!valido));
+  if (!valido) { SobAlertas.mostrar({tipo:'warning', titulo:'Atenção!', mensagem:'Informe uma quantidade inteira maior ou igual a ' + minimo + '.'}); campo.focus(); }
+  return valido;
+}
+function validarQuantidadeEmbriao() {
+  var campo = document.getElementById('qtd-alterar-embriao');
+  if (!campo.value.trim()) { campo.style.borderColor = '#dd4b39'; SobAlertas.camposObrigatorios(['Quantidade']); campo.focus(); return false; }
+  return conferirQuantidadeEmbriao('qtd-alterar-embriao', 0);
 }
 
 function abrirAlteracaoEmbriao(botao) {
@@ -146,12 +162,10 @@ function confirmarExclusaoVendaEmbriao(botao) {
 </section>
 
 <section class="content">
-  <?php if ($embriaoFlash !== null && !empty($embriaoFlash['erro'])): ?>
-  <div class="alert alert-danger" role="alert"><?=htmlspecialchars($embriaoFlash['erro'], ENT_QUOTES, 'UTF-8')?></div>
-  <?php endif; ?>
+
 
   <div class="box" style="border-top:0;">
-    <form id="form-cadastrar-embriao" method="post" action="reproducao/embrioes/_cadastrar.php" onsubmit="return validarEmbriao()">
+    <form id="form-cadastrar-embriao" method="post" action="reproducao/embrioes/_cadastrar.php" onsubmit="return validarEmbriao()" novalidate>
       <input type="hidden" name="csrf_token" value="<?=htmlspecialchars($_SESSION['embriao_csrf'], ENT_QUOTES, 'UTF-8')?>">
       <div class="box-body"><div class="row">
         <div class="col-sm-6 col-md-4"><div class="form-group"><?php renderBuscaAnimais(array('id'=>'macho-embriao','name'=>'macho','name_id'=>'macho_id','name_origem'=>'macho_origem','label'=>'Macho','tipo'=>'machos','required'=>true,'value'=>$embriaoFlash['macho'] ?? '','value_id'=>$embriaoFlash['macho_id'] ?? 0,'value_origem'=>$embriaoFlash['macho_origem'] ?? '')); ?></div></div>
@@ -275,7 +289,7 @@ function confirmarExclusaoVendaEmbriao(botao) {
 <div class="modal fade" id="modal-alterar-embriao" tabindex="-1" role="dialog" aria-labelledby="titulo-alterar-embriao">
   <div class="modal-dialog" role="document" style="width:440px;max-width:calc(100vw - 32px);margin:10vh auto;">
     <div class="modal-content" style="border:0;border-radius:12px;">
-      <form id="form-alterar-embriao" method="post">
+      <form id="form-alterar-embriao" method="post" onsubmit="return validarQuantidadeEmbriao()" novalidate>
         <div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Fechar">&times;</button><h4 class="modal-title" id="titulo-alterar-embriao">Alterar quantidade</h4></div>
         <div class="modal-body">
           <input type="hidden" name="csrf_token" value="<?=htmlspecialchars($_SESSION['embriao_csrf'], ENT_QUOTES, 'UTF-8')?>">

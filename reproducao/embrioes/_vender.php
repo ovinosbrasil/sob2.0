@@ -34,9 +34,10 @@ try {
         $vencimento=$dataVenda->modify('first day of this month')->modify('+'.$parcela.' months'); $dia=min((int)$dataVenda->format('d'),(int)$vencimento->format('t')); $vencimento=$vencimento->setDate((int)$vencimento->format('Y'),(int)$vencimento->format('m'),$dia); $centavos=intdiv($totalCentavos,$parcelas)+($parcela<$totalCentavos%$parcelas?1:0); $valorParcela=$centavos/100; $dataVencimento=$vencimento->format('Y-m-d');
         $stmt=mysqli_prepare($link,"INSERT INTO controle_financeiro (titulo,data,valor,id_animal,forma_de_pagamento,id_comprador,id_semen,categoria,id_tipo,obs,status,tipo,id_embriao) VALUES (?,?,?,0,?,?,0,'',0,'',0,0,?)"); mysqli_stmt_bind_param($stmt,'ssdsii',$titulo,$dataVencimento,$valorParcela,$dados['forma'],$idComprador,$idVenda); mysqli_stmt_execute($stmt); mysqli_stmt_close($stmt);
     }
-    mysqli_commit($link); $emTransacao=false; DBClose($link); header('Location: ../../geral.php?pg=embrioes',true,303); exit;
+    mysqli_commit($link); $emTransacao=false; DBClose($link); $_SESSION['alerta_embrioes']=array('tipo'=>'success','titulo'=>'Sucesso!','mensagem'=>'Venda de embriões cadastrada com sucesso.'); header('Location: ../../geral.php?pg=embrioes',true,303); exit;
 } catch(Exception $e) {
     if($link){if($emTransacao){mysqli_rollback($link);} DBClose($link);} $erro=$e instanceof InvalidArgumentException?$e->getMessage():'Não foi possível concluir a venda. Nenhuma alteração foi gravada.'; if(!($e instanceof InvalidArgumentException)){error_log('Erro na venda de embrião: '.$e->getMessage());}
 }
+$_SESSION['alerta_embrioes']=array('tipo'=>'warning','titulo'=>'Atenção!','mensagem'=>$erro);
 $_SESSION['embriao_venda_flash']=array('erro'=>$erro,'dados'=>$dados);
 header('Location: ../../geral.php?pg=vender_embrioes&id_embriao='.(int)$idEmbriao,true,303); exit;

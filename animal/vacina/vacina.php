@@ -24,7 +24,7 @@ function excluir_vacina(botao){
   confirmarExclusao({
     titulo: 'Excluir vacina?',
     nome: botao.getAttribute('data-descricao'),
-    descricao: 'Confirme se deseja excluir esta registro de vacina. Esta ação não pode ser desfeita.',
+    descricao: 'Confirme se deseja excluir este registro de vacina. Esta ação não pode ser desfeita.',
     aoConfirmar: function () {
       window.location.href = 'animal/vacina/_excluir.php?id=' + encodeURIComponent(botao.getAttribute('data-id'));
     }

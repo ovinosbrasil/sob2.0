@@ -3,7 +3,11 @@ require_once __DIR__ . '/../../_config.php';
 
 function voltarCadastroUltrassom($mensagem, $dados=array())
 {
-    $parametros=array_merge(array('pg'=>'cadastrar_ultrassom','buscar'=>1,'erro'=>$mensagem),$dados);
+    $_SESSION['alerta_ultrassom'] = array('tipo'=>'warning', 'titulo'=>'Atenção!', 'mensagem'=>$mensagem);
+    $parametros = array('pg'=>'lista_ultrassom');
+    foreach (array('femea'=>'cad_femea', 'femea_id'=>'cad_femea_id', 'femea_origem'=>'cad_femea_origem', 'situacao'=>'cad_situacao', 'data'=>'cad_data') as $origem=>$destino) {
+        if (isset($dados[$origem])) { $parametros[$destino] = $dados[$origem]; }
+    }
     header('Location: ../../geral.php?'.http_build_query($parametros),true,303);
     exit;
 }
@@ -44,5 +48,6 @@ DBUpdate($config['tabela'],array('ultrassom'=>(int)$situacao,'data_ultrassom'=>$
 $todos=DBRead($config['tabela'],"WHERE {$config['fk']} = '$loteId'")?:array(); $positivos=0;
 foreach($todos as $registro) if((int)($registro['ultrassom']??0)===1)$positivos++;
 DBUpdate('lotes_reproducao',array('ultrassom'=>count($todos)?$positivos*100/count($todos):0),"id_lote = '$loteId' AND tipo = '$tipo'");
+$_SESSION['alerta_ultrassom'] = array('tipo'=>'success', 'titulo'=>'Sucesso!', 'mensagem'=>'Ultrassom cadastrado com sucesso.');
 header('Location: ../../geral.php?'.http_build_query(array('pg'=>'lista_ultrassom','tipo'=>1,'reproducao'=>$tipo,'id_lote'=>$loteId)),true,303);
 exit;

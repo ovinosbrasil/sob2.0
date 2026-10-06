@@ -66,5 +66,8 @@ if (empty($_SESSION['embriao_csrf']) || !hash_equals($_SESSION['embriao_csrf'], 
 if ($erro !== '') {
     $_SESSION['embriao_flash'] = array('erro'=>$erro,'macho'=>$nomeMacho,'macho_id'=>(int)$idMacho,'macho_origem'=>$origemMacho,'femea'=>$nomeFemea,'femea_id'=>(int)$idFemea,'femea_origem'=>$origemFemea,'data'=>$dataInformada,'qtd'=>(string)($_POST['qtd'] ?? ''),'botijao'=>$botijao,'palheta'=>$palheta,'qualidade'=>$qualidade);
 }
+$_SESSION['alerta_embrioes'] = $erro !== ''
+    ? array('tipo'=>'warning', 'titulo'=>'Atenção!', 'mensagem'=>$erro)
+    : array('tipo'=>'success', 'titulo'=>'Sucesso!', 'mensagem'=>'Embriões cadastrados com sucesso.');
 header('Location: ../../geral.php?pg=embrioes', true, 303);
 exit;
