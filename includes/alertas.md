@@ -83,14 +83,18 @@ Testes: `php tests/vendas_alertas_test.php` e
 
 ## Seleção de animais para progênie
 
-Aplicar `024_julgamento_controle_progene.sql` no schema da fazenda antes de
-publicar a funcionalidade. A coluna `julgamento_controle.progene` é booleana,
-NOT NULL e começa em false. A seleção pertence ao animal naquela exposição e
-é compartilhada entre as abas de pai e mãe. Todos os animais continuam visíveis;
-os selecionados recebem destaque verde e o interruptor indica Sim.
+Aplicar `026_separar_progene_pai_mae.sql` no schema da fazenda antes de publicar
+esta versão. A migração renomeia a coluna antiga `progene` para `progene_pai` e
+cria `progene_mae`, copiando a seleção anterior para preservar as duas abas.
+Novas inscrições começam com ambas as marcas em false. Reexecutar a migração
+não sobrescreve escolhas independentes já gravadas.
+
+As marcações pertencem ao animal naquela exposição, mas são independentes nas
+abas de pai e mãe. Todos os animais continuam visíveis; os selecionados na aba
+atual recebem destaque verde e aparecem primeiro, com o interruptor indicando Sim.
 
 A atualização usa POST em `exposicao/_progene.php`, valida token de sessão e
-inscrição no julgamento e responde em JSON. A tela só altera a cor após a
+inscrição no julgamento e o tipo (`pai` ou `mae`), e responde em JSON. A tela só altera a cor após a
 confirmação do servidor, mantendo a seleção anterior quando ocorre erro.
 São reutilizados o interruptor de `controle-status.css` e os alertas SobAlertas.
 

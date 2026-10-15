@@ -18,12 +18,13 @@ if (empty($_SESSION['exposicao_progene_csrf']) || !hash_equals($_SESSION['exposi
 $idEvento = filter_var($_POST['id_evento'] ?? 0, FILTER_VALIDATE_INT);
 $idAnimal = filter_var($_POST['id_animal'] ?? 0, FILTER_VALIDATE_INT);
 $ativo = $_POST['progene'] ?? null;
-if (!$idEvento || $idEvento < 1 || !$idAnimal || $idAnimal < 1 || !in_array($ativo, array('0','1'), true)) {
+$tipo = $_POST['tipo'] ?? null;
+if (!$idEvento || $idEvento < 1 || !$idAnimal || $idAnimal < 1 || !in_array($ativo, array('0','1'), true) || !in_array($tipo, array('pai','mae'), true)) {
     responderProgene(400, array('sucesso'=>false, 'mensagem'=>'Seleção de progênie inválida.'));
 }
 try {
-    $estado = definirProgeneExposicao($idEvento, $idAnimal, (int)$ativo);
-    responderProgene(200, array('sucesso'=>true, 'progene'=>$estado, 'mensagem'=>$estado ? 'Animal selecionado para a progênie.' : 'Animal desmarcado da progênie.'));
+    $estado = definirProgeneExposicao($idEvento, $idAnimal, (int)$ativo, $tipo);
+    responderProgene(200, array('sucesso'=>true, 'progene'=>$estado, 'tipo'=>$tipo, 'mensagem'=>$estado ? 'Animal selecionado para a progênie.' : 'Animal desmarcado da progênie.'));
 } catch (DomainException $erro) {
     responderProgene(404, array('sucesso'=>false, 'mensagem'=>$erro->getMessage()));
 } catch (Throwable $erro) {

@@ -152,6 +152,7 @@ function ordenarProgenieExposicao(corpo) {
 function atualizarProgeneExposicao(botao) {
   if (botao.disabled) return;
   var idAnimal = botao.getAttribute('data-progene-animal');
+  var tipo = botao.getAttribute('data-progene-tipo');
   var ativo = botao.getAttribute('aria-checked') !== 'true';
   botao.disabled = true;
   var xhr = new XMLHttpRequest();
@@ -167,7 +168,7 @@ function atualizarProgeneExposicao(botao) {
     try { resposta = JSON.parse(xhr.responseText); } catch (erro) { falha(); return; }
     if (xhr.status < 200 || xhr.status >= 300 || !resposta.sucesso) { falha(resposta.mensagem); return; }
     var selecionado = Number(resposta.progene) === 1;
-    document.querySelectorAll('[data-progene-animal="' + idAnimal + '"]').forEach(function (interruptor) {
+    document.querySelectorAll('[data-progene-animal="' + idAnimal + '"][data-progene-tipo="' + tipo + '"]').forEach(function (interruptor) {
       interruptor.disabled = false;
       interruptor.setAttribute('aria-checked', selecionado ? 'true' : 'false');
       interruptor.title = (selecionado ? 'Desativar' : 'Ativar') + ' na progênie';
@@ -182,7 +183,7 @@ function atualizarProgeneExposicao(botao) {
   };
   xhr.onerror = function () { falha(); };
   xhr.ontimeout = function () { falha('A atualização demorou mais que o esperado. Reabra a aba para conferir a seleção antes de tentar novamente.'); };
-  xhr.send('id_evento=<?=$id_evento?>&id_animal=' + encodeURIComponent(idAnimal) + '&progene=' + (ativo ? '1' : '0') + '&csrf_token=' + encodeURIComponent(<?=json_encode($_SESSION['exposicao_progene_csrf'], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT)?>));
+  xhr.send('id_evento=<?=$id_evento?>&id_animal=' + encodeURIComponent(idAnimal) + '&tipo=' + encodeURIComponent(tipo) + '&progene=' + (ativo ? '1' : '0') + '&csrf_token=' + encodeURIComponent(<?=json_encode($_SESSION['exposicao_progene_csrf'], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT)?>));
 }
 (function () {
   'use strict';

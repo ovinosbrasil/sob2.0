@@ -93,10 +93,11 @@ function alterarParticipanteExposicao($idEvento, $idAnimal, $acao)
     }
 }
 
-function definirProgeneExposicao($idEvento, $idAnimal, $ativo)
+function definirProgeneExposicao($idEvento, $idAnimal, $ativo, $tipo)
 {
     $idEvento = (int)$idEvento; $idAnimal = (int)$idAnimal;
-    if ($idEvento < 1 || $idAnimal < 1 || !in_array($ativo, array(0, 1), true)) throw new DomainException('Seleção de progênie inválida.');
+    if ($idEvento < 1 || $idAnimal < 1 || !in_array($ativo, array(0, 1), true) || !in_array($tipo, array('pai', 'mae'), true)) throw new DomainException('Seleção de progênie inválida.');
+    $coluna = 'progene_' . $tipo;
     mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
     $link = DBConnect();
     try {
@@ -109,7 +110,7 @@ function definirProgeneExposicao($idEvento, $idAnimal, $ativo)
             WHERE jc.id_julgamento = $idEvento AND jc.id_animal = $idAnimal FOR UPDATE");
         if (!mysqli_num_rows($controle)) throw new DomainException('Animal não encontrado no julgamento desta exposição.');
         // Atualiza também eventuais inscrições legadas duplicadas do mesmo animal.
-        mysqli_query($link, "UPDATE julgamento_controle SET progene = $ativo WHERE id_julgamento = $idEvento AND id_animal = $idAnimal");
+        mysqli_query($link, "UPDATE julgamento_controle SET $coluna = $ativo WHERE id_julgamento = $idEvento AND id_animal = $idAnimal");
         mysqli_commit($link);
         return $ativo;
     } catch (Throwable $erro) {

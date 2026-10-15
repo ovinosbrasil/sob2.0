@@ -5,7 +5,7 @@ const fonte=pagina.slice(inicio,fim).replace(/<\?=\$id_evento\?>/g,'7').replace(
 const alertas=[], requests=[];
 let verde=false;
 const icon={},label={},linha={classList:{toggle(nome,ativo){assert.equal(nome,'is-progene');verde=ativo;}}};
-const attrs={'data-progene-animal':'11','aria-checked':'false'};
+const attrs={'data-progene-animal':'11','data-progene-tipo':'pai','aria-checked':'false'};
 const botao={disabled:false,getAttribute(nome){return attrs[nome];},setAttribute(nome,valor){attrs[nome]=valor;},querySelector(){return icon;},parentNode:{querySelector(){return label;}},closest(){return linha;}};
 function XHR(){requests.push(this);}
 XHR.prototype.open=function(metodo,url){this.metodo=metodo;this.url=url;};XHR.prototype.setRequestHeader=function(){};XHR.prototype.send=function(body){this.body=body;};
@@ -13,7 +13,7 @@ const contexto={ordenarProgenieExposicao(){},document:{querySelectorAll(){return
 vm.runInNewContext(fonte,contexto);
 contexto.atualizarProgeneExposicao(botao);
 assert.equal(botao.disabled,true);assert.equal(verde,false);
-assert.match(requests[0].body,/id_evento=7&id_animal=11&progene=1&csrf_token=csrf-teste/);
+assert.match(requests[0].body,/id_evento=7&id_animal=11&tipo=pai&progene=1&csrf_token=csrf-teste/);
 contexto.atualizarProgeneExposicao(botao);assert.equal(requests.length,1);
 requests[0].status=200;requests[0].responseText=JSON.stringify({sucesso:true,progene:1,mensagem:'Selecionado'});requests[0].onload();
 assert.equal(verde,true);assert.equal(attrs['aria-checked'],'true');assert.equal(label.textContent,'Sim');assert.equal(botao.disabled,false);

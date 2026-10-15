@@ -24,12 +24,30 @@ for ($execucao = 0; $execucao < 2; $execucao++) {
     while ($admin->more_results() && $admin->next_result());
 }
 if ((int)$admin->query("SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='progene' AND COLUMN_NAME IN ('classe','categoria')")->fetch_row()[0] !== 0) throw new RuntimeException('Colunas legadas não removidas.');
+// Prepara na cópia o esquema anterior, independentemente da versão de buria.
+foreach (array('progene_pai','progene_mae') as $colunaAntigaTeste) {
+    if ($admin->query("SHOW COLUMNS FROM julgamento_controle LIKE '$colunaAntigaTeste'")->num_rows) $admin->query("ALTER TABLE julgamento_controle DROP COLUMN `$colunaAntigaTeste`");
+}
 $sqlProgene = file_get_contents(__DIR__.'/../docker/mysql/migrations/024_julgamento_controle_progene.sql');
 for ($execucao = 0; $execucao < 2; $execucao++) {
     $admin->multi_query($sqlProgene);
     do { if ($resultado = $admin->store_result()) $resultado->free(); }
     while ($admin->more_results() && $admin->next_result());
 }
+// A migração copia as escolhas antigas e não desfaz escolhas independentes ao reexecutar.
+$admin->query('INSERT INTO julgamento_controle (id_animal,id_julgamento,categoria,meses,pai,mae,progene) VALUES (900001,999,0,0,0,0,1)');
+$sqlSeparacao = file_get_contents(__DIR__.'/../docker/mysql/migrations/026_separar_progene_pai_mae.sql');
+$admin->multi_query($sqlSeparacao);
+do { if ($resultado = $admin->store_result()) $resultado->free(); } while ($admin->more_results() && $admin->next_result());
+$marcasMigradas=$admin->query('SELECT progene_pai,progene_mae FROM julgamento_controle WHERE id_animal=900001')->fetch_row();
+if((int)$marcasMigradas[0]!==1 || (int)$marcasMigradas[1]!==1) throw new RuntimeException('Migração perdeu as marcações anteriores');
+$admin->query('UPDATE julgamento_controle SET progene_mae=0 WHERE id_animal=900001');
+$admin->multi_query($sqlSeparacao);
+do { if ($resultado = $admin->store_result()) $resultado->free(); } while ($admin->more_results() && $admin->next_result());
+$marcasMigradas=$admin->query('SELECT progene_pai,progene_mae FROM julgamento_controle WHERE id_animal=900001')->fetch_row();
+if((int)$marcasMigradas[0]!==1 || (int)$marcasMigradas[1]!==0) throw new RuntimeException('Reexecução sobrescreveu escolhas independentes');
+if($admin->query("SHOW COLUMNS FROM julgamento_controle LIKE 'progene'")->num_rows) throw new RuntimeException('Coluna antiga não renomeada');
+$admin->query('DELETE FROM julgamento_controle WHERE id_animal=900001');
 if (!function_exists('DBConnect')) {
 function DBConnect() { global $bancoTeste; $db=new mysqli(getenv('DB_HOST'),getenv('DB_USER'),getenv('DB_PASSWORD'),$bancoTeste); $db->set_charset('utf8mb4'); return $db; }
 function DBClose($db) { $db->close(); }
@@ -118,17 +136,21 @@ alterarParticipanteExposicao(7,16,'julgamento');
 exigirExpo(qtdExpo(1,'M')===2,'Inscrição legada duplicada inflou a contagem');
 alterarParticipanteExposicao(7,16,'remover');
 exigirExpo(totalExpo('julgamento_controle',16)===0 && qtdExpo(1,'M')===1,'Exclusão de vínculos legados duplicados');
-// A seleção é independente do grupo de pai/mãe, mas exclusiva da exposição.
-exigirExpo((int)$admin->query('SELECT progene FROM julgamento_controle WHERE id_julgamento=7 AND id_animal=11')->fetch_row()[0]===0,'Default de progene não é false');
-exigirExpo(definirProgeneExposicao(7,11,1)===1,'Não ativou');
+// As duas seleções são independentes entre si e exclusivas de cada exposição.
+exigirExpo((int)$admin->query('SELECT progene_pai FROM julgamento_controle WHERE id_julgamento=7 AND id_animal=11')->fetch_row()[0]===0,'Default de progene não é false');
+exigirExpo(definirProgeneExposicao(7,11,1,'pai')===1,'Não ativou');
 alterarParticipanteExposicao(7,11,'adicionar_julgamento');
-exigirExpo((int)$admin->query('SELECT progene FROM julgamento_controle WHERE id_julgamento=7 AND id_animal=11')->fetch_row()[0]===1,'Repetição apagou seleção');
+exigirExpo((int)$admin->query('SELECT progene_pai FROM julgamento_controle WHERE id_julgamento=7 AND id_animal=11')->fetch_row()[0]===1,'Repetição apagou seleção');
 alterarParticipanteExposicao(8,11,'adicionar_julgamento');
-exigirExpo((int)$admin->query('SELECT progene FROM julgamento_controle WHERE id_julgamento=8 AND id_animal=11')->fetch_row()[0]===0,'Seleção vazou para outro evento');
-exigirExpo(definirProgeneExposicao(7,11,0)===0,'Não desativou');
-try { definirProgeneExposicao(7,999,1); throw new RuntimeException('Animal inexistente aceito'); } catch(DomainException $e) {}
-try { definirProgeneExposicao(7,11,2); throw new RuntimeException('Estado inválido aceito'); } catch(DomainException $e) {}
-definirProgeneExposicao(7,11,1);
+exigirExpo((int)$admin->query('SELECT progene_pai FROM julgamento_controle WHERE id_julgamento=8 AND id_animal=11')->fetch_row()[0]===0,'Seleção vazou para outro evento');
+exigirExpo(definirProgeneExposicao(7,11,0,'pai')===0,'Não desativou');
+try { definirProgeneExposicao(7,999,1,'pai'); throw new RuntimeException('Animal inexistente aceito'); } catch(DomainException $e) {}
+try { definirProgeneExposicao(7,11,2,'pai'); throw new RuntimeException('Estado inválido aceito'); } catch(DomainException $e) {}
+definirProgeneExposicao(7,11,1,'pai');
+exigirExpo((int)$admin->query('SELECT progene_mae FROM julgamento_controle WHERE id_julgamento=7 AND id_animal=11')->fetch_row()[0]===0,'Marcação paterna afetou a materna');
+definirProgeneExposicao(7,11,0,'pai');
+definirProgeneExposicao(7,11,1,'mae');
+try { definirProgeneExposicao(7,11,1,'invalido'); throw new RuntimeException('Tipo inválido aceito'); } catch(DomainException $e) {}
 // Mesmo com contadores legados errados, a tela considera as crias reais.
 $admin->query('UPDATE progene SET qtd=99 WHERE id_lote=7');
 // Exercita a consulta e o HTML das duas abas, incluindo pais com origem externa.
@@ -143,19 +165,22 @@ foreach(array('progenie_pai','progenie_mae') as $abaTeste) {
  if($abaTeste==='progenie_pai') exigirExpo(strpos($html,'Nenhuma progênie com duas ou mais crias')!==false,'Contador antigo exibiu grupo de uma cria');
  else exigirExpo(strpos($html, 'data-progene-linha="11" class="is-progene"')!==false && strpos($html, 'data-progene-linha="12" class=""')!==false && strpos($html,'Cria 11')!==false && strpos($html,'Cria 12')!==false && strpos($html,'Cria 13')===false,'Grupo materno ou origem incorretos');
 }
-// O mesmo indicador deve aparecer na progênie paterna e materna.
+// Com mãe selecionada, a aba paterna deve continuar desmarcada.
 $admin->query('UPDATE animais SET pai=3 WHERE id=12');
 $_GET=array('id_exposicao'=>7,'aba'=>'progenie_pai'); ob_start(); eval('?>'.$codigo); $htmlPai=ob_get_clean();
-exigirExpo(strpos($htmlPai,'data-progene-linha="11" class="is-progene"')!==false,'Seleção não apareceu na aba paterna');
+exigirExpo(strpos($htmlPai,'data-progene-linha="11" class=""')!==false,'Seleção materna afetou a aba paterna');
+definirProgeneExposicao(7,11,1,'pai');
+definirProgeneExposicao(7,11,0,'mae');
+exigirExpo((int)$admin->query('SELECT progene_pai FROM julgamento_controle WHERE id_julgamento=7 AND id_animal=11')->fetch_row()[0]===1,'Desmarcar mãe afetou pai');
 $admin->query("CREATE TRIGGER teste_falha_selecao BEFORE UPDATE ON julgamento_controle FOR EACH ROW SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT='falha simulada'");
-try { definirProgeneExposicao(7,11,0); throw new RuntimeException('Falha não propagada'); } catch(mysqli_sql_exception $e) { exigirExpo($e->getCode()===1644,'Falha inesperada'); }
-exigirExpo((int)$admin->query('SELECT progene FROM julgamento_controle WHERE id_animal=11 AND id_julgamento=7')->fetch_row()[0]===1,'Erro alterou a seleção');
+try { definirProgeneExposicao(7,11,0,'pai'); throw new RuntimeException('Falha não propagada'); } catch(mysqli_sql_exception $e) { exigirExpo($e->getCode()===1644,'Falha inesperada'); }
+exigirExpo((int)$admin->query('SELECT progene_pai FROM julgamento_controle WHERE id_animal=11 AND id_julgamento=7')->fetch_row()[0]===1,'Erro alterou a seleção');
 $admin->query('DROP TRIGGER teste_falha_selecao');
 alterarParticipanteExposicao(7,11,'remover_julgamento');
 alterarParticipanteExposicao(7,11,'adicionar_julgamento');
-exigirExpo((int)$admin->query('SELECT progene FROM julgamento_controle WHERE id_animal=11 AND id_julgamento=7')->fetch_row()[0]===0,'Reinscrição não iniciou desativada');
+exigirExpo((int)$admin->query('SELECT progene_pai FROM julgamento_controle WHERE id_animal=11 AND id_julgamento=7')->fetch_row()[0]===0,'Reinscrição não iniciou desativada');
 // A ordem persistida também prioriza selecionados, antes da ordem alfabética.
-definirProgeneExposicao(7,11,1);
+definirProgeneExposicao(7,11,1,'mae');
 $admin->query("UPDATE animais SET nome='Zulu selecionado' WHERE id=11");
 $_GET=array('id_exposicao'=>7,'aba'=>'progenie_mae'); ob_start(); eval('?>'.$codigo); $htmlOrdenado=ob_get_clean();
 exigirExpo(strpos($htmlOrdenado,'Zulu selecionado') < strpos($htmlOrdenado,'Cria 12'),'Selecionado não ficou no topo ao carregar a lista');

@@ -32,6 +32,7 @@ if ($aba === 'julgamento') {
     $campoOutroProgenitor = $progeniePai ? 'mae' : 'pai';
     $campoTerceiroOutro = $progeniePai ? 'terceiro_mae' : 'terceiro_pai';
     $sexoProgenitor = $progeniePai ? 'M' : 'F';
+    $tipoProgene = $progeniePai ? 'pai' : 'mae';
     $origemProgenies = sqlProgeniesExposicao($idEvento);
     $registros = DBRead(
         "($origemProgenies) vinculo
@@ -40,7 +41,7 @@ if ($aba === 'julgamento') {
              ON grupo.id_animal = vinculo.id_animal AND grupo.sexo = vinculo.sexo
          INNER JOIN animais progenitor ON progenitor.id = vinculo.id_animal
          INNER JOIN animais cria ON cria.id = vinculo.cria_id
-         INNER JOIN (SELECT id_animal, MAX(progene) AS progene FROM julgamento_controle
+         INNER JOIN (SELECT id_animal, MAX(progene_$tipoProgene) AS progene FROM julgamento_controle
                      WHERE id_julgamento = '" . (int)$idEvento . "' GROUP BY id_animal) selecao ON selecao.id_animal = cria.id
          LEFT JOIN animais outro_animal ON outro_animal.id = cria.$campoOutroProgenitor AND COALESCE(cria.$campoTerceiroOutro,0) = 0
          LEFT JOIN terceiros outro_terceiro ON outro_terceiro.id = cria.$campoOutroProgenitor AND cria.$campoTerceiroOutro = 1",
@@ -99,7 +100,7 @@ if ($aba === 'julgamento') {
           <td><a href="geral.php?pg=animal&amp;id_animal=<?=(int)$criaProgenie['cria_id']?>" target="_blank" rel="noopener" style="color:inherit;"><?=$h($criaProgenie['cria_nome'])?></a></td>
           <td><?=$h($criaProgenie['outro_progenitor_nome'])?></td><td><?=$h($criaProgenie['cria_sexo'])?></td><td><?=$h($criaProgenie['cria_tipo'])?></td>
           <td><div class="sob-controle-status">
-            <button type="button" class="sob-interruptor" role="switch" aria-checked="<?=$progeneAtivo ? 'true' : 'false'?>" aria-label="Utilizar <?=$h($criaProgenie['cria_nome'])?> na progênie" title="<?=$progeneAtivo ? 'Desativar' : 'Ativar'?> na progênie" data-progene-animal="<?=(int)$criaProgenie['cria_id']?>">
+            <button type="button" class="sob-interruptor" role="switch" aria-checked="<?=$progeneAtivo ? 'true' : 'false'?>" aria-label="Utilizar <?=$h($criaProgenie['cria_nome'])?> na progênie" title="<?=$progeneAtivo ? 'Desativar' : 'Ativar'?> na progênie" data-progene-animal="<?=(int)$criaProgenie['cria_id']?>" data-progene-tipo="<?=$tipoProgene?>">
               <span class="sob-interruptor__indicador"><i class="fa <?=$progeneAtivo ? 'fa-check' : 'fa-minus'?>" aria-hidden="true"></i></span>
             </button><span class="sob-controle-status__texto"><?=$progeneAtivo ? 'Sim' : 'Não'?></span>
           </div></td>
