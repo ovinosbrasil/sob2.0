@@ -207,7 +207,7 @@ $data_expira2 = $data;
         </li>
 
         <? if(($pg == 'relatorio_geral') || ($pg == 'relatorio_mortes') || ($pg == 'relatorio_doencas') || ($pg == 'relatorio_reprodutores') || ($pg == 'relatorio_reprodutor') || ($pg == 'relatorio_matrizes') || ($pg == 'relatorio_matriz')
-        || ($pg == 'relatorio_tipificacao') || ($pg == 'relatorio_reproducao') || ($pg == 'relatorio_nascimentos')){ ?> <li class="active treeview"> <? }else{ ?> <li class="treeview"><? } ?>
+        || ($pg == 'selecao_femeas') || ($pg == 'relatorio_tipificacao') || ($pg == 'relatorio_reproducao') || ($pg == 'relatorio_nascimentos')){ ?> <li class="active treeview"> <? }else{ ?> <li class="treeview"><? } ?>
           <a href="#">
             <i class="fa fa-book"></i>
             <span>Relatórios</span>
@@ -222,6 +222,7 @@ $data_expira2 = $data;
             <li><a href="geral.php?pg=relatorio_doencas"><i class="fa fa-plus-circle"></i>Doenças</a></li>
             <li><a href="geral.php?pg=relatorio_reprodutores"><i class="fa fa-mars"></i>Reprodutores</a></li>
             <li><a href="geral.php?pg=relatorio_matrizes"><i class="fa fa-venus"></i>Matrizes</a></li>
+            <li<?=$pg === 'selecao_femeas' ? ' class="active"' : ''?>><a href="geral.php?pg=selecao_femeas"><i class="fa fa-search"></i>Seleção de Fêmeas</a></li>
             <li><a href="geral.php?pg=relatorio_tipificacao"><i class="fa fa-star"></i>Tipificação das crias</a></li>
             <li><a href="geral.php?pg=relatorio_reproducao"><i class="fa fa-venus-mars"></i>Lotes de reprodução</a></li>
           </ul>
@@ -309,6 +310,7 @@ $data_expira2 = $data;
 <?php require __DIR__ . '/includes/alertas_pesagem.php'; ?>
 <?php require __DIR__ . '/includes/alertas_exposicao.php'; ?>
 <?php require __DIR__ . '/includes/alertas_vendas.php'; ?>
+<?php require __DIR__ . '/includes/alertas_chip.php'; ?>
 <script src="dist/js/confirmacao-exclusao.js?v=<?=filemtime(__DIR__ . '/dist/js/confirmacao-exclusao.js')?>"></script>
 <script src="dist/js/busca-animais.js?v=<?=filemtime(__DIR__ . '/dist/js/busca-animais.js')?>"></script>
 <script src="dist/js/busca-compradores.js?v=<?=filemtime(__DIR__ . '/dist/js/busca-compradores.js')?>"></script>

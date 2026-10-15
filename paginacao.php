@@ -153,6 +153,10 @@ switch ($_GET['pg']){
 		include "relatorios/matriz/relatorio_matriz.php";
 		break;
 
+		case 'selecao_femeas';
+		include "relatorios/selecao_femeas.php";
+		break;
+
 		case 'relatorio_tipificacao';
 		include "relatorios/relatorio_tipificacao.php";
 		break;

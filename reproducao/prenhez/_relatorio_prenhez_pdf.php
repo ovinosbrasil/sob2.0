@@ -38,6 +38,9 @@ class RelatorioPrenhezPDF extends FPDF
         $tipos = array(''=>'Todos', 'monta'=>'Monta natural', 'inseminacao'=>'Inseminação artificial', 'te'=>'Transplante de embriões');
         $this->SetFont('Arial', '', 7);
         $this->Cell(0, 4, $this->texto('Tipo: ' . $tipos[$this->filtros['reproducao'] ?? ''] . ' | Período: ' . ($this->filtros['data_inicio'] ?: 'Sem limite') . ' a ' . ($this->filtros['data_fim'] ?: 'Sem limite')), 0, 1, 'C');
+        if ($this->mostrarTransplante && !empty($this->filtros['doadora'])) {
+            $this->MultiCell(190, 4, $this->texto('Doadora: ' . $this->filtros['doadora']), 0, 'C');
+        }
         $this->Ln(2);
         $this->SetFont('Arial', 'B', 7);
         $titulos = array('Tipo reprodução', 'Lote - Macho');

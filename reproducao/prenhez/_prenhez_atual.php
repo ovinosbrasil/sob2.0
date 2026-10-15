@@ -17,6 +17,21 @@ function validarFiltrosPrenhezAtual(array $entrada)
     if ($filtros['data_inicio'] && $filtros['data_fim'] && $filtros['data_inicio'] > $filtros['data_fim']) {
         throw new InvalidArgumentException('A data inicial deve ser menor ou igual à data final.');
     }
+    $filtros['doadora_id'] = 0;
+    $filtros['doadora_origem'] = '';
+    if ($tipo === 'te') {
+        $idDoadora = $entrada['doadora_id'] ?? '';
+        $origemDoadora = $entrada['doadora_origem'] ?? '';
+        $nomeDoadora = $entrada['doadora'] ?? '';
+        if ($idDoadora !== '' || $origemDoadora !== '' || $nomeDoadora !== '') {
+            $idDoadora = filter_var($idDoadora, FILTER_VALIDATE_INT);
+            if (!$idDoadora || $idDoadora < 1 || !in_array($origemDoadora, array('rebanho','terceiros'), true)) {
+                throw new InvalidArgumentException('Selecione uma doadora na lista de pesquisa.');
+            }
+            $filtros['doadora_id'] = (int)$idDoadora;
+            $filtros['doadora_origem'] = $origemDoadora;
+        }
+    }
     return $filtros;
 }
 
@@ -55,6 +70,10 @@ function consultarPrenhezAtual(array $entrada = array())
             $doadora = "COALESCE(doadora.nome, doadora_externa.nome, '--')";
         }
         $periodo = '';
+        if ($config['pagina'] === 'te' && $filtros['doadora_id'] > 0) {
+            $origemDoadora = $filtros['doadora_origem'] === 'terceiros' ? 1 : 0;
+            $periodo .= " AND l.id_mae = {$filtros['doadora_id']} AND COALESCE(l.terceiro_mae, 0) = $origemDoadora";
+        }
         $campoInicio = $config['pagina'] === 'monta' ? 'data_inicio' : 'data';
         if ($filtros['data_inicio'] !== '') { $periodo .= " AND l.$campoInicio >= '{$filtros['data_inicio']}'"; }
         if ($filtros['data_fim'] !== '') { $periodo .= " AND l.$campoInicio <= '{$filtros['data_fim']}'"; }

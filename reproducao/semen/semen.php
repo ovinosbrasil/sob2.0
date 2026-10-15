@@ -212,6 +212,9 @@ function confirmarExclusaoVendaSemen(botao) {
   </div>
 
   <div class="box" style="border-top:0;">
+    <div class="box-header" style="text-align:right;">
+      <a href="reproducao/semen/_imprimir.php" class="btn btn-primary"><i class="fa fa-file-pdf-o" aria-hidden="true"></i> Gerar pdf</a>
+    </div>
     <div class="box-body">
       <div class="table-responsive">
         <table class="table table-bordered table-striped">

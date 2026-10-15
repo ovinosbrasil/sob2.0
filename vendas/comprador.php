@@ -16,6 +16,11 @@ if (!$comprador) {
     return;
 }
 $cadastro = $comprador[0];
+if (($camposComprador['id'] ?? 0) === $id_comprador) {
+    foreach (array('nome'=>'nome','email'=>'email','celular'=>'celular1','cpf'=>'cpf','cod'=>'cod_criador','cidade'=>'cidade','estado'=>'estado') as $campo=>$coluna) {
+        if (isset($camposComprador['campos'][$campo])) $cadastro[$coluna] = $camposComprador['campos'][$campo];
+    }
+}
 $filtro = (int)($_GET['filtro'] ?? 0);
 $ordem = array(0 => 'data ASC', 1 => 'data DESC', 2 => 'preco_de_venda DESC');
 $condicaoVendas = "WHERE comprador = '$id_comprador'";
@@ -54,7 +59,7 @@ function excluir_venda(botao) {
   <div class="box" style="border-top:0;">
     <div class="box-header with-border"><h3 class="box-title">Cadastro do comprador</h3></div>
     <div class="box-body">
-      <form method="post" action="vendas/_alterar_comprador.php?id_comprador=<?=$id_comprador?>">
+      <form data-alertas-compradores method="post" action="vendas/_alterar_comprador.php?id_comprador=<?=$id_comprador?>">
         <div class="row">
           <?php foreach (array(
               'nome' => array('Nome completo', 'nome', 'text'),

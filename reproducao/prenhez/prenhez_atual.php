@@ -1,11 +1,13 @@
 <?php
 require_once __DIR__ . '/_prenhez_atual.php';
+require_once __DIR__ . '/../../includes/busca_animais.php';
 $entradaFiltros = array();
-foreach (array('reproducao', 'data_inicio', 'data_fim') as $campo) {
+foreach (array('reproducao', 'data_inicio', 'data_fim', 'doadora', 'doadora_id', 'doadora_origem') as $campo) {
     $entradaFiltros[$campo] = isset($_GET[$campo]) && is_string($_GET[$campo]) ? trim($_GET[$campo]) : '';
 }
 $erroFiltros = '';
 $mostrarTransplante = $entradaFiltros['reproducao'] === 'te';
+if (!$mostrarTransplante) foreach (array('doadora','doadora_id','doadora_origem') as $campo) $entradaFiltros[$campo] = '';
 try { $prenhezes = consultarPrenhezAtual($entradaFiltros); }
 catch (InvalidArgumentException $erro) { $erroFiltros = $erro->getMessage(); $prenhezes = array(); }
 $porPagina = filter_var($_GET['por_pagina'] ?? 15, FILTER_VALIDATE_INT);
@@ -40,9 +42,14 @@ $prenhezData = function ($valor) {
             <?php endforeach; ?>
           </select>
         </div>
+        <?php if ($mostrarTransplante): ?>
+        <div class="form-group col-sm-6 col-md-3">
+          <?php renderBuscaAnimais(array('id'=>'doadora-prenhez', 'name'=>'doadora', 'name_id'=>'doadora_id', 'name_origem'=>'doadora_origem', 'label'=>'Doadora', 'tipo'=>'femeas', 'value'=>$entradaFiltros['doadora'], 'value_id'=>$entradaFiltros['doadora_id'], 'value_origem'=>$entradaFiltros['doadora_origem'])); ?>
+        </div>
+        <?php endif; ?>
           <div class="form-group col-sm-6 col-md-3"><label for="data-inicio-prenhez">Início do período</label><input type="text" id="data-inicio-prenhez" name="data_inicio" class="form-control" placeholder="dd/mm/aaaa" value="<?=$prenhezH($entradaFiltros['data_inicio'])?>"></div>
         <div class="form-group col-sm-6 col-md-3"><label for="data-fim-prenhez">Fim do período</label><input type="text" id="data-fim-prenhez" name="data_fim" class="form-control" placeholder="dd/mm/aaaa" value="<?=$prenhezH($entradaFiltros['data_fim'])?>"></div>
-        <div class="form-group col-sm-6 col-md-3"><button type="submit" formaction="reproducao/prenhez/_imprimir_prenhez_atual.php" formtarget="_blank" class="btn btn-primary"><i class="fa fa-file-pdf-o" aria-hidden="true"></i> Gerar PDF</button> <a href="geral.php?pg=prenhez_atual" class="btn btn-default">Limpar</a></div>
+        <div class="form-group <?=$mostrarTransplante ? 'col-sm-12 col-md-12' : 'col-sm-6 col-md-3'?>" style="text-align:right;"><button type="submit" formaction="reproducao/prenhez/_imprimir_prenhez_atual.php" formtarget="_blank" class="btn btn-primary"><i class="fa fa-file-pdf-o" aria-hidden="true"></i> Gerar PDF</button> <a href="geral.php?pg=prenhez_atual" class="btn btn-default">Limpar</a></div>
       </div>
     </form>
     <p class="text-muted">O período filtra a data inicial do lote, incluindo as duas datas informadas. Na inseminação e no TE, considera a data do procedimento.</p>
@@ -113,7 +120,23 @@ document.addEventListener('DOMContentLoaded', function () {
       if (completas && !enviando) { enviando = true; formulario.submit(); }
     }, 300);
   }
-  formulario.querySelector('select[name="reproducao"]').addEventListener('change', atualizarPrenhez);
+  formulario.querySelector('select[name="reproducao"]').addEventListener('change', function () {
+    if (this.value !== 'te') {
+      ['doadora', 'doadora_id', 'doadora_origem'].forEach(function (nome) { if (formulario.elements[nome]) formulario.elements[nome].value = ''; });
+    }
+    atualizarPrenhez();
+  });
+  var doadora = document.getElementById('doadora-prenhez');
+  if (doadora) {
+    doadora.closest('[data-busca-animais]').addEventListener('buscaanimais:selecionado', atualizarPrenhez);
+    doadora.addEventListener('input', function () {
+      if (!this.value.trim()) {
+        formulario.elements.doadora_id.value = '';
+        formulario.elements.doadora_origem.value = '';
+        atualizarPrenhez();
+      }
+    });
+  }
   datas.forEach(function (campo) {
     campo.addEventListener('input', atualizarPrenhez);
     campo.addEventListener('change', atualizarPrenhez);

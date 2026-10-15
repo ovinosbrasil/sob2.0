@@ -101,3 +101,18 @@ São reutilizados o interruptor de `controle-status.css` e os alertas SobAlertas
 Testes: `node tests/progene_exposicao_test.js`,
 `php tests/progene_endpoint_test.php` e, no contêiner app,
 `php tests/exposicao_participantes_test.php`.
+
+## Compradores
+
+Os fluxos `pg=compradores` e `pg=comprador` utilizam o `dist/js/alertas.js`
+padrão, carregado pelo include de vendas. Cadastro e edição usam o flash
+`alerta_compradores`, com recuperação dos campos pelo `campos_comprador` em
+caso de validação inválida. O cadastro JSON mantém o contrato da modal de vendas.
+
+A exclusão responde com sucesso, atenção (registro ausente ou vinculado) ou
+erro. O sucesso usa flash após recarregar a lista; falhas são exibidas pelo
+SobAlertas na própria página. Compradores com vendas de animais, sêmen, embriões
+ou lançamentos financeiros não podem ser excluídos.
+
+Testes: `php tests/compradores_alertas_test.php` e
+`node tests/compradores_alertas_test.js`.

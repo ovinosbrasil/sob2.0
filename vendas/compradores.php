@@ -65,11 +65,11 @@ function excluirComprador(id, nome) {
           return;
         }
         jQuery('#confirmacao-exclusao').modal('hide');
-        window.alert(resultado.mensagem);
+        SobAlertas.mostrar({tipo:resultado.tipo || 'warning', titulo:resultado.tipo === 'danger' ? 'Erro!' : 'Atenção!', mensagem:resultado.mensagem});
       })
       .catch(function () {
         jQuery('#confirmacao-exclusao').modal('hide');
-        window.alert('Não foi possível excluir o comprador. Tente novamente.');
+        SobAlertas.erro({mensagem:'Não foi possível excluir o comprador. Tente novamente.'});
       });
     }
   });
@@ -127,17 +127,17 @@ function excluirComprador(id, nome) {
       <h3 class="box-title">Cadastrar comprador</h3>
     </div>
     <div class="box-body">
-      <form method="post" action="vendas/_comprador.php" autocomplete="off">
+      <form data-alertas-compradores method="post" action="vendas/_comprador.php" autocomplete="off">
         <div class="row">
-          <div class="col-md-4"><div class="form-group"><label for="nome">Nome completo<span class="text-danger">*</span></label><input type="text" class="form-control" id="nome" name="nome" required></div></div>
-          <div class="col-md-4"><div class="form-group"><label for="email">E-mail</label><input type="email" class="form-control" id="email" name="email"></div></div>
-          <div class="col-md-4"><div class="form-group"><label for="celular">Celular (WhatsApp)</label><input type="text" class="form-control" id="celular" name="celular"></div></div>
+          <div class="col-md-4"><div class="form-group"><label for="nome">Nome completo<span class="text-danger">*</span></label><input type="text" class="form-control" id="nome" name="nome" value="<?=compradoresH(($camposComprador['id'] ?? 0) === 0 ? ($camposComprador['campos']['nome'] ?? '') : '')?>" required></div></div>
+          <div class="col-md-4"><div class="form-group"><label for="email">E-mail</label><input type="email" class="form-control" id="email" name="email" value="<?=compradoresH(($camposComprador['id'] ?? 0) === 0 ? ($camposComprador['campos']['email'] ?? '') : '')?>"></div></div>
+          <div class="col-md-4"><div class="form-group"><label for="celular">Celular (WhatsApp)</label><input type="text" class="form-control" id="celular" name="celular" value="<?=compradoresH(($camposComprador['id'] ?? 0) === 0 ? ($camposComprador['campos']['celular'] ?? '') : '')?>"></div></div>
         </div>
         <div class="row">
-          <div class="col-md-3"><div class="form-group"><label for="cpf">CPF</label><input type="text" class="form-control" id="cpf" name="cpf"></div></div>
-          <div class="col-md-3"><div class="form-group"><label for="cod">Cód. criador</label><input type="text" class="form-control" id="cod" name="cod"></div></div>
-          <div class="col-md-3"><div class="form-group"><label for="cidade">Cidade</label><input type="text" class="form-control" id="cidade" name="cidade"></div></div>
-          <div class="col-md-3"><div class="form-group"><label for="estado">Estado</label><select class="form-control select" name="estado" id="estado"><option value="">Selecionar</option><?php $estados = DBRead('estado', 'ORDER BY estado ASC'); foreach ((array)$estados as $estado): ?><option value="<?=compradoresH($estado['sigla'])?>"><?=compradoresH($estado['estado'])?></option><?php endforeach; ?></select></div></div>
+          <div class="col-md-3"><div class="form-group"><label for="cpf">CPF</label><input type="text" class="form-control" id="cpf" name="cpf" value="<?=compradoresH(($camposComprador['id'] ?? 0) === 0 ? ($camposComprador['campos']['cpf'] ?? '') : '')?>"></div></div>
+          <div class="col-md-3"><div class="form-group"><label for="cod">Cód. criador</label><input type="text" class="form-control" id="cod" name="cod" value="<?=compradoresH(($camposComprador['id'] ?? 0) === 0 ? ($camposComprador['campos']['cod'] ?? '') : '')?>"></div></div>
+          <div class="col-md-3"><div class="form-group"><label for="cidade">Cidade</label><input type="text" class="form-control" id="cidade" name="cidade" value="<?=compradoresH(($camposComprador['id'] ?? 0) === 0 ? ($camposComprador['campos']['cidade'] ?? '') : '')?>"></div></div>
+          <div class="col-md-3"><div class="form-group"><label for="estado">Estado</label><select class="form-control select" name="estado" id="estado"><option value="">Selecionar</option><?php $estados = DBRead('estado', 'ORDER BY estado ASC'); foreach ((array)$estados as $estado): ?><option value="<?=compradoresH($estado['sigla'])?>" <?=($camposComprador['campos']['estado'] ?? '') === $estado['sigla'] ? 'selected' : ''?>><?=compradoresH($estado['estado'])?></option><?php endforeach; ?></select></div></div>
         </div>
         <div class="acoes-cadastro">
           <button type="submit" class="btn btn-success"><i class="fa fa-plus"></i> Cadastrar</button>

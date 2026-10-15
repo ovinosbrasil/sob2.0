@@ -1,28 +1,11 @@
 <?php
-require_once __DIR__ . "/../_config.php";
-header("Content-Type: text/html; charset=UTF-8");
-
-$nome = DBEscape($_POST['nome'] ?? '');
-$id_comprador = (int)($_GET['id_comprador'] ?? 0);
-$comprador = DBRead('mercado', "WHERE nome = '$nome' AND id != '$id_comprador'");
-
-// TESTE EVENTO
-if(($comprador[0]['id'] ?? 0) > 0){
-  echo "<script type=\"text/javascript\"> alert(\"Comprador já existe.Tente novamente\"); </script>
-  <script language='javascript'>history.back()</script>";
-}else{
-
-$dados = array(
-	'nome'	=> $_POST['nome'],
-	'celular1'	=> $_POST['celular'],
-  'email'	=> $_POST['email'],
-  'cpf'  => $_POST['cpf'],
-  'cod_criador'  => $_POST['cod'],
-  'cidade'  => $_POST['cidade'],
-  'estado'  => $_POST['estado']
-);
-
-DBUpdate('mercado', $dados, "id = '$id_comprador'");
-header("Location: ../geral.php?pg=comprador&id_comprador=$id_comprador", true, 303);
-exit;
-}
+require_once __DIR__ . '/../_config.php';
+require_once __DIR__ . '/_alertas_compradores.php';
+$id = filter_var($_GET['id_comprador'] ?? 0, FILTER_VALIDATE_INT);
+if (!$id || $id < 1 || !DBRead('mercado', "WHERE id = '$id'")) finalizarComprador('warning', 'Comprador não encontrado. Atualize a página e tente novamente.', 0, 404);
+$idRetornoComprador = $id;
+$dados = dadosFormularioComprador($id);
+$nome = DBEscape($dados['nome']);
+if (DBRead('mercado', "WHERE nome = '$nome' AND id != '$id'")) finalizarComprador('warning', 'Já existe outro comprador com esse nome.', $id, 409);
+if (!DBUpdate('mercado', $dados, "id = '$id'")) finalizarComprador('danger', 'Não foi possível atualizar o comprador. Tente novamente.', $id, 500);
+finalizarComprador('success', 'Comprador atualizado com sucesso.', $id);

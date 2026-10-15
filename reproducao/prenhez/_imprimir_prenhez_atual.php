@@ -4,7 +4,7 @@ require_once __DIR__ . '/_prenhez_atual.php';
 require_once __DIR__ . '/_relatorio_prenhez_pdf.php';
 
 $entrada = array();
-foreach (array('reproducao', 'data_inicio', 'data_fim') as $campo) {
+foreach (array('reproducao', 'data_inicio', 'data_fim', 'doadora', 'doadora_id', 'doadora_origem') as $campo) {
     $entrada[$campo] = isset($_GET[$campo]) && is_string($_GET[$campo]) ? trim($_GET[$campo]) : '';
 }
 try { $linhas = consultarPrenhezAtual($entrada); }
