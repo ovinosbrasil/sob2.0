@@ -43,6 +43,7 @@ $data_expira2 = $data;
   <link rel="stylesheet" href="bower_components/Ionicons/css/ionicons.min.css">
   <!-- Theme style -->
   <link rel="stylesheet" href="dist/css/AdminLTE.min.css">
+  <link rel="stylesheet" href="dist/css/menu-usuario.css?v=<?=filemtime(__DIR__ . '/dist/css/menu-usuario.css')?>">
   <link rel="stylesheet" href="dist/css/controle-status.css?v=<?=filemtime(__DIR__ . '/dist/css/controle-status.css')?>">
   <link rel="stylesheet" href="dist/css/confirmacao-exclusao.css?v=<?=filemtime(__DIR__ . '/dist/css/confirmacao-exclusao.css')?>">
   <link rel="stylesheet" href="dist/css/busca-animais.css?v=<?=filemtime(__DIR__ . '/dist/css/busca-animais.css')?>">
@@ -99,13 +100,14 @@ $data_expira2 = $data;
           <!-- User Account: style can be found in dropdown.less -->
           <li class="dropdown user user-menu">
             <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-              <img src="img/logo_user/<?=$user[0]['logo']?>" class="user-image" alt="User Image">
+              <i class="fa fa-user user-image user-menu-icon" aria-hidden="true"></i>
+              <span class="sr-only">Menu do usuário</span>
               <span class="hidden-xs"><?=$login_user?></span>
             </a>
             <ul class="dropdown-menu">
-              <!-- User image -->
+              <!-- User icon -->
               <li class="user-header">
-                <img src="img/logo_user/<?=$user[0]['logo']?>" class="img-circle" alt="User Image">
+                <span class="user-menu-avatar img-circle" aria-hidden="true"><i class="fa fa-user"></i></span>
 
                 <p>
                   <?=$user[0]['responsavel']?>
