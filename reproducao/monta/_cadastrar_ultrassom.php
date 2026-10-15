@@ -20,13 +20,6 @@ if (!$controle) {
 $idLote = (int)$controle[0]['id_monta'];
 DBUpdate('monta_controle', array('ultrassom' => $status, 'data_ultrassom' => (new DateTimeImmutable('now', new DateTimeZone('America/Bahia')))->format('Y-m-d')), "id = '$idControle'");
 
-$controles = DBRead('monta_controle', "WHERE id_monta = '$idLote'") ?: array();
-$positivos = DBRead('monta_controle', "WHERE id_monta = '$idLote' AND ultrassom = '1'") ?: array();
-$total = count($controles);
-DBUpdate('lotes_reproducao', array(
-    'ultrassom' => $total ? count($positivos) * 100 / $total : 0
-), "id_lote = '$idLote' AND tipo = '0'");
-
 $_SESSION['alerta_cadastro_monta'] = array('tipo'=>'success', 'titulo'=>'Sucesso!', 'mensagem'=>'Ultrassom alterado para ' . ($status === 1 ? 'positivo' : 'negativo') . ' com sucesso.');
 header('Location: ../../geral.php?pg=monta&id_lote=' . $idLote);
 exit;

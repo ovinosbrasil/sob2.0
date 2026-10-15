@@ -20,16 +20,6 @@ if (!$controle) {
 $idLote = (int)$controle[0]['id_lote'];
 DBUpdate('transplante_controle', array('ultrassom' => $status, 'data_ultrassom' => (new DateTimeImmutable('now', new DateTimeZone('America/Bahia')))->format('Y-m-d')), "id = '$idControle'");
 
-$controles = DBRead('transplante_controle', "WHERE id_lote = '$idLote'") ?: array();
-$positivos = DBRead('transplante_controle', "WHERE id_lote = '$idLote' AND ultrassom = '1'") ?: array();
-$nascimentos = DBRead('transplante_controle', "WHERE id_lote = '$idLote' AND status_nascimento = '1'") ?: array();
-$total = count($controles);
-DBUpdate('lotes_reproducao', array(
-    'ultrassom' => $total ? count($positivos) * 100 / $total : 0,
-    'crias' => $total ? count($nascimentos) * 100 / $total : 0,
-    'femeas' => $total
-), "id_lote = '$idLote' AND tipo = '2'");
-
 $_SESSION['alerta_te'] = array('tipo'=>'success', 'titulo'=>'Sucesso!', 'mensagem'=>'Ultrassom alterado para ' . ($status === 1 ? 'positivo' : 'negativo') . ' com sucesso.');
 header('Location: ../../geral.php?pg=te&id_lote=' . $idLote);
 exit;

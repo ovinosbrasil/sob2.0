@@ -10,10 +10,6 @@ if($controleId>0&&$loteId>0&&isset($mapa[$reproducao])&&in_array($status,array(1
   $controle = DBRead($config['tabela'], "WHERE id = '{$controleId}' AND {$config['fk']} = '{$loteId}'");
   if ($controle) {
   DBUpdate($config['tabela'],array('ultrassom'=>$status,'data_ultrassom'=>(new DateTimeImmutable('now',new DateTimeZone('America/Bahia')))->format('Y-m-d')),"id = '{$controleId}' AND {$config['fk']} = '{$loteId}'");
-  $todos=DBRead($config['tabela'],"WHERE {$config['fk']} = '{$loteId}'"); $todos=is_array($todos)?$todos:array(); $positivos=0;
-  foreach($todos as $registro) if((int)($registro['ultrassom']??0)===1)$positivos++;
-  $percentual=count($todos)?($positivos*100)/count($todos):0;
-  DBUpdate('lotes_reproducao',array('ultrassom'=>$percentual),"id_lote = '{$loteId}' AND tipo = '{$reproducao}'");
   $_SESSION['alerta_ultrassom'] = array('tipo'=>'success', 'titulo'=>'Sucesso!', 'mensagem'=>'Ultrassom alterado para ' . ($status === 1 ? 'positivo' : 'negativo') . ' com sucesso.');
   }
 }

@@ -26,17 +26,6 @@ if (!$condicao || !DBRead('monta_controle', 'WHERE ' . $condicao) || !DBDelete('
     exit;
 }
 
-$controles = DBRead('monta_controle', "WHERE id_monta = '$idLote'") ?: array();
-$positivos = DBRead('monta_controle', "WHERE id_monta = '$idLote' AND ultrassom = '1'") ?: array();
-$nascimentos = DBRead('monta_controle', "WHERE id_monta = '$idLote' AND status_nascimento = '1'") ?: array();
-$total = count($controles);
-
-DBUpdate('lotes_reproducao', array(
-    'ultrassom' => $total ? count($positivos) * 100 / $total : 0,
-    'crias' => $total ? count($nascimentos) * 100 / $total : 0,
-    'femeas' => $total
-), "id_lote = '$idLote' AND tipo = '0'");
-
 $_SESSION['alerta_cadastro_monta'] = array('tipo'=>'success', 'titulo'=>'Sucesso!', 'mensagem'=>'Fêmea excluída do lote com sucesso.');
 header('Location: ../../geral.php?pg=monta&id_lote=' . $idLote);
 exit;

@@ -11,7 +11,6 @@ $id_lote = (int)$id_lote;
 
 DBDelete('monta_controle', "id_monta = '$id_lote'");
 DBDelete('monta', "id = '$id_lote'");
-DBDelete('lotes_reproducao', "id_lote = '$id_lote' AND tipo = '0'");
 $_SESSION['alerta_cadastro_monta'] = array('tipo'=>'success', 'titulo'=>'Sucesso!', 'mensagem'=>'Lote de monta excluído com sucesso.');
 header('Location: ../../geral.php?pg=lista_monta');
 exit;

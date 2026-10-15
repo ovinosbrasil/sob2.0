@@ -45,7 +45,8 @@ function registrosRelatorioReproducao($filtro, $forcarEsquemaLegado = false)
             LEFT JOIN terceiros t ON t.id = b.id_animal AND $origemMacho = 1"
             : "LEFT JOIN animais a ON a.nome = b.macho AND $origemMacho = 0
             LEFT JOIN terceiros t ON t.nome = b.macho AND $origemMacho = 1";
-        $campos = "lr.*, b.codigo, b.data_inicio, b.data_fim,
+        $campos = "b.id, b.id AS id_lote, COALESCE(resumo.femeas, 0) AS femeas,
+            COALESCE(resumo.ultrassom, 0) AS ultrassom, b.codigo, b.data_inicio, b.data_fim,
             $nomeMacho AS nome_macho,
             (SELECT COUNT(DISTINCT cria.id)
              FROM monta_controle controle
@@ -67,11 +68,13 @@ function registrosRelatorioReproducao($filtro, $forcarEsquemaLegado = false)
                 AND cria.tipo_reproducao = 'Monta Natural'
                 AND cria.data_de_nascimento BETWEEN DATE_ADD(b.data_inicio, INTERVAL 120 DAY) AND DATE_ADD(b.data_fim, INTERVAL 180 DAY)
                 AND COALESCE(cria.status, 0) = 1 AND LOWER(TRIM(COALESCE(cria.causa_da_perda, ''))) = 'nascimento') AS mortes";
-        $juncao = "INNER JOIN monta b ON b.id = lr.id_lote
-            $juncaoMacho
-            WHERE lr.tipo = 0";
+        $tabela = 'monta b';
+        $tabelaControle = 'monta_controle';
+        $chaveControle = 'id_monta';
+        $juncao = $juncaoMacho;
     } elseif ($filtro === 'Inseminação artificial') {
-        $campos = "lr.*, b.codigo, b.data AS data_inicio, NULL AS data_fim,
+        $campos = "b.id, b.id AS id_lote, COALESCE(resumo.femeas, 0) AS femeas,
+            COALESCE(resumo.ultrassom, 0) AS ultrassom, b.codigo, b.data AS data_inicio, NULL AS data_fim,
             COALESCE(NULLIF(a.nome, ''), NULLIF(t.nome, ''), 'Animal não encontrado') AS nome_macho,
             (SELECT COUNT(DISTINCT cria.id)
              FROM inseminacao_controle controle
@@ -93,12 +96,14 @@ function registrosRelatorioReproducao($filtro, $forcarEsquemaLegado = false)
                 AND cria.tipo_reproducao = 'Inseminação Artificial'
                 AND cria.data_de_nascimento BETWEEN DATE_ADD(b.data, INTERVAL 120 DAY) AND DATE_ADD(b.data, INTERVAL 180 DAY)
                 AND COALESCE(cria.status, 0) = 1 AND LOWER(TRIM(COALESCE(cria.causa_da_perda, ''))) = 'nascimento') AS mortes";
-        $juncao = "INNER JOIN inseminacao b ON b.id = lr.id_lote
-            LEFT JOIN animais a ON a.id = b.id_macho AND b.terceiro = 0
-            LEFT JOIN terceiros t ON t.id = b.id_macho AND b.terceiro = 1
-            WHERE lr.tipo = 1";
+        $tabela = 'inseminacao b';
+        $tabelaControle = 'inseminacao_controle';
+        $chaveControle = 'id_lote';
+        $juncao = "LEFT JOIN animais a ON a.id = b.id_macho AND b.terceiro = 0
+            LEFT JOIN terceiros t ON t.id = b.id_macho AND b.terceiro = 1";
     } else {
-        $campos = "lr.*, b.codigo, b.data AS data_inicio, NULL AS data_fim,
+        $campos = "b.id, b.id AS id_lote, COALESCE(resumo.femeas, 0) AS femeas,
+            COALESCE(resumo.ultrassom, 0) AS ultrassom, b.codigo, b.data AS data_inicio, NULL AS data_fim,
             COALESCE(NULLIF(ap.nome, ''), NULLIF(tp.nome, ''), NULLIF(b.pai, ''), 'Animal não encontrado') AS nome_macho,
             COALESCE(NULLIF(am.nome, ''), NULLIF(tm.nome, ''), NULLIF(b.mae, ''), 'Animal não encontrado') AS nome_femea,
             (SELECT COUNT(DISTINCT cria.id) FROM animais cria
@@ -113,15 +118,23 @@ function registrosRelatorioReproducao($filtro, $forcarEsquemaLegado = false)
                 AND cria.tipo_reproducao = 'Embrionagem'
                 AND cria.data_de_nascimento BETWEEN DATE_ADD(b.data, INTERVAL 120 DAY) AND DATE_ADD(b.data, INTERVAL 180 DAY)
                 AND COALESCE(cria.status, 0) = 1 AND LOWER(TRIM(COALESCE(cria.causa_da_perda, ''))) = 'nascimento') AS mortes";
-        $juncao = "INNER JOIN transplante b ON b.id = lr.id_lote
-            LEFT JOIN animais ap ON ap.id = b.id_pai AND b.terceiro_pai = 0
+        $tabela = 'transplante b';
+        $tabelaControle = 'transplante_controle';
+        $chaveControle = 'id_lote';
+        $juncao = "LEFT JOIN animais ap ON ap.id = b.id_pai AND b.terceiro_pai = 0
             LEFT JOIN terceiros tp ON tp.id = b.id_pai AND b.terceiro_pai = 1
             LEFT JOIN animais am ON am.id = b.id_mae AND b.terceiro_mae = 0
-            LEFT JOIN terceiros tm ON tm.id = b.id_mae AND b.terceiro_mae = 1
-            WHERE lr.tipo = 2";
+            LEFT JOIN terceiros tm ON tm.id = b.id_mae AND b.terceiro_mae = 1";
     }
+    // Agrega os controles antes dos joins com animais para manter os totais por lote.
+    $juncao .= " LEFT JOIN (
+        SELECT $chaveControle AS id_lote, COUNT(*) AS femeas,
+            100.0 * SUM(CASE WHEN ultrassom = 1 THEN 1 ELSE 0 END) / COUNT(*) AS ultrassom
+        FROM $tabelaControle
+        GROUP BY $chaveControle
+    ) resumo ON resumo.id_lote = b.id";
     try {
-        return DBRead('lotes_reproducao lr', $juncao, $campos) ?: array();
+        return DBRead($tabela, $juncao, $campos) ?: array();
     } catch (Throwable $erro) {
         $colunaIdMontaInexistente = $filtro === 'Monta natural'
             && !$forcarEsquemaLegado

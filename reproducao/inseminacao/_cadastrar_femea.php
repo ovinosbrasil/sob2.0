@@ -71,17 +71,6 @@ DBCreate('inseminacao_controle', array(
     'id_femea' => $idMae
 ));
 
-$controles = DBRead('inseminacao_controle', "WHERE id_lote = '$idLote'") ?: array();
-$positivos = DBRead('inseminacao_controle', "WHERE id_lote = '$idLote' AND ultrassom = '1'") ?: array();
-$nascimentos = DBRead('inseminacao_controle', "WHERE id_lote = '$idLote' AND status_nascimento = '1'") ?: array();
-$total = count($controles);
-
-DBUpdate('lotes_reproducao', array(
-    'ultrassom' => $total ? count($positivos) * 100 / $total : 0,
-    'crias' => $total ? count($nascimentos) * 100 / $total : 0,
-    'femeas' => $total
-), "id_lote = '$idLote' AND tipo = '1'");
-
 $_SESSION['alerta_cadastro_inseminacao'] = array('tipo'=>'success', 'titulo'=>'Sucesso!', 'mensagem'=>'Fêmea adicionada ao lote com sucesso.');
 header('Location: ../../geral.php?pg=inseminacao&id_lote=' . $idLote);
 exit;

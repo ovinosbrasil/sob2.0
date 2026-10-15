@@ -11,7 +11,6 @@ $id_lote = (int)$id_lote;
 
 DBDelete('inseminacao_controle', "id_lote = '$id_lote'");
 DBDelete('inseminacao', "id = '$id_lote'");
-DBDelete('lotes_reproducao', "id_lote = '$id_lote' AND tipo = '1'");
 $_SESSION['alerta_cadastro_inseminacao'] = array('tipo'=>'success', 'titulo'=>'Sucesso!', 'mensagem'=>'Lote de inseminação excluído com sucesso.');
 header('Location: ../../geral.php?pg=lista_inseminacao');
 exit;

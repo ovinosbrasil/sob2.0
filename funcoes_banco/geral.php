@@ -55,7 +55,6 @@ mysql_query("DROP TABLE video");
 mysql_query("DROP TABLE qualidade");
 mysql_query("DROP TABLE qualidade_macho");
 */
-mysql_query("CREATE TABLE lotes_reproducao (id INT NOT NULL AUTO_INCREMENT , id_lote INT NOT NULL , ultrassom FLOAT NOT NULL , femeas INT NOT NULL , crias FLOAT NOT NULL , mortes FLOAT NOT NULL, tipo INT NOT NULL, vivos FLOAT NOT NULL, PRIMARY KEY (id)) ENGINE = InnoDB;");
 
 mysql_query("ALTER TABLE transplante ADD usados INT NOT NULL AFTER id_mae, ADD congelados INT NOT NULL AFTER usados, ADD data_coleta DATE NOT NULL AFTER congelados, ADD n_embrioes VARCHAR(20) NOT NULL AFTER data_coleta, ADD raca VARCHAR(20) NOT NULL AFTER data_coleta, ADD tipo_semen VARCHAR(20) NOT NULL AFTER raca");
 

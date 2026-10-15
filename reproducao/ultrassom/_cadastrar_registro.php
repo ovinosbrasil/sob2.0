@@ -45,9 +45,6 @@ $controle=DBRead($config['tabela'],"WHERE $condicao LIMIT 1")?:array();
 if(!$controle) voltarCadastroUltrassom('Este lote não está mais disponível para o cadastro do ultrassom.',$retorno);
 
 DBUpdate($config['tabela'],array('ultrassom'=>(int)$situacao,'data_ultrassom'=>$data->format('Y-m-d')),"id = '$controleId'");
-$todos=DBRead($config['tabela'],"WHERE {$config['fk']} = '$loteId'")?:array(); $positivos=0;
-foreach($todos as $registro) if((int)($registro['ultrassom']??0)===1)$positivos++;
-DBUpdate('lotes_reproducao',array('ultrassom'=>count($todos)?$positivos*100/count($todos):0),"id_lote = '$loteId' AND tipo = '$tipo'");
 $_SESSION['alerta_ultrassom'] = array('tipo'=>'success', 'titulo'=>'Sucesso!', 'mensagem'=>'Ultrassom cadastrado com sucesso.');
 header('Location: ../../geral.php?'.http_build_query(array('pg'=>'lista_ultrassom','tipo'=>1,'reproducao'=>$tipo,'id_lote'=>$loteId)),true,303);
 exit;

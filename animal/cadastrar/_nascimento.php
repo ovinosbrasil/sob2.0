@@ -122,28 +122,6 @@ if ($tipo == 3) {
   $id_animal = DBCreate('animais', $dados, true);
 }
 
-// Um nascimento confirmado implica ultrassom positivo. Atualiza também o
-// percentual consolidado do lote para manter os relatórios consistentes.
-$configuracaoUltrassom = array(
-  1 => array('tabela' => 'monta_controle', 'coluna_lote' => 'id_monta', 'tipo_lote' => 0),
-  2 => array('tabela' => 'inseminacao_controle', 'coluna_lote' => 'id_lote', 'tipo_lote' => 1),
-  3 => array('tabela' => 'transplante_controle', 'coluna_lote' => 'id_lote', 'tipo_lote' => 2),
-);
-$configuracao = $configuracaoUltrassom[(int)$tipo] ?? null;
-if ($configuracao) {
-  $tabelaControle = $configuracao['tabela'];
-  $colunaLote = $configuracao['coluna_lote'];
-  $controleNascimento = DBRead($tabelaControle, "WHERE id = '" . (int)$id_lote . "'");
-  $idLoteReproducao = (int)($controleNascimento[0][$colunaLote] ?? 0);
-  if ($idLoteReproducao > 0) {
-    $controlesLote = DBRead($tabelaControle, "WHERE $colunaLote = '$idLoteReproducao'") ?: array();
-    $ultrassonsPositivos = DBRead($tabelaControle, "WHERE $colunaLote = '$idLoteReproducao' AND ultrassom = '1'") ?: array();
-    $percentualUltrassom = $controlesLote ? count($ultrassonsPositivos) * 100 / count($controlesLote) : 0;
-    DBUpdate('lotes_reproducao', array('ultrassom' => $percentualUltrassom),
-      "id_lote = '$idLoteReproducao' AND tipo = '" . (int)$configuracao['tipo_lote'] . "'");
-  }
-}
-
 //ANIMAL MORTO
 if($_POST['status']){
   $dados = array(
@@ -296,85 +274,6 @@ $dados = array(
   );
 DBUpdate('matriz', $dados, "id_femea = '$id_mae'");
 //RANKING INTERVALO MATRIZ FIM
-
-
-//RANKING LOTES REPRODUCAO MONTA
-if($tipo == 1){
-  $monta = DBRead('monta_controle', "WHERE id = '$id_lote'");
-  $id_monta = $monta[0]['id_monta'];
-  $lote_reproducao = DBRead('lotes_reproducao', "WHERE tipo = '0' AND id_lote = '$id_monta'");
-  $qtd_crias = $lote_reproducao[0]['crias'];
-  $vivos = $lote_reproducao[0]['vivos'];
-  $mortos = $lote_reproducao[0]['mortes'];
-  $monta = DBRead('monta_controle', "WHERE id = '$id_lote'");
-  $id_monta = $monta[0]['id_monta'];
-  $dados = DBRead('monta_controle', "WHERE id_monta = '$id_monta'");
-  $qtd = count($dados ?: []);
-  if($_POST['status'] == 0){
-    $vivos++;
-  }else{
-    $mortos++;
-  }
-  $qtd_crias = $qtd_crias+1;
-  $dados = array(
-    'vivos'   =>  $vivos,
-    'crias'   =>  $qtd_crias,
-    'mortes'  =>  $mortos
-  );
-  DBUpdate('lotes_reproducao', $dados, "id_lote = '$id_monta' AND tipo = '0'");
-}
-//FIM RANKING LOTES
-
-//RANKING LOTES REPRODUCAO IA
-if($tipo == 2){
-  $ia = DBRead('inseminacao_controle', "WHERE id = '$id_lote'");
-  $id_ia = $ia[0]['id_lote'];
-  $lote_reproducao = DBRead('lotes_reproducao', "WHERE tipo = '1' AND id_lote = '$id_ia'");
-  $qtd_crias = $lote_reproducao[0]['crias'];
-  $vivos = $lote_reproducao[0]['vivos'];
-  $mortos = $lote_reproducao[0]['mortes'];
-  $dados = DBRead('inseminacao_controle', "WHERE id_lote = '$id_ia'");
-  $nascimento = DBRead('inseminacao_controle', "WHERE id_lote = '$id_ia' AND status_nascimento = '1'");
-  $qtd = count($dados ?: []);
-  if($_POST['status'] == 0){
-    $vivos++;
-  }else{
-    $mortos++;
-  }
-  $dados = array(
-    'vivos'   =>  $vivos,
-    'crias'   =>  $qtd_crias,
-    'mortes'  =>  $mortos
-  );
-  DBUpdate('lotes_reproducao', $dados, "id_lote = '$id_ia' AND tipo = '1'");
-
-}
-//FIM RANKING LOTES
-
-//RANKING LOTES REPRODUCAO TE
-if($tipo == 3){
-  $te = DBRead('transplante_controle', "WHERE id = '$id_lote'");
-  $id_te = $te[0]['id_lote'];
-  $lote_reproducao = DBRead('lotes_reproducao', "WHERE tipo = '2' AND id_lote = '$id_te'");
-  $qtd_crias = $lote_reproducao[0]['crias'];
-  $vivos = $lote_reproducao[0]['vivos'];
-  $mortos = $lote_reproducao[0]['mortes'];
-  $dados = DBRead('transplante_controle', "WHERE id_lote = '$id_te'");
-  $nascimento = DBRead('transplante_controle', "WHERE id_lote = '$id_te' AND status_nascimento = '1'");
-  $qtd = count($dados ?: []);
-  if($_POST['status'] == 0){
-    $vivos++;
-  }else{
-    $mortos++;
-  }
-  $dados = array(
-    'vivos'   =>  $vivos,
-    'crias'   =>  $qtd_crias,
-    'mortes'  =>  $mortos
-  );
-  DBUpdate('lotes_reproducao', $dados, "id_lote = '$id_te' AND tipo = '2'");
-}
-//FIM RANKING LOTES
 
 
 $_SESSION['alerta_cadastro_animal'] = array('tipo'=>'success', 'titulo'=>'Sucesso!', 'mensagem'=>'Nascimento cadastrado com sucesso.');

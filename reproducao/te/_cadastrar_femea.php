@@ -57,14 +57,6 @@ if (empty($_SESSION['receptora_csrf']) || !hash_equals($_SESSION['receptora_csrf
         mysqli_stmt_bind_param($stmt, 'sii', $nome, $idReceptora, $id_lote);
         mysqli_stmt_execute($stmt);
         mysqli_stmt_close($stmt);
-        $ranking = mysqli_fetch_assoc(mysqli_query($link, 'SELECT COUNT(*) AS qtd, SUM(ultrassom = 1) AS ultrassom, SUM(status_nascimento = 1) AS nascimento FROM transplante_controle WHERE id_lote = ' . $id_lote));
-        $qtd = (int) $ranking['qtd'];
-        $ultrassom = $ranking['ultrassom'] * 100 / $qtd;
-        $nascimento = $ranking['nascimento'] * 100 / $qtd;
-        $stmt = mysqli_prepare($link, 'UPDATE lotes_reproducao SET ultrassom = ?, crias = ?, femeas = ? WHERE id_lote = ? AND tipo = 2');
-        mysqli_stmt_bind_param($stmt, 'ddii', $ultrassom, $nascimento, $qtd, $id_lote);
-        mysqli_stmt_execute($stmt);
-        mysqli_stmt_close($stmt);
         mysqli_commit($link);
     } catch (Exception $e) {
         mysqli_rollback($link);

@@ -11,7 +11,6 @@ $id_lote = (int)$id_lote;
 
 DBDelete('transplante_controle', "id_lote = '$id_lote'");
 DBDelete('transplante', "id = '$id_lote'");
-DBDelete('lotes_reproducao', "id_lote = '$id_lote' AND tipo = '2'");
 $_SESSION['alerta_te'] = array('tipo'=>'success', 'titulo'=>'Sucesso!', 'mensagem'=>'Lote de transplante excluído com sucesso.');
 header('Location: ../../geral.php?pg=lista_te');
 exit;

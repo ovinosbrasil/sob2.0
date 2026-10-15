@@ -21,17 +21,6 @@ if (!$condicao || !DBRead('transplante_controle', 'WHERE ' . $condicao) || !DBDe
     exit;
 }
 
-$controles = DBRead('transplante_controle', "WHERE id_lote = '$idLote'") ?: array();
-$positivos = DBRead('transplante_controle', "WHERE id_lote = '$idLote' AND ultrassom = '1'") ?: array();
-$nascimentos = DBRead('transplante_controle', "WHERE id_lote = '$idLote' AND status_nascimento = '1'") ?: array();
-$total = count($controles);
-
-DBUpdate('lotes_reproducao', array(
-    'ultrassom' => $total ? count($positivos) * 100 / $total : 0,
-    'crias' => $total ? count($nascimentos) * 100 / $total : 0,
-    'femeas' => $total
-), "id_lote = '$idLote' AND tipo = '2'");
-
 $_SESSION['alerta_te'] = array('tipo'=>'success', 'titulo'=>'Sucesso!', 'mensagem'=>'Receptora excluída do lote com sucesso.');
 header('Location: ../../geral.php?pg=te&id_lote=' . $idLote);
 exit;

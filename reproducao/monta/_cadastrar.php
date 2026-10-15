@@ -67,15 +67,6 @@ $idLote = DBCreate('monta', array(
     'terceiro' => $terceiro
 ), true);
 
-DBCreate('lotes_reproducao', array(
-    'id_lote' => (int)$idLote,
-    'ultrassom' => 0,
-    'femeas' => 0,
-    'crias' => 0,
-    'mortes' => 0,
-    'tipo' => 0,
-    'vivos' => 0
-));
 
 $_SESSION['alerta_cadastro_monta'] = array('tipo'=>'success', 'titulo'=>'Sucesso!', 'mensagem'=>'Lote de monta natural cadastrado com sucesso.');
 unset($_SESSION['campos_cadastro_monta']);

@@ -66,21 +66,6 @@ $dados = array(
 
 $id_lote = DBcreate('transplante', $dados, true);
 
-
-//RANKING TE
-$dados = array(
-	'id_lote'	=> $id_lote,
-  'tipo'    => 2,
-  'ultrassom' => 0,
-  'femeas' => 0,
-  'crias' => 0,
-  'mortes' => 0,
-  'vivos' => 0
-);
-DBcreate('lotes_reproducao', $dados);
-//RANKING TE FIM
-
-
 $_SESSION['alerta_te'] = array('tipo'=>'success', 'titulo'=>'Sucesso!', 'mensagem'=>'Lote de transplante cadastrado com sucesso.');
 unset($_SESSION['campos_te']);
 header('Location: ../../geral.php?pg=te&id_lote=' . (int)$id_lote);
