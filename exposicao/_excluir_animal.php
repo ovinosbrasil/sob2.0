@@ -1,10 +1,13 @@
-<?
-include "../_config.php";
-$id_animal = $_GET['id_animal'];
-$id_evento = $_GET['id_evento'];
-
-
-DBDelete('julgamento_controle', "id_animal = '$id_animal' AND id_julgamento = '$id_evento'");
-DBDelete('animais_evento', "id_animal = '$id_animal' AND id_julgamento = '$id_evento'");
-echo "<META HTTP-EQUIV=REFRESH CONTENT='0; URL=../geral.php?pg=exposicao&id_exposicao=$id_evento'>";
-?>
+<?php
+require_once __DIR__ . '/../_config.php';
+require_once __DIR__ . '/_alertas.php';
+require_once __DIR__ . '/participantes.php';
+$idEvento = filter_var($_GET['id_evento'] ?? 0, FILTER_VALIDATE_INT);
+$idAnimal = filter_var($_GET['id_animal'] ?? 0, FILTER_VALIDATE_INT);
+$aba = '';
+try {
+    $alterado = alterarParticipanteExposicao($idEvento, $idAnimal, 'remover');
+} catch (DomainException $erro) {
+    avisarExposicao('warning', $erro->getMessage(), $idEvento, $aba);
+}
+avisarExposicao($alterado ? 'success' : 'warning', $alterado ? 'Animal removido da exposição com sucesso.' : 'Animal não encontrado na exposição.', $idEvento, $aba);

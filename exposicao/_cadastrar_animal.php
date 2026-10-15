@@ -1,23 +1,13 @@
 <?php
-include __DIR__ . "/../_config.php";
-echo '<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />';
-$id_animal = $_GET['id_animal'];
-$id_evento = $_GET['id_evento'];
-
-$teste = DBRead('animais_evento', "WHERE id_animal = '$id_animal' AND id_julgamento = '$id_evento'");
-if($teste[0]['id']>0){
-    echo "<script type=\"text/javascript\"> alert(\"Animal já cadastrado.Tente novamente\"); </script>
-    <script language='javascript'>history.back()</script>";
-}else{
-  $dados = array(
-    'id_animal'	=> $id_animal,
-    'id_julgamento'	=> $id_evento,
-    'leilao' => 0,
-    'julgamento' => 0,
-  );
-  DBcreate('animais_evento', $dados);
-  echo "<META HTTP-EQUIV=REFRESH CONTENT='0; URL=../geral.php?pg=exposicao&id_exposicao=$id_evento'>";
+require_once __DIR__ . '/../_config.php';
+require_once __DIR__ . '/_alertas.php';
+require_once __DIR__ . '/participantes.php';
+$idEvento = filter_var($_GET['id_evento'] ?? 0, FILTER_VALIDATE_INT);
+$idAnimal = filter_var($_GET['id_animal'] ?? 0, FILTER_VALIDATE_INT);
+$aba = '';
+try {
+    $alterado = alterarParticipanteExposicao($idEvento, $idAnimal, 'adicionar');
+} catch (DomainException $erro) {
+    avisarExposicao('warning', $erro->getMessage(), $idEvento, $aba);
 }
-
-
-?>
+avisarExposicao($alterado ? 'success' : 'warning', $alterado ? 'Animal adicionado à exposição com sucesso.' : 'Animal já cadastrado nesta exposição.', $idEvento, $aba);

@@ -28,7 +28,7 @@ function validar(){
     saida = 1;
   }else{document.getElementById("valor").style.border = "1px solid green";}
 
-  if(saida){ return false; }else{ return true; }
+  if(saida){ SobAlertas.camposObrigatorios(); return false; }else{ return true; }
 }
 </script>
 
@@ -46,7 +46,7 @@ function validar(){
     <div class="row">
       <div class="col-md-12">
 				<div class="box box-success">
-          <form method="post" action="exposicao/_vender_animal.php?id_evento=<?=$id_evento?>&id_animal=<?=$id_animal?>" onsubmit="return validar()">
+          <form data-alertas-exposicao method="post" action="exposicao/_vender_animal.php?id_evento=<?=$id_evento?>&id_animal=<?=$id_animal?>" onsubmit="return validar()">
           <!-- /.box-header -->
           <div class="box-body">
 

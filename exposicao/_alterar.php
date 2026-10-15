@@ -1,34 +1,22 @@
 <?php
-include __DIR__ . "/../_config.php";
-echo '<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />';
-
-$data = $_POST['data'];
-include "../funcoes_data/data.php";
-$data = $data;
-
-$evento = $_POST['evento'];
-$id_evento = $_GET['id_evento'];
-
-$evento_ = DBRead('julgamento', "WHERE nome = '$evento' AND id !='$id_evento'");
-// TESTE EVENTO
-if($evento_[0]['id'] > 0){
-  echo "<script type=\"text/javascript\"> alert(\"Evento já existe.Tente novamente\"); </script>
-  <script language='javascript'>history.back()</script>";
-}else{
-
-$dados = array(
-	'nome'	=> $_POST['evento'],
-	'cidade'	=> $_POST['cidade'],
-  'local'	=> $_POST['local'],
-  'data'  => $data
-);
-
-DBUpdate('julgamento', $dados, "id = '$id_evento'");
+require_once __DIR__ . '/../_config.php';
+require_once __DIR__ . '/_alertas.php';
+$id_evento = filter_var($_GET['id_evento'] ?? 0, FILTER_VALIDATE_INT);
+if (!$id_evento || $id_evento < 1 || !DBRead('julgamento', "WHERE id = '$id_evento'")) {
+    avisarExposicao('warning', 'Exposição não encontrada. Atualize a página e tente novamente.');
+}
+$dados = dadosEventoExposicao($id_evento);
+$data = $dados['data'];
+$nome = DBEscape($dados['nome']);
+if (DBRead('julgamento', "WHERE nome = '$nome' AND id != '$id_evento'")) {
+    avisarExposicao('warning', 'Já existe outra exposição com esse nome.', $id_evento);
+}
+gravarExposicao('DBUpdate', 'julgamento', $dados, "id = '$id_evento'");
 
 
 $evento = DBRead('julgamento_controle', "WHERE id_julgamento ='$id_evento'");
 require_once __DIR__ . "/../funcoes_data/categorias.php";
-foreach ($evento as $evento_) {
+foreach (($evento ?: array()) as $evento_) {
   $id_animal = $evento_['id_animal'];
   $animal = DBRead('animais',"WHERE id = '$id_animal'");
   $idade = calcularIdadeMesesDias($animal[0]['data_de_nascimento'], $data);
@@ -45,9 +33,8 @@ foreach ($evento as $evento_) {
       'meses'  => $meses,
   );
 
-  DBUpdate('julgamento_controle', $dados, "id_animal = '$id_animal' AND id_julgamento = '$id_evento'");
+  gravarExposicao('DBUpdate', 'julgamento_controle', $dados, "id_animal = '$id_animal' AND id_julgamento = '$id_evento'");
 }
 
-echo "<META HTTP-EQUIV=REFRESH CONTENT='0; URL=../geral.php?pg=exposicao&id_exposicao=$id_evento'>";
-}
-?>
+unset($_SESSION['campos_exposicao']);
+avisarExposicao('success', 'Exposição atualizada com sucesso.', $id_evento);

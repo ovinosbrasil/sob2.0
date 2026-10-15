@@ -40,7 +40,7 @@ function fechar_lista_evento(){
     <div class="row">
       <div class="col-md-5">
 				<div class="box box-success">
-          <form method="post" action="exposicao/_alterar.php?id_evento=<?=$id_evento?>" onsubmit="return validar()">
+          <form data-alertas-exposicao method="post" action="exposicao/_alterar.php?id_evento=<?=$id_evento?>" onsubmit="return validar()">
           <!-- /.box-header -->
           <div class="box-body">
             <div class="form-group">

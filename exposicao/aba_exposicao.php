@@ -2,6 +2,7 @@
 require __DIR__ . '/../_config.php';
 require_once __DIR__ . '/../includes/busca_animais.php';
 require_once __DIR__ . '/../funcoes_data/categorias.php';
+require_once __DIR__ . '/participantes.php';
 header('Content-Type: text/html; charset=UTF-8');
 
 $idEvento = filter_var($_GET['id_exposicao'] ?? 0, FILTER_VALIDATE_INT);
@@ -28,14 +29,23 @@ if ($aba === 'julgamento') {
     ) ?: array();
 } else {
     $progeniePai = $aba === 'progenie_pai';
-    $campoProgenitor = $progeniePai ? 'pai' : 'mae';
     $campoOutroProgenitor = $progeniePai ? 'mae' : 'pai';
     $campoTerceiroOutro = $progeniePai ? 'terceiro_mae' : 'terceiro_pai';
     $sexoProgenitor = $progeniePai ? 'M' : 'F';
+    $origemProgenies = sqlProgeniesExposicao($idEvento);
     $registros = DBRead(
-        "progene p INNER JOIN animais progenitor ON progenitor.id = p.id_animal INNER JOIN julgamento_controle jc ON jc.id_julgamento = p.id_lote AND jc.$campoProgenitor = p.id_animal INNER JOIN animais cria ON cria.id = jc.id_animal LEFT JOIN animais outro_animal ON outro_animal.id = cria.$campoOutroProgenitor AND COALESCE(cria.$campoTerceiroOutro,0) = 0 LEFT JOIN terceiros outro_terceiro ON outro_terceiro.id = cria.$campoOutroProgenitor AND cria.$campoTerceiroOutro = 1",
-        "WHERE p.id_lote = '" . (int)$idEvento . "' AND p.qtd > 1 AND p.sexo = '$sexoProgenitor' ORDER BY progenitor.nome ASC, cria.nome ASC",
-        "progenitor.id progenitor_id, progenitor.nome progenitor_nome, cria.id cria_id, cria.nome cria_nome, cria.sexo cria_sexo, cria.tipo cria_tipo, COALESCE(outro_animal.nome,outro_terceiro.nome,'Não informado') outro_progenitor_nome"
+        "($origemProgenies) vinculo
+         INNER JOIN (SELECT id_animal, sexo FROM ($origemProgenies) origem
+                     GROUP BY id_animal, sexo HAVING COUNT(DISTINCT cria_id) >= 2) grupo
+             ON grupo.id_animal = vinculo.id_animal AND grupo.sexo = vinculo.sexo
+         INNER JOIN animais progenitor ON progenitor.id = vinculo.id_animal
+         INNER JOIN animais cria ON cria.id = vinculo.cria_id
+         INNER JOIN (SELECT id_animal, MAX(progene) AS progene FROM julgamento_controle
+                     WHERE id_julgamento = '" . (int)$idEvento . "' GROUP BY id_animal) selecao ON selecao.id_animal = cria.id
+         LEFT JOIN animais outro_animal ON outro_animal.id = cria.$campoOutroProgenitor AND COALESCE(cria.$campoTerceiroOutro,0) = 0
+         LEFT JOIN terceiros outro_terceiro ON outro_terceiro.id = cria.$campoOutroProgenitor AND cria.$campoTerceiroOutro = 1",
+        "WHERE vinculo.sexo = '$sexoProgenitor' ORDER BY progenitor.nome ASC, selecao.progene DESC, cria.nome ASC, cria.id ASC",
+        "DISTINCT progenitor.id progenitor_id, progenitor.nome progenitor_nome, cria.id cria_id, cria.nome cria_nome, cria.sexo cria_sexo, cria.tipo cria_tipo, selecao.progene, COALESCE(outro_animal.nome,outro_terceiro.nome,'Não informado') outro_progenitor_nome"
     ) ?: array();
 }
 $total = count($registros);
@@ -76,7 +86,29 @@ if ($aba === 'julgamento') {
 <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:15px;"><strong><?=$progeniePai ? 'Progênie de pai' : 'Progênie de mãe'?></strong><span class="text-muted"><?=count($progeniesAgrupadas)?> progenitor(es)</span></div>
 <?php if (!$progeniesAgrupadas): ?><div class="text-center text-muted" style="padding:30px;">Nenhuma progênie com duas ou mais crias encontrada neste evento.</div><?php endif; ?>
 <?php foreach ($progeniesAgrupadas as $grupoProgenie): ?>
-<div class="box" style="border-top:0;box-shadow:none;border:1px solid #eee;margin-bottom:20px;"><div class="box-header" style="text-align:left;"><h3 class="box-title" style="float:none;font-size:15px;font-weight:600;margin:0;"><?=$h($grupoProgenie['nome'])?> <span class="text-muted" style="font-size:13px;font-weight:normal;margin-left:8px;"><?=count($grupoProgenie['crias'])?> cria(s)</span></h3></div><div class="box-body no-padding"><div class="table-responsive"><table class="table table-bordered table-striped" style="margin-bottom:0;table-layout:fixed;width:100%;"><colgroup><col style="width:50px;"><col style="width:35%;"><col style="width:40%;"><col style="width:15%;"><col style="width:10%;"></colgroup><thead><tr><th>Nº</th><th>Cria</th><th><?=$progeniePai ? 'Mãe' : 'Pai'?></th><th>Sexo</th><th>Tipo</th></tr></thead><tbody><?php foreach ($grupoProgenie['crias'] as $indiceCria => $criaProgenie): ?><tr><td><?=$indiceCria+1?></td><td><a href="geral.php?pg=animal&amp;id_animal=<?=(int)$criaProgenie['cria_id']?>" target="_blank" rel="noopener" style="color:inherit;"><?=$h($criaProgenie['cria_nome'])?></a></td><td><?=$h($criaProgenie['outro_progenitor_nome'])?></td><td><?=$h($criaProgenie['cria_sexo'])?></td><td><?=$h($criaProgenie['cria_tipo'])?></td></tr><?php endforeach; ?></tbody></table></div></div></div>
+<div class="box" style="border-top:0;box-shadow:none;border:1px solid #eee;margin-bottom:20px;">
+  <div class="box-header" style="text-align:left;"><h3 class="box-title" style="float:none;font-size:15px;font-weight:600;margin:0;"><?=$h($grupoProgenie['nome'])?> <span class="text-muted" style="font-size:13px;font-weight:normal;margin-left:8px;"><?=count($grupoProgenie['crias'])?> cria(s)</span></h3></div>
+  <div class="box-body no-padding"><div class="table-responsive">
+    <table class="table table-bordered table-striped sob-progenie" style="margin-bottom:0;table-layout:fixed;width:100%;">
+      <colgroup><col style="width:50px;"><col style="width:30%;"><col style="width:30%;"><col style="width:12%;"><col style="width:8%;"><col style="width:110px;"></colgroup>
+      <thead><tr><th>Nº</th><th>Cria</th><th><?=$progeniePai ? 'Mãe' : 'Pai'?></th><th>Sexo</th><th>Tipo</th><th>Utilizar</th></tr></thead>
+      <tbody>
+      <?php foreach ($grupoProgenie['crias'] as $indiceCria => $criaProgenie): $progeneAtivo = !empty($criaProgenie['progene']); ?>
+        <tr data-progene-linha="<?=(int)$criaProgenie['cria_id']?>" class="<?=$progeneAtivo ? 'is-progene' : ''?>" data-progene-nome="<?=$h($criaProgenie['cria_nome'])?>">
+          <td><?=$indiceCria+1?></td>
+          <td><a href="geral.php?pg=animal&amp;id_animal=<?=(int)$criaProgenie['cria_id']?>" target="_blank" rel="noopener" style="color:inherit;"><?=$h($criaProgenie['cria_nome'])?></a></td>
+          <td><?=$h($criaProgenie['outro_progenitor_nome'])?></td><td><?=$h($criaProgenie['cria_sexo'])?></td><td><?=$h($criaProgenie['cria_tipo'])?></td>
+          <td><div class="sob-controle-status">
+            <button type="button" class="sob-interruptor" role="switch" aria-checked="<?=$progeneAtivo ? 'true' : 'false'?>" aria-label="Utilizar <?=$h($criaProgenie['cria_nome'])?> na progênie" title="<?=$progeneAtivo ? 'Desativar' : 'Ativar'?> na progênie" data-progene-animal="<?=(int)$criaProgenie['cria_id']?>">
+              <span class="sob-interruptor__indicador"><i class="fa <?=$progeneAtivo ? 'fa-check' : 'fa-minus'?>" aria-hidden="true"></i></span>
+            </button><span class="sob-controle-status__texto"><?=$progeneAtivo ? 'Sim' : 'Não'?></span>
+          </div></td>
+        </tr>
+      <?php endforeach; ?>
+      </tbody>
+    </table>
+  </div></div>
+</div>
 <?php endforeach; ?>
 <?php endif; ?>
 <?php if ($aba === 'vendas'): ?><form data-paginacao-aba-exposicao style="display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:16px;border-top:1px solid #f4f4f4;padding-top:10px;"><label style="margin:0;font-weight:normal;">Por página</label><select class="form-control" name="por_pagina" style="width:70px;"><?php foreach(array(10,20,50,100) as $limite): ?><option value="<?=$limite?>" <?=$limite===$porPagina?'selected':''?>><?=$limite?></option><?php endforeach; ?></select><span class="text-muted">Exibindo <?=$total?$offset+1:0?> a <?=min($offset+$porPagina,$total)?> de <?=$total?> registros</span><ul class="pagination pagination-sm" style="margin:0;"><li class="<?=$pagina===1?'disabled':''?>"><a href="#" data-pagina="<?=max(1,$pagina-1)?>">«</a></li><?php for($p=1;$p<=$paginas;$p++): if($p!==1&&$p!==$paginas&&abs($p-$pagina)>1){if($p===2||$p===$paginas-1)echo '<li class="disabled"><span>…</span></li>';continue;} ?><li class="<?=$p===$pagina?'active':''?>"><a href="#" data-pagina="<?=$p?>"><?=$p?></a></li><?php endfor; ?><li class="<?=$pagina===$paginas?'disabled':''?>"><a href="#" data-pagina="<?=min($paginas,$pagina+1)?>">»</a></li></ul></form><?php endif; ?>

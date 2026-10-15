@@ -1,0 +1,42 @@
+const fs=require('node:fs'), vm=require('node:vm'), assert=require('node:assert/strict');
+const pagina=fs.readFileSync('exposicao/exposicao.php','utf8');
+const inicio=pagina.indexOf('function atualizarProgeneExposicao('), fim=pagina.indexOf('(function () {',inicio);
+const fonte=pagina.slice(inicio,fim).replace(/<\?=\$id_evento\?>/g,'7').replace(/<\?=json_encode\([\s\S]*?\)\?>/g,'"csrf-teste"');
+const alertas=[], requests=[];
+let verde=false;
+const icon={},label={},linha={classList:{toggle(nome,ativo){assert.equal(nome,'is-progene');verde=ativo;}}};
+const attrs={'data-progene-animal':'11','aria-checked':'false'};
+const botao={disabled:false,getAttribute(nome){return attrs[nome];},setAttribute(nome,valor){attrs[nome]=valor;},querySelector(){return icon;},parentNode:{querySelector(){return label;}},closest(){return linha;}};
+function XHR(){requests.push(this);}
+XHR.prototype.open=function(metodo,url){this.metodo=metodo;this.url=url;};XHR.prototype.setRequestHeader=function(){};XHR.prototype.send=function(body){this.body=body;};
+const contexto={ordenarProgenieExposicao(){},document:{querySelectorAll(){return [botao];}},XMLHttpRequest:XHR,SobAlertas:{erro(a){alertas.push(a);},mostrar(a){alertas.push(a);}}};
+vm.runInNewContext(fonte,contexto);
+contexto.atualizarProgeneExposicao(botao);
+assert.equal(botao.disabled,true);assert.equal(verde,false);
+assert.match(requests[0].body,/id_evento=7&id_animal=11&progene=1&csrf_token=csrf-teste/);
+contexto.atualizarProgeneExposicao(botao);assert.equal(requests.length,1);
+requests[0].status=200;requests[0].responseText=JSON.stringify({sucesso:true,progene:1,mensagem:'Selecionado'});requests[0].onload();
+assert.equal(verde,true);assert.equal(attrs['aria-checked'],'true');assert.equal(label.textContent,'Sim');assert.equal(botao.disabled,false);
+contexto.atualizarProgeneExposicao(botao);assert.match(requests[1].body,/progene=0/);
+requests[1].status=500;requests[1].responseText=JSON.stringify({sucesso:false,mensagem:'Falha'});requests[1].onload();
+assert.equal(verde,true);assert.equal(botao.disabled,false);assert.equal(alertas.at(-1).mensagem,'Falha');
+contexto.atualizarProgeneExposicao(botao);
+requests[2].status=200;requests[2].responseText=JSON.stringify({sucesso:true,progene:0,mensagem:'Desmarcado'});requests[2].onload();
+assert.equal(verde,false);assert.equal(attrs['aria-checked'],'false');assert.equal(label.textContent,'Não');
+contexto.atualizarProgeneExposicao(botao);requests[3].onerror();assert.equal(botao.disabled,false);assert.equal(verde,false);
+contexto.atualizarProgeneExposicao(botao);requests[4].ontimeout();assert.match(alertas.at(-1).mensagem,/Reabra a aba/);assert.equal(botao.disabled,false);
+console.log('Progênie: ativação/desativação, cor após confirmação, duplo clique, falhas e timeout: OK');
+
+const fonteOrdenacao=pagina.slice(pagina.indexOf('function ordenarProgenieExposicao('),inicio);
+const corpo={linhas:[],querySelectorAll(){return this.linhas.slice();},appendChild(linha){this.linhas=this.linhas.filter(item=>item!==linha);this.linhas.push(linha);},contains(){return false;}};
+function criarLinha(id,nome,selecionado){return {id,nome,selecionado,cells:[{}],classList:{contains(){return selecionado;}},getAttribute(campo){return campo==='data-progene-nome'?nome:String(id);}};}
+const alfa=criarLinha(1,'Alfa',false),beta=criarLinha(2,'Beta',true),gama=criarLinha(3,'Gama',true);
+corpo.linhas=[alfa,gama,beta];
+vm.runInNewContext(fonteOrdenacao,contexto);
+contexto.ordenarProgenieExposicao(corpo);
+assert.deepEqual(corpo.linhas.map(linha=>linha.nome),['Beta','Gama','Alfa']);
+assert.deepEqual(corpo.linhas.map(linha=>linha.cells[0].textContent),['1','2','3']);
+beta.classList.contains=()=>false;
+contexto.ordenarProgenieExposicao(corpo);
+assert.deepEqual(corpo.linhas.map(linha=>linha.nome),['Gama','Alfa','Beta']);
+console.log('Progênie: selecionados no topo, ordem por nome e numeração atualizada: OK');

@@ -1,4 +1,5 @@
 <?php
+if (empty($_SESSION['exposicao_progene_csrf'])) $_SESSION['exposicao_progene_csrf'] = bin2hex(random_bytes(32));
 $hDetalheExposicao = function ($valor) { return htmlspecialchars((string)$valor, ENT_QUOTES, 'UTF-8'); };
 $id_evento = filter_var($_GET['id_exposicao'] ?? 0, FILTER_VALIDATE_INT);
 $id_evento = $id_evento && $id_evento > 0 ? (int)$id_evento : 0;
@@ -38,12 +39,12 @@ $urlPaginaAnimaisExposicao = function ($pagina) use ($id_evento, $porPaginaAnima
 <section class="content">
   <div class="box" style="border-top:0;">
     <div class="box-header"><h2 class="box-title" style="font-size:16px;">Dados da exposição</h2></div>
-    <form method="post" action="exposicao/_alterar.php?id_evento=<?=$id_evento?>">
+    <form data-alertas-exposicao method="post" action="exposicao/_alterar.php?id_evento=<?=$id_evento?>">
       <div class="box-body"><div class="row" style="display:flex; flex-wrap:wrap; align-items:flex-end;">
-        <div class="form-group col-sm-6 col-md-3"><label for="evento">Evento<span class="text-danger">*</span></label><input type="text" class="form-control" id="evento" name="evento" value="<?=$hDetalheExposicao($eventoExposicao['nome'])?>" required></div>
-        <div class="form-group col-sm-6 col-md-3"><label for="data">Data<span class="text-danger">*</span></label><div class="input-group date"><span class="input-group-addon"><i class="fa fa-calendar"></i></span><input type="text" class="form-control" id="data" name="data" maxlength="10" value="<?=$dataEvento ? $dataEvento->format('d/m/Y') : ''?>" required></div></div>
-        <div class="form-group col-sm-6 col-md-2"><label for="cidade">Cidade</label><input type="text" class="form-control" id="cidade" name="cidade" value="<?=$hDetalheExposicao($eventoExposicao['cidade'])?>"></div>
-        <div class="form-group col-sm-6 col-md-2"><label for="local">Local</label><input type="text" class="form-control" id="local" name="local" value="<?=$hDetalheExposicao($eventoExposicao['local'])?>"></div>
+        <div class="form-group col-sm-6 col-md-3"><label for="evento">Evento<span class="text-danger">*</span></label><input type="text" class="form-control" id="evento" name="evento" value="<?=$hDetalheExposicao($camposExposicao['evento'] ?? $eventoExposicao['nome'])?>" required></div>
+        <div class="form-group col-sm-6 col-md-3"><label for="data">Data<span class="text-danger">*</span></label><div class="input-group date"><span class="input-group-addon"><i class="fa fa-calendar"></i></span><input type="text" class="form-control" id="data" name="data" maxlength="10" value="<?=$hDetalheExposicao($camposExposicao['data'] ?? ($dataEvento ? $dataEvento->format('d/m/Y') : ''))?>" required></div></div>
+        <div class="form-group col-sm-6 col-md-2"><label for="cidade">Cidade</label><input type="text" class="form-control" id="cidade" name="cidade" value="<?=$hDetalheExposicao($camposExposicao['cidade'] ?? $eventoExposicao['cidade'])?>"></div>
+        <div class="form-group col-sm-6 col-md-2"><label for="local">Local</label><input type="text" class="form-control" id="local" name="local" value="<?=$hDetalheExposicao($camposExposicao['local'] ?? $eventoExposicao['local'])?>"></div>
         <div class="form-group col-sm-6 col-md-2"><button type="submit" class="btn btn-warning btn-block"><i class="fa fa-save" aria-hidden="true"></i> Salvar alterações</button></div>
       </div></div>
     </form>
@@ -97,7 +98,7 @@ $urlPaginaAnimaisExposicao = function ($pagina) use ($id_evento, $porPaginaAnima
 </section>
 <div class="modal fade" id="modal-venda-exposicao" tabindex="-1" role="dialog" aria-labelledby="titulo-modal-venda-exposicao">
   <div class="modal-dialog modal-lg" role="document"><div class="modal-content">
-    <form id="form-venda-exposicao" method="post" action="exposicao/_vender_animal.php">
+    <form data-alertas-exposicao id="form-venda-exposicao" method="post" action="exposicao/_vender_animal.php">
       <div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Fechar">&times;</button><h4 class="modal-title" id="titulo-modal-venda-exposicao">Cadastrar venda</h4></div>
       <div class="modal-body"><div class="row">
         <div class="form-group col-sm-6"><label for="animal-venda-exposicao">Animal</label><input type="text" class="form-control" id="animal-venda-exposicao" name="animal" readonly></div>
@@ -131,9 +132,58 @@ function prepararVendaExposicao(botao) {
   var listaComprador = document.getElementById('lista_comprador');
   listaComprador.style.display = 'none';
 }
-document.querySelectorAll('[data-vender-animal]').forEach(function (botao) {
-  botao.addEventListener('click', function () { prepararVendaExposicao(botao); });
+document.addEventListener('click', function (evento) {
+  var botao = evento.target.closest('[data-vender-animal]');
+  if (botao) prepararVendaExposicao(botao);
 });
+function ordenarProgenieExposicao(corpo) {
+  var foco = document.activeElement;
+  var linhas = Array.prototype.slice.call(corpo.querySelectorAll('[data-progene-linha]'));
+  linhas.sort(function (a, b) {
+    var selecionados = Number(b.classList.contains('is-progene')) - Number(a.classList.contains('is-progene'));
+    return selecionados || a.getAttribute('data-progene-nome').localeCompare(b.getAttribute('data-progene-nome'), 'pt-BR', {sensitivity:'base'}) || Number(a.getAttribute('data-progene-linha')) - Number(b.getAttribute('data-progene-linha'));
+  });
+  linhas.forEach(function (linha, indice) {
+    corpo.appendChild(linha);
+    linha.cells[0].textContent = String(indice + 1);
+  });
+  if (foco && corpo.contains(foco)) foco.focus({preventScroll:true});
+}
+function atualizarProgeneExposicao(botao) {
+  if (botao.disabled) return;
+  var idAnimal = botao.getAttribute('data-progene-animal');
+  var ativo = botao.getAttribute('aria-checked') !== 'true';
+  botao.disabled = true;
+  var xhr = new XMLHttpRequest();
+  xhr.open('POST', 'exposicao/_progene.php', true);
+  xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8');
+  xhr.timeout = 15000;
+  function falha(mensagem) {
+    botao.disabled = false;
+    SobAlertas.erro({mensagem: mensagem || 'Não foi possível atualizar a seleção. Tente novamente.'});
+  }
+  xhr.onload = function () {
+    var resposta;
+    try { resposta = JSON.parse(xhr.responseText); } catch (erro) { falha(); return; }
+    if (xhr.status < 200 || xhr.status >= 300 || !resposta.sucesso) { falha(resposta.mensagem); return; }
+    var selecionado = Number(resposta.progene) === 1;
+    document.querySelectorAll('[data-progene-animal="' + idAnimal + '"]').forEach(function (interruptor) {
+      interruptor.disabled = false;
+      interruptor.setAttribute('aria-checked', selecionado ? 'true' : 'false');
+      interruptor.title = (selecionado ? 'Desativar' : 'Ativar') + ' na progênie';
+      interruptor.querySelector('i').className = 'fa ' + (selecionado ? 'fa-check' : 'fa-minus');
+      interruptor.parentNode.querySelector('.sob-controle-status__texto').textContent = selecionado ? 'Sim' : 'Não';
+      var linha = interruptor.closest('[data-progene-linha]');
+      linha.classList.toggle('is-progene', selecionado);
+      ordenarProgenieExposicao(linha.parentNode);
+    });
+    botao.disabled = false;
+    SobAlertas.mostrar({tipo:'success', titulo:'Sucesso!', mensagem:resposta.mensagem});
+  };
+  xhr.onerror = function () { falha(); };
+  xhr.ontimeout = function () { falha('A atualização demorou mais que o esperado. Reabra a aba para conferir a seleção antes de tentar novamente.'); };
+  xhr.send('id_evento=<?=$id_evento?>&id_animal=' + encodeURIComponent(idAnimal) + '&progene=' + (ativo ? '1' : '0') + '&csrf_token=' + encodeURIComponent(<?=json_encode($_SESSION['exposicao_progene_csrf'], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT)?>));
+}
 (function () {
   'use strict';
   var conteudo = document.getElementById('conteudo-aba-exposicao');
@@ -161,11 +211,13 @@ document.querySelectorAll('[data-vender-animal]').forEach(function (botao) {
     conteudo.innerHTML = '<div class="text-center text-muted" style="padding:40px;"><i class="fa fa-spinner fa-spin" aria-hidden="true"></i> Carregando...</div>';
     var xhr = new XMLHttpRequest();
     xhr.open('GET', 'exposicao/aba_exposicao.php?id_exposicao=<?=$id_evento?>&aba=' + encodeURIComponent(aba) + '&pag=' + encodeURIComponent(pagina || 1) + '&por_pagina=' + encodeURIComponent(porPagina || 10), true);
-    xhr.onreadystatechange = function () { if (xhr.readyState !== 4) return; if (xhr.status >= 200 && xhr.status < 300) { conteudo.innerHTML = xhr.responseText; prepararConteudoDinamico(); history.replaceState(null, '', 'geral.php?pg=exposicao&id_exposicao=<?=$id_evento?>&aba=' + encodeURIComponent(aba)); } else conteudo.innerHTML = '<div class="alert alert-warning">Não foi possível carregar esta aba.</div>'; };
+    xhr.onreadystatechange = function () { if (xhr.readyState !== 4) return; if (xhr.status >= 200 && xhr.status < 300) { conteudo.innerHTML = xhr.responseText; prepararConteudoDinamico(); history.replaceState(null, '', 'geral.php?pg=exposicao&id_exposicao=<?=$id_evento?>&aba=' + encodeURIComponent(aba)); } else { conteudo.innerHTML = ''; SobAlertas.erro({mensagem: 'Não foi possível carregar esta aba. Tente novamente.'}); } };
     xhr.send(null);
   }
   document.querySelectorAll('[data-aba-exposicao]').forEach(function (link) { link.addEventListener('click', function (evento) { evento.preventDefault(); carregarAba(link.getAttribute('data-aba-exposicao'), 1, 10); }); });
   document.addEventListener('click', function (evento) {
+    var progene = evento.target.closest('[data-progene-animal]');
+    if (progene) { atualizarProgeneExposicao(progene); return; }
     var removerAnimal = evento.target.closest('[data-remover-animal-exposicao]');
     if (removerAnimal) { window.confirmarExclusao({titulo:'Remover animal da exposição?',nome:removerAnimal.getAttribute('data-nome'),descricao:'O cadastro do animal será mantido. Apenas o vínculo com esta exposição será removido.',aoConfirmar:function(){window.location.href=removerAnimal.getAttribute('data-url').replace('&amp;','&');}}); }
     var removerPista = evento.target.closest('[data-remover-pista]');

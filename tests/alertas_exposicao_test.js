@@ -1,0 +1,22 @@
+const fs = require('node:fs'), vm = require('node:vm'), assert = require('node:assert/strict');
+const eventos = {}, alertas = [], timers = [];
+const document = {addEventListener(nome, callback) { eventos[nome] = callback; }};
+const SobAlertas = {camposObrigatorios(campos) {alertas.push({campos});}, mostrar(alerta) {alertas.push(alerta);}};
+vm.runInNewContext(fs.readFileSync('includes/alertas_exposicao.php', 'utf8').match(/<script>\n([\s\S]*?)<\/script>/)[1], {document, SobAlertas, window:{setTimeout(callback){timers.push(callback);}}, Date});
+let focos = 0, bloqueios = 0;
+const form = {hasAttribute(nome){return nome === 'data-alertas-exposicao';}, elements:[]};
+const campo = {form, name:'evento', labels:[{textContent:'Evento*'}], willValidate:true, validity:{valid:false}, focus(){focos++;}};
+form.elements.push(campo);
+const invalid = {target:campo, preventDefault(){bloqueios++;}};
+eventos.invalid(invalid); eventos.invalid(invalid);
+assert.equal(alertas.length,1); assert.equal(alertas[0].campos[0],'Evento'); assert.equal(focos,1); assert.equal(bloqueios,2);
+timers.shift()();
+const data = {value:'31/02/2026', focus(){focos++;}};
+form.elements.data = data;
+eventos.submit({target:form,preventDefault(){bloqueios++;}});
+assert.equal(alertas.at(-1).tipo,'warning'); assert.equal(bloqueios,3);
+for(const valor of ['29/02/2024','15/10/2026']) {data.value=valor; eventos.submit({target:form,preventDefault(){throw Error('Data válida bloqueada');}});}
+data.value='29/02/2026'; eventos.submit({target:form,preventDefault(){bloqueios++;}}); assert.equal(bloqueios,4);
+eventos.submit({target:{hasAttribute(){return false;}},preventDefault(){throw Error('Outro formulário bloqueado');}});
+eventos.invalid({target:{form:{hasAttribute(){return false;}}},preventDefault(){throw Error('Outro fluxo bloqueado');}});
+console.log('Exposição: campos obrigatórios, alerta único, foco, datas e isolamento dos formulários: OK');

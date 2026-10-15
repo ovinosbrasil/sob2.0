@@ -33,3 +33,15 @@
   color: #008d4c;
 }
 .sob-controle-status__texto { color: #777; font-size: 12px; }
+
+.sob-progenie > tbody > tr.is-progene > td {
+  background-color: #e5f5eb;
+  color: #008d4c;
+}
+.sob-progenie > tbody > tr.is-progene .sob-controle-status__texto {
+  color: #008d4c;
+}
+.sob-progenie .sob-interruptor:disabled {
+  cursor: wait;
+  opacity: 0.6;
+}

@@ -1,7 +1,13 @@
-<?php require_once __DIR__ . '/../includes/busca_compradores.php'; ?>
+<?php
+require_once __DIR__ . '/../includes/busca_compradores.php';
+require_once __DIR__ . '/../includes/busca_animais.php';
+$camposVenda = $camposVenda ?? array();
+$hVenda = function ($valor) { return htmlspecialchars((string)$valor, ENT_QUOTES, 'UTF-8'); };
+?>
 <script type="text/javascript">
 (function () {
   var limiteAnimais = 6;
+  var camposAnteriores = <?=json_encode($camposVenda, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT)?>;
 
   function valorNumerico(valor) {
     valor = String(valor || '').replace(/\s/g, '').replace(/,/g, '');
@@ -34,9 +40,7 @@
     linha.innerHTML =
       '<div class="col-md-7 col-sm-7">' +
         '<div class="form-group campo-busca-animal">' +
-          '<label for="animal_' + numero + '">' + (numero === 1 ? 'Animal' : 'Outro animal') + '<span class="text-danger">*</span></label>' +
-          '<input type="text" name="animal_' + numero + '" id="animal_' + numero + '" class="form-control" autocomplete="off" placeholder="Digite para pesquisar">' +
-          '<div id="lista_animal_' + numero + '" class="lista-resultado-animal"></div>' +
+          document.getElementById('modelo-busca-animal-venda').innerHTML.replace(/LINHA/g, String(numero)) +
         '</div>' +
       '</div>' +
       '<div class="col-md-4 col-sm-4">' +
@@ -54,7 +58,11 @@
 
     var campoAnimal = linha.querySelector('#animal_' + numero);
     var campoValor = linha.querySelector('#preco_conjunto_' + numero);
-    campoAnimal.addEventListener('keyup', function () { pesquisar_animal_conjunta(this.value, numero); });
+    campoAnimal.value = camposAnteriores['animal_' + numero] || '';
+    campoValor.value = camposAnteriores['preco_conjunto_' + numero] || '';
+    linha.querySelector('[data-busca-animais-id]').value = camposAnteriores['animal_' + numero + '_id'] || '';
+    linha.querySelector('[data-busca-animais-origem]').value = camposAnteriores['animal_' + numero + '_origem'] || '';
+    if (window.BuscaAnimais) window.BuscaAnimais.iniciarTodos(linha);
     campoValor.addEventListener('keyup', calcular_valor);
     campoValor.addEventListener('blur', calcular_valor);
     linha.querySelector('.adicionar-animal-venda').addEventListener('click', adicionarAnimalVenda);
@@ -83,6 +91,8 @@
 
   window.ativar_venda = function () {
     var valido = true;
+    var pendentes = [];
+    var primeiroPendente = null;
     var campos = [document.getElementById('comprador'), document.getElementById('data'), document.getElementById('tipo_venda')];
     document.querySelectorAll('#lista-animais-venda .linha-animal-venda').forEach(function (linha) {
       campos.push(linha.querySelector('input[name^="animal_"]'));
@@ -92,16 +102,55 @@
       var preenchido = campo && campo.value.trim() !== '';
       if (campo && campo.classList.contains('campo-valor-venda')) preenchido = valorNumerico(campo.value) > 0;
       campo.style.borderColor = preenchido ? '#00a65a' : '#dd4b39';
-      if (!preenchido) valido = false;
+      if (!preenchido) {
+        valido = false;
+        if (!primeiroPendente) primeiroPendente = campo;
+        var label = campo.labels && campo.labels[0];
+        pendentes.push(label ? label.textContent.replace(/\*/g, '').trim() : campo.name);
+      }
     });
     calcular_valor();
-    return valido;
+    if (!valido) {
+      SobAlertas.camposObrigatorios(pendentes);
+      if (primeiroPendente) primeiroPendente.focus();
+      return false;
+    }
+    var selecaoInvalida = null;
+    document.querySelectorAll('#lista-animais-venda .linha-animal-venda').forEach(function (linha) {
+      var id = linha.querySelector('[data-busca-animais-id]').value;
+      var origem = linha.querySelector('[data-busca-animais-origem]').value;
+      if ((!id || origem !== 'rebanho') && !selecaoInvalida) selecaoInvalida = linha.querySelector('.sob-busca-animais__input');
+    });
+    if (selecaoInvalida) {
+      SobAlertas.mostrar({tipo:'warning', titulo:'Atenção!', mensagem:'Selecione os animais na lista de pesquisa.'});
+      selecaoInvalida.focus();
+      return false;
+    }
+    var campoData = document.getElementById('data');
+    var partes = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(campoData.value);
+    var data = partes ? new Date(Number(partes[3]), Number(partes[2]) - 1, Number(partes[1])) : null;
+    if (!data || data.getFullYear() !== Number(partes[3]) || data.getMonth() !== Number(partes[2]) - 1 || data.getDate() !== Number(partes[1])) {
+      SobAlertas.mostrar({tipo:'warning', titulo:'Atenção!', mensagem:'Informe uma data válida no formato dd/mm/aaaa.'});
+      campoData.focus();
+      return false;
+    }
+    return true;
   };
 
   document.addEventListener('DOMContentLoaded', function () {
     var lista = document.getElementById('lista-animais-venda');
     lista.appendChild(criarLinha(1));
-    if (window.jQuery && jQuery.fn.priceFormat) jQuery('#preco_conjunto_1').priceFormat();
+    for (var numero = 2; numero <= limiteAnimais; numero++) {
+      if (camposAnteriores['animal_' + numero] || camposAnteriores['preco_conjunto_' + numero]) lista.appendChild(criarLinha(numero));
+    }
+    document.getElementById('form-venda-conjunta').addEventListener('invalid', function (evento) {
+      evento.preventDefault();
+      var label = evento.target.labels && evento.target.labels[0];
+      SobAlertas.camposObrigatorios([label ? label.textContent.replace(/\*/g, '').trim() : evento.target.name]);
+      evento.target.focus();
+    }, true);
+    if (window.jQuery && jQuery.fn.priceFormat) jQuery('#lista-animais-venda .campo-valor-venda').priceFormat();
+    calcular_valor();
     atualizarBotoes();
   });
 })();
@@ -113,7 +162,6 @@
   #lista-animais-venda .linha-animal-venda + .linha-animal-venda { padding-top: 12px; }
   #lista-animais-venda .coluna-acao-animal { padding-top: 25px; white-space: nowrap; }
   #lista-animais-venda .coluna-acao-animal .btn { min-width: 38px; }
-  #lista-animais-venda .lista-resultado-animal { border: 1px solid #d2d6de; background: #fff; display: none; position: absolute; left: 15px; right: 15px; z-index: 1050; max-height: 230px; overflow-y: auto; box-shadow: 0 4px 8px rgba(0,0,0,.12); }
   #form-venda-conjunta textarea { resize: vertical; min-height: 118px; }
   #form-venda-conjunta .acoes-venda { text-align: right; padding-top: 24px; }
   @media (max-width: 767px) {
@@ -130,6 +178,9 @@
   </ol>
 </section>
 
+<template id="modelo-busca-animal-venda">
+<?php renderBuscaAnimais(array('id'=>'animal_LINHA', 'name'=>'animal_LINHA', 'label'=>'Animal', 'tipo'=>'rebanho', 'required'=>true)); ?>
+</template>
 <section class="content">
   <form id="form-venda-conjunta" role="form" action="vendas/_venda_conjunta.php" method="post" onsubmit="return ativar_venda();">
     <div class="box" style="border-top:0;">
@@ -145,7 +196,7 @@
         <div class="row">
           <div class="col-md-4">
             <div class="form-group">
-              <?php renderBuscaCompradores(array('id'=>'comprador','name'=>'comprador','label'=>'Comprador','value'=>$comprador[0]['nome'] ?? '','required'=>true,'placeholder'=>'Digite para pesquisar','novo_modal'=>'novo-comprador-modal','novo_texto'=>'Novo')); ?>
+              <?php renderBuscaCompradores(array('id'=>'comprador','name'=>'comprador','label'=>'Comprador','value'=>$camposVenda['comprador'] ?? ($comprador[0]['nome'] ?? ''),'required'=>true,'placeholder'=>'Digite para pesquisar','novo_modal'=>'novo-comprador-modal','novo_texto'=>'Novo')); ?>
             </div>
           </div>
           <div class="col-md-4">
@@ -153,7 +204,7 @@
               <label for="data">Data da venda<span class="text-danger">*</span></label>
               <div class="input-group date">
                 <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
-                <input type="text" class="form-control" id="data" name="data" value="<?=$data_venda?>" placeholder="dd/mm/aaaa">
+                <input type="text" class="form-control" id="data" name="data" value="<?=$hVenda($camposVenda['data'] ?? ($data_venda ?? ''))?>" placeholder="dd/mm/aaaa">
               </div>
             </div>
           </div>
@@ -161,7 +212,7 @@
             <div class="form-group">
               <label for="forma">Forma de pagamento</label>
               <select class="form-control select" id="forma" name="forma">
-                <? if($venda[0]['forma_de_pagamento']){ ?><option value="<?=$venda[0]['forma_de_pagamento']?>"><?=$venda[0]['forma_de_pagamento']?></option><? } ?>
+                <?php $formaVenda = $camposVenda['forma'] ?? ($venda[0]['forma_de_pagamento'] ?? ''); if ($formaVenda !== ''): ?><option value="<?=$hVenda($formaVenda)?>"><?=$hVenda($formaVenda)?></option><?php endif; ?>
                 <option value="">Selecionar</option>
                 <option value="Boleto">Boleto</option><option value="Cheque">Cheque</option><option value="Dinheiro">Dinheiro</option><option value="Depósito">Depósito</option><option value="Transferência">Transferência</option><option value="Troca">Troca</option>
               </select>
@@ -174,7 +225,7 @@
             <div class="form-group">
               <label for="parcelas">Parcelas</label>
               <select class="form-control select" id="parcelas" name="parcelas">
-                <? for($parcela=1; $parcela<=24; $parcela++){ ?><option value="<?=$parcela?>"<?=((int)$venda[0]['parcelas']===$parcela?' selected':'')?>><?=$parcela?>x</option><? } ?>
+                <? for($parcela=1; $parcela<=24; $parcela++){ ?><option value="<?=$parcela?>"<?=((int)($camposVenda['parcelas'] ?? ($venda[0]['parcelas'] ?? 1))===$parcela?' selected':'')?>><?=$parcela?>x</option><? } ?>
               </select>
             </div>
           </div>
@@ -183,7 +234,7 @@
               <label for="tipo_venda">Tipo de venda<span class="text-danger">*</span></label>
               <select class="form-control select" id="tipo_venda" name="tipo_venda">
                 <option value="">Selecionar</option>
-                <? foreach(array('Fazenda','Leilão','Exposição','Virtual') as $tipoVenda){ ?><option value="<?=$tipoVenda?>"<?=($venda[0]['tipo_venda']===$tipoVenda?' selected':'')?>><?=$tipoVenda?></option><? } ?>
+                <? foreach(array('Fazenda','Leilão','Exposição','Virtual') as $tipoVenda){ ?><option value="<?=$tipoVenda?>"<?=(($camposVenda['tipo_venda'] ?? ($venda[0]['tipo_venda'] ?? ''))===$tipoVenda?' selected':'')?>><?=$tipoVenda?></option><? } ?>
               </select>
             </div>
           </div>
@@ -199,7 +250,7 @@
           <div class="col-md-8">
             <div class="form-group">
               <label for="observacoes">Observações</label>
-              <textarea class="form-control" name="observacoes" id="observacoes" rows="4"><?=$venda[0]['observacoes']?></textarea>
+              <textarea class="form-control" name="observacoes" id="observacoes" rows="4"><?=$hVenda($camposVenda['observacoes'] ?? ($venda[0]['observacoes'] ?? ''))?></textarea>
             </div>
           </div>
           <div class="col-md-4 acoes-venda">

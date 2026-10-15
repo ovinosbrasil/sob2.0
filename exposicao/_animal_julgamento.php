@@ -1,88 +1,13 @@
 <?php
-include __DIR__ . "/../_config.php";
-echo '<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />';
-$id_animal = $_GET['id_animal'];
-$id_evento = $_GET['id_evento'];
-
-$teste = DBRead('julgamento_controle', "WHERE id_animal = '$id_animal' AND id_julgamento = '$id_evento'");
-if($teste[0]['id'] > 0){
-    echo "<script type=\"text/javascript\"> alert(\"Animal já cadastrado.Tente novamente\"); </script>
-    <script language='javascript'>history.back()</script>";
-}else{
-    $animal = DBRead('animais', "WHERE id = '$id_animal'");
-    $id_pai = $animal[0]['pai'];
-    $id_mae = $animal[0]['mae'];
-
-    $evento = DBRead('julgamento', "WHERE id = '$id_evento'");
-    $data = $evento[0]['data'];
-    include __DIR__ . "/../funcoes_data/categorias.php";
-    $idade = calcularIdadeMesesDias($animal[0]['data_de_nascimento'], $data);
-    if (!$idade) {
-      $meses = 0; $dias_final = 0; $categoria = 0;
-    } else {
-      $meses = $idade['meses'];
-      $dias_final = $idade['dias'];
-      $categoria = determinarCategoriaPorIdade($meses, $dias_final);
-    }
-
-    $dados = array(
-     	'id_animal' 	=> $id_animal,
-     	'id_julgamento' 	=> $id_evento,
-      'categoria' 	=> $categoria,
-      'meses'  => $meses,
-      'pai'  => $id_pai,
-      'mae'  => $id_mae
-    );
-
-    DBcreate('julgamento_controle', $dados);
-    $dados = array(
-    	'julgamento'	=> 1
-    );
-    DBUpdate('animais_evento', $dados, "id_animal = '$id_animal' AND id_julgamento = '$id_evento'");
-
-    if($animal[0]['terceiro_pai'] == 0){
-      $progenie_pai = DBRead('progene', "WHERE id_lote = '$id_evento' AND id_animal = '$id_pai'");
-      if($progenie_pai[0]['id']>0){
-        $qtd = $progenie_pai[0]['qtd']+1;
-        $dados = array(
-        	'qtd'	=> $qtd
-        );
-        DBUpdate('progene', $dados, "id_lote = '$id_evento' AND id_animal = '$id_pai'");
-      }else{
-        $dados = array(
-        	'qtd'	=> 1,
-          'id_animal' => $id_pai,
-          'sexo'  => "M",
-          'id_lote' => $id_evento,
-            'categoria' => 0,
-            'classe' => 0
-        );
-        DBcreate('progene', $dados);
-      }
-    }
-
-    if($animal[0]['terceiro_mae'] == 0){
-      $progenie_mae = DBRead('progene', "WHERE id_lote = '$id_evento' AND id_animal = '$id_mae'");
-      if($progenie_mae[0]['id']>0){
-        $qtd = $progenie_mae[0]['qtd']+1;
-        $dados = array(
-        	'qtd'	=> $qtd
-        );
-        DBUpdate('progene', $dados, "id_lote = '$id_evento' AND id_animal = '$id_mae'");
-      }else{
-        $dados = array(
-        	'qtd'	=> 1,
-          'id_animal' => $id_mae,
-          'sexo'  => "F",
-          'id_lote' => $id_evento,
-            'categoria' => 0,
-            'classe' => 0
-        );
-        DBcreate('progene', $dados);
-      }
-    }
-
-
-    echo "<META HTTP-EQUIV=REFRESH CONTENT='0; URL=../geral.php?pg=exposicao&id_exposicao=$id_evento'>";
+require_once __DIR__ . '/../_config.php';
+require_once __DIR__ . '/_alertas.php';
+require_once __DIR__ . '/participantes.php';
+$idEvento = filter_var($_GET['id_evento'] ?? 0, FILTER_VALIDATE_INT);
+$idAnimal = filter_var($_GET['id_animal'] ?? 0, FILTER_VALIDATE_INT);
+$aba = 'julgamento';
+try {
+    $alterado = alterarParticipanteExposicao($idEvento, $idAnimal, 'julgamento');
+} catch (DomainException $erro) {
+    avisarExposicao('warning', $erro->getMessage(), $idEvento, $aba);
 }
-?>
+avisarExposicao($alterado ? 'success' : 'warning', $alterado ? 'Animal adicionado ao julgamento com sucesso.' : 'Animal já cadastrado neste julgamento.', $idEvento, $aba);

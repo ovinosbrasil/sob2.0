@@ -27,13 +27,13 @@ $urlPaginaExposicao = function ($pagina) use ($pesquisaExposicao, $porPaginaExpo
 <section class="content">
   <div class="box" style="border-top:0;">
     <div class="box-header"><h2 class="box-title" style="font-size:16px;">Cadastrar exposição</h2></div>
-    <form method="post" action="exposicao/_cadastrar.php">
+    <form data-alertas-exposicao method="post" action="exposicao/_cadastrar.php">
       <div class="box-body">
         <div class="row" style="display:flex; flex-wrap:wrap; align-items:flex-end;">
-          <div class="form-group col-sm-6 col-md-3"><label for="evento">Evento<span class="text-danger">*</span></label><input type="text" class="form-control" id="evento" name="evento" required></div>
-          <div class="form-group col-sm-6 col-md-3"><label for="data">Data<span class="text-danger">*</span></label><div class="input-group date"><span class="input-group-addon"><i class="fa fa-calendar"></i></span><input type="text" class="form-control" id="data" name="data" required maxlength="10" placeholder="dd/mm/aaaa"></div></div>
-          <div class="form-group col-sm-6 col-md-2"><label for="cidade">Cidade</label><input type="text" class="form-control" id="cidade" name="cidade"></div>
-          <div class="form-group col-sm-6 col-md-2"><label for="local">Local</label><input type="text" class="form-control" id="local" name="local"></div>
+          <div class="form-group col-sm-6 col-md-3"><label for="evento">Evento<span class="text-danger">*</span></label><input type="text" class="form-control" id="evento" name="evento" value="<?=$hExposicao($camposExposicao['evento'] ?? '')?>" required></div>
+          <div class="form-group col-sm-6 col-md-3"><label for="data">Data<span class="text-danger">*</span></label><div class="input-group date"><span class="input-group-addon"><i class="fa fa-calendar"></i></span><input type="text" class="form-control" id="data" name="data" value="<?=$hExposicao($camposExposicao['data'] ?? '')?>" required maxlength="10" placeholder="dd/mm/aaaa"></div></div>
+          <div class="form-group col-sm-6 col-md-2"><label for="cidade">Cidade</label><input type="text" class="form-control" id="cidade" name="cidade" value="<?=$hExposicao($camposExposicao['cidade'] ?? '')?>"></div>
+          <div class="form-group col-sm-6 col-md-2"><label for="local">Local</label><input type="text" class="form-control" id="local" name="local" value="<?=$hExposicao($camposExposicao['local'] ?? '')?>"></div>
           <div class="form-group col-sm-6 col-md-2"><button type="submit" class="btn btn-success btn-block"><i class="fa fa-plus" aria-hidden="true"></i> Cadastrar</button></div>
         </div>
       </div>

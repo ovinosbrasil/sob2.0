@@ -1,11 +1,6 @@
 <?php
-require __DIR__ . '/../_config.php';
-
-$idAnimal = filter_input(INPUT_GET, 'id_animal', FILTER_VALIDATE_INT);
-$idEvento = filter_input(INPUT_GET, 'id_evento', FILTER_VALIDATE_INT);
-if ($idAnimal && $idEvento) {
-    DBUpdate('animais_evento', array('leilao' => 0), "id_animal = '" . (int)$idAnimal . "' AND id_julgamento = '" . (int)$idEvento . "'");
-}
-
-header('Location: ../geral.php?pg=exposicao&id_exposicao=' . (int)$idEvento, true, 303);
-exit;
+require_once __DIR__ . '/../_config.php';
+require_once __DIR__ . '/_alertas.php';
+list($idAnimal, $idEvento) = validarAnimalExposicao();
+gravarExposicao('DBUpdate', 'animais_evento', array('leilao' => 0), "id_animal = '$idAnimal' AND id_julgamento = '$idEvento'");
+avisarExposicao('success', 'Animal removido do leilão com sucesso.', $idEvento);

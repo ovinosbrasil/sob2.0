@@ -1,13 +1,20 @@
-<?
-include "../_config.php";
-$id_animal = $_GET['id_animal'];
-$id_evento = $_GET['id_evento'];
+<?php
+require_once __DIR__ . '/../_config.php';
+require_once __DIR__ . '/_alertas.php';
+list($id_animal, $id_evento) = validarAnimalExposicao(true);
 
-$comprador = $_POST['comprador'];
+$dataVenda = is_string($_POST['data'] ?? null) ? DateTimeImmutable::createFromFormat('!d/m/Y', $_POST['data']) : false;
+if (empty($_POST['comprador']) || empty($_POST['data']) || !isset($_POST['valor']) || trim((string)$_POST['valor']) === '') {
+    avisarExposicao('warning', 'Preencha os campos obrigatórios da venda.', $id_evento, 'vendas');
+}
+if (!$dataVenda || $dataVenda->format('d/m/Y') !== $_POST['data']) {
+    avisarExposicao('warning', 'Informe uma data válida para a venda.', $id_evento, 'vendas');
+}
+$comprador = DBEscape($_POST['comprador']);
 $comprador = DBRead('mercado', "WHERE nome = '$comprador'");
+if (!$comprador) avisarExposicao('warning', 'Selecione um comprador cadastrado.', $id_evento, 'vendas');
 $id_comprador = $comprador[0]['id'];
-$data = $_POST['data'];
-include "../funcoes_data/data.php";
+$data = $dataVenda->format('Y-m-d');
 $parcelas = $_POST['parcelas'];
 $tipo = $_POST['tipo_venda'];
 $forma = $_POST['forma'];
@@ -28,16 +35,16 @@ $dados = array(
 );
 
 $teste = DBRead('vendas', "WHERE id_animal = '$id_animal'");
-if($teste[0]['id'] > 0){
-    DBUpdate('vendas', $dados, "id_animal = '$id_animal'");
-		DBDelete('controle_financeiro', "id_animal = '$id_animal'");
+if(!empty($teste[0]['id'])){
+    gravarExposicao('DBUpdate', 'vendas', $dados, "id_animal = '$id_animal'");
+		gravarExposicao('DBDelete', 'controle_financeiro', "id_animal = '$id_animal'");
 }else{
-    DBCreate('vendas', $dados);
+    gravarExposicao('DBCreate', 'vendas', $dados);
 }
 $dados = array(
   'status' => 2
 );
-DBUpdate('animais', $dados, "id = '$id_animal'");
+gravarExposicao('DBUpdate', 'animais', $dados, "id = '$id_animal'");
 
 
 //RANKING REPRODUTOR
@@ -64,7 +71,7 @@ foreach ($vendas as $vendas_) {
     'venda_femea'  => $media_femea,
     'venda_geral' => $media_total
   );
-DBUpdate('reprodutor', $dados, "id_macho = '$id_macho'");
+gravarExposicao('DBUpdate', 'reprodutor', $dados, "id_macho = '$id_macho'");
 }
 //RANKING FIM REPRODUTOR
 
@@ -92,7 +99,7 @@ foreach ($vendas as $vendas_) {
     'venda_femea'  => $media_femea,
     'venda_geral' => $media_total
   );
-DBUpdate('matriz', $dados, "id_femea = '$id_femea'");
+gravarExposicao('DBUpdate', 'matriz', $dados, "id_femea = '$id_femea'");
 }
 //RANKING FIM MATRIZ
 
@@ -118,7 +125,7 @@ while($parcelas > 0){
   'id_semen' => 0
 );
 
-DBCreate('controle_financeiro', $dados);
+gravarExposicao('DBCreate', 'controle_financeiro', $dados);
 
 list($ano, $mes, $dias) = explode('-', $data);
 $mes = $mes+1;
@@ -131,5 +138,5 @@ $parcelas--;
 $status = 0;
 }
 //FIM FINANCEIRO
-echo "<META HTTP-EQUIV=REFRESH CONTENT='0; URL=../geral.php?pg=exposicao&id_exposicao=$id_evento'>";
+avisarExposicao('success', 'Venda cadastrada com sucesso.', $id_evento, 'vendas');
 ?>

@@ -1,11 +1,14 @@
-<?
-$id_animal = $_GET['id_animal'];
-$id_evento = $_GET['id_evento'];
-include "../_config.php";
+<?php
+require_once __DIR__ . '/../_config.php';
+require_once __DIR__ . '/_alertas.php';
+list($id_animal, $id_evento) = validarAnimalExposicao(true);
+if (!DBRead('vendas', "WHERE id_animal = '$id_animal'")) {
+    avisarExposicao('warning', 'Venda não encontrada para este animal.', $id_evento, 'vendas');
+}
 $dados = array(
   'status' => 0
 );
-DBUpdate('animais', $dados, "id = '$id_animal'");
+gravarExposicao('DBUpdate', 'animais', $dados, "id = '$id_animal'");
 
 // RANKING REPRODUTOR
 $animal = DBRead('animais', "WHERE id = '$id_animal'");
@@ -31,7 +34,7 @@ foreach ($vendas as $vendas_) {
     'venda_femea'  => $media_femea,
     'venda_geral' => $media_total
   );
-DBUpdate('reprodutor', $dados, "id_macho = '$id_macho'");
+gravarExposicao('DBUpdate', 'reprodutor', $dados, "id_macho = '$id_macho'");
 }
 //FIM RANKING REPRODUTOR
 
@@ -59,12 +62,12 @@ foreach ($vendas as $vendas_) {
     'venda_femea'  => $media_femea,
     'venda_geral' => $media_total
   );
-DBUpdate('matriz', $dados, "id_femea = '$id_femea'");
+gravarExposicao('DBUpdate', 'matriz', $dados, "id_femea = '$id_femea'");
 }
 //RANKING FIM MATRIZ
 
 
-DBDelete('vendas', "id_animal = '$id_animal'");
-DBDelete('controle_financeiro', "id_animal = '$id_animal'");
-echo "<META HTTP-EQUIV=REFRESH CONTENT='0; URL=../geral.php?pg=exposicao&id_exposicao=$id_evento&aba=vendas'>";
+gravarExposicao('DBDelete', 'vendas', "id_animal = '$id_animal'");
+gravarExposicao('DBDelete', 'controle_financeiro', "id_animal = '$id_animal'");
+avisarExposicao('success', 'Venda excluída com sucesso.', $id_evento, 'vendas');
 ?>
