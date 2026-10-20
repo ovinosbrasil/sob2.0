@@ -1,11 +1,12 @@
 <?
-include "../_config.php";
+require_once __DIR__ . '/../_config.php';
 
-$data_inicial = $_POST['data_inicial']; if(!$data_inicial){ $data_inicial = $_GET['data_inicial']; } if(!$data_inicial){ $data_inicial = date('01/m/Y'); }
-$data_final = $_POST['data_final']; if(!$data_final){ $data_final = $_GET['data_final']; } if(!$data_final){ $data_final = date('31/m/Y'); }
-$id_cliente = $_POST['cliente_filtro'];
-$status = $_POST['status_filtro'];
-$tipo = $_POST['tipo_filtro'];
+$data_inicial = ($_POST['data_inicial'] ?? ''); if(!$data_inicial){ $data_inicial = ($_GET['data_inicial'] ?? ''); } if(!$data_inicial){ $data_inicial = date('01/01/Y'); }
+$data_final = ($_POST['data_final'] ?? ''); if(!$data_final){ $data_final = ($_GET['data_final'] ?? ''); } if(!$data_final){ $data_final = date('31/12/Y'); }
+$status = $_POST['status_filtro'] ?? 'Todas';
+$tipo = $_POST['tipo_filtro'] ?? 'Todas';
+$categoria_filtro = $_POST['categoria_filtro'] ?? '';
+$receber = $receber_ = $pagar = $pagar_ = 0;
 
 $data = $data_inicial;
 $data_atual = $data;
@@ -42,7 +43,32 @@ $data_final_ = $data;
 
 $sql = DBRead("controle_financeiro", "WHERE data >= '$data_inicial_' and data <= '$data_final_'  ORDER BY data asc ");
 
-foreach($sql as $linha){
+$categorias = array();
+foreach (($sql ?: array()) as $registro) {
+  if (!empty($registro['categoria'])) { $categorias[$registro['categoria']] = $registro['categoria']; }
+}
+sort($categorias);
+$sql = array_values(array_filter($sql ?: array(), function ($registro) use ($tipo, $status, $categoria_filtro) {
+  return (($tipo !== '0' && $tipo !== '1') || (string)$registro['tipo'] === $tipo)
+    && ($status !== 'Confirmado' || (bool)$registro['status'])
+    && ($status !== 'Aguardando' || !$registro['status'])
+    && ($categoria_filtro === '' || ($registro['categoria'] ?? '') === $categoria_filtro);
+}));
+$meses_grafico = array();
+$inicio_grafico = new DateTime(substr($data_inicial_, 0, 7) . '-01');
+$fim_grafico = new DateTime(substr($data_final_, 0, 7) . '-01');
+for ($mes = clone $inicio_grafico; $mes <= $fim_grafico; $mes->modify('+1 month')) {
+  $meses_grafico[$mes->format('Y-m')] = array('receitas' => 0, 'despesas' => 0);
+}
+foreach ($sql as $registro) {
+  $chave = substr($registro['data'], 0, 7);
+  if (isset($meses_grafico[$chave])) {
+    $serie = $registro['tipo'] ? 'despesas' : 'receitas';
+    $meses_grafico[$chave][$serie] += (float)$registro['valor'];
+  }
+}
+
+foreach(($sql ?: array()) as $linha){
   if((!$linha['tipo']) && ($linha['status']) ){
     $receber = $receber+$linha['valor'];
   }
@@ -60,6 +86,7 @@ foreach($sql as $linha){
 
 <script type="text/javascript">
 function atualizar_financeiro(tipo,id_financeiro){
+  if(tipo === ""){ return; }
   if(tipo == 0){ confirmar(id_financeiro); }
   if(tipo == 1){ cancelar(id_financeiro); }
   if(tipo == 2){ alterar(id_financeiro); }
@@ -320,6 +347,8 @@ function fechar_alterar(){
 
 
 
+<link rel="stylesheet" href="dist/css/financeiro.css?v=<?=filemtime(__DIR__ . '/../dist/css/financeiro.css')?>">
+
 <section class="content-header">
   <h1>
     Extrato financeiro
@@ -330,108 +359,132 @@ function fechar_alterar(){
   </ol>
 </section>
 
-  <!-- Main content -->
-  <section class="content">
-    <div class="row">
-      <div class="col-md-3">
-				<div class="box box-primary">
-          <!-- /.box-header -->
-          <div class="box-body">
-						<form method="post" action="geral.php?pg=financeiro">
-            <div class="form-group">
-                <label for="exampleInputPassword1">Data Inicial</label>
-                <div class="input-group date">
-                  <div class="input-group-addon">
-                    <i class="fa fa-calendar"></i>
-                  </div>
-                  <input type="text" class="form-control pull-right" id="data_inicial" name="data_inicial" value="<?=$data_inicial?>">
-                </div>
+  <section class="content financeiro-content">
+    <div class="row financeiro-resumo" aria-label="Resumo financeiro do período filtrado">
+      <? foreach (array(
+          array('Receitas (pagas)', $receber, 'text-success', $receber_),
+          array('Despesas (pagas)', $pagar, 'text-danger', $pagar_),
+          array('Saldo', $receber - $pagar, $receber >= $pagar ? 'text-success' : 'text-danger', null)
+      ) as $resumo) { ?>
+      <div class="col-sm-4">
+        <div class="box financeiro-card"><div class="box-body">
+          <span class="text-muted financeiro-caption"><?=$resumo[0]?></span>
+          <strong class="financeiro-total <?=$resumo[2]?>">R$ <?=number_format($resumo[1], 2, ',', '.')?></strong>
+          <? if ($resumo[3] !== null) { ?><small class="text-muted">Pendentes: R$ <?=number_format($resumo[3], 2, ',', '.')?></small><? } else { ?><small class="text-muted">Receitas pagas − despesas pagas</small><? } ?>
+        </div></div>
+      </div>
+      <? } ?>
+    </div>
+    <div class="box financeiro-chart-panel">
+      <div class="box-header"><h2 class="box-title">Receitas e despesas por mês</h2><p class="help-block">Valores pagos e pendentes do período filtrado</p></div>
+      <div class="box-body">
+        <div class="financeiro-legend"><span><i class="financeiro-dot receita"></i> Receitas</span><span><i class="financeiro-dot despesa"></i> Despesas</span></div>
+        <div class="financeiro-chart-scroll">
+          <?
+          $maximo = 1;
+          foreach ($meses_grafico as $valores) { $maximo = max($maximo, $valores['receitas'], $valores['despesas']); }
+          $largura = max(760, count($meses_grafico) * 85 + 90);
+          $passo = ($largura - 100) / max(1, count($meses_grafico));
+          $nomes_meses = array('Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez');
+          ?>
+          <svg class="financeiro-chart" viewBox="0 0 <?=$largura?> 240" style="min-width:<?=$largura?>px" role="img" aria-labelledby="financeiro-chart-title">
+            <title id="financeiro-chart-title">Receitas e despesas mensais em reais, incluindo valores pagos e pendentes</title>
+            <? for ($i = 0; $i <= 4; $i++) { $y = 20 + $i * 45; ?>
+            <line x1="80" y1="<?=$y?>" x2="<?=$largura - 10?>" y2="<?=$y?>" stroke="#e7ecef" />
+            <text x="72" y="<?=$y + 4?>" text-anchor="end"><?=number_format($maximo * (4 - $i) / 4, 2, ',', '.')?></text>
+            <? } ?>
+            <? $indice = 0; foreach ($meses_grafico as $chave => $valores) { $x = 85 + $indice++ * $passo; ?>
+              <? foreach (array('receitas', 'despesas') as $serie_indice => $serie) { $altura = $valores[$serie] / $maximo * 180; ?>
+              <rect x="<?=$x + $passo * (.18 + $serie_indice * .30)?>" y="<?=200 - $altura?>" width="<?=$passo * .27?>" height="<?=$altura?>" class="<?=$serie?>"><title><?=$chave?> — <?=ucfirst($serie)?>: R$ <?=number_format($valores[$serie], 2, ',', '.')?></title></rect>
+              <? } ?>
+              <text x="<?=$x + $passo * .48?>" y="225" text-anchor="middle"><?=$nomes_meses[(int)substr($chave, 5, 2) - 1]?>/<?=substr($chave, 2, 2)?></text>
+            <? } ?>
+          </svg>
+        </div>
+        <? if (!$sql) { ?><p class="text-center text-muted">Nenhum lançamento no período filtrado.</p><? } ?>
+      </div>
+    </div>
+    <div class="box" style="border-top:0;">
+      <div class="box-header with-border financeiro-toolbar">
+        <h2 class="box-title">Lançamentos</h2>
+        <div class="dropdown">
+          <button type="button" class="btn btn-success dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-plus" aria-hidden="true"></i> Novo lançamento <span class="caret"></span></button>
+          <ul class="dropdown-menu dropdown-menu-right">
+            <li><a href="#" onclick="faturamento(); return false;">Adicionar receita</a></li>
+            <li><a href="#" onclick="debito(); return false;">Adicionar despesa</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="box-body">
+        <form method="post" action="geral.php?pg=financeiro">
+          <div class="row">
+            <div class="form-group col-sm-6 col-md-2">
+              <label for="data_inicial">Data Inicial</label>
+              <div class="input-group date">
+                <div class="input-group-addon"><i class="fa fa-calendar" aria-hidden="true"></i></div>
+                <input type="text" class="form-control" id="data_inicial" name="data_inicial" value="<?=htmlspecialchars($data_inicial, ENT_QUOTES, 'UTF-8')?>">
+              </div>
             </div>
-
-            <div class="form-group">
-                <label for="exampleInputPassword1">Data Final</label>
-                <div class="input-group date">
-                  <div class="input-group-addon">
-                    <i class="fa fa-calendar"></i>
-                  </div>
-                  <input type="text" class="form-control pull-right" id="data_final" name="data_final" value="<?=$data_final?>">
-                </div>
+            <div class="form-group col-sm-6 col-md-2">
+              <label for="data_final">Data Final</label>
+              <div class="input-group date">
+                <div class="input-group-addon"><i class="fa fa-calendar" aria-hidden="true"></i></div>
+                <input type="text" class="form-control" id="data_final" name="data_final" value="<?=htmlspecialchars($data_final, ENT_QUOTES, 'UTF-8')?>">
+              </div>
             </div>
-
-						<div class="form-group">
-                <label for="exampleInputPassword1">Faturamento/Débito</label>
-                <select class="form-control select" onchange="atualizar_exames(this.value)" name="tipo_filtro" id="tipo_filtro">
-                  <option value="Todas">Todos</option>
-                  <option value=""></option>
-									<option value="0">Faturamento</option>
-									<option value="1">Débito</option>
-                </select>
+            <div class="form-group col-sm-6 col-md-2">
+              <label for="tipo_filtro">Tipo</label>
+              <select class="form-control" name="tipo_filtro" id="tipo_filtro">
+                <option value="Todas">Todos</option>
+                <option value="0" <?=$tipo === '0' ? 'selected' : ''?>>Receita</option>
+                <option value="1" <?=$tipo === '1' ? 'selected' : ''?>>Despesa</option>
+              </select>
             </div>
-
-
-						<div class="form-group">
-								<label for="exampleInputPassword1">Status</label>
-								<select class="form-control select" onchange="atualizar_exames(this.value)" name="status_filtro" id="status_filtro">
-									<? if($status){ ?> <option value="<?=$status?>"><?=$status?></option> <? }else{ ?> <option value="Todas">Todas</option> <? } ?>
-									<option value="Todos"></option>
-									<option value="Confirmado">Confirmado</option>
-									<option value="Aguardando">Aguardando</option>
-									<option value="Todos">Todos</option>
-								</select>
-						</div>
-
-            <div class="form-group">
-                <button type="submit" class="btn btn-primary" style="width:100%; margin-bottom:3%;">Pesquisar Extrato</button>
+            <div class="form-group col-sm-6 col-md-2">
+              <label for="status_filtro">Status</label>
+              <select class="form-control" name="status_filtro" id="status_filtro">
+                <option value="Todas">Todos</option>
+                <option value="Confirmado" <?=$status == 'Confirmado' ? 'selected' : ''?>>Confirmado</option>
+                <option value="Aguardando" <?=$status == 'Aguardando' ? 'selected' : ''?>>Pendente</option>
+              </select>
             </div>
-					</form>
-
-            <div class="form-group">
-              <label for="exampleInputPassword1" style="font-size:18px; color:#00a65a;">Faturamento:
-            R$<?=number_format($receber,2,",",".");?></label><br/>
-
-              <label for="exampleInputPassword1" style="font-size:18px; color:#f53030;">Débito:
-                 R$<?=number_format($pagar,2,",",".");?></label>
-                 <br/>
-              <label for="exampleInputPassword1" style="font-size:18px;">Receber:
-                  R$<?=number_format($receber_,2,",",".");?></label><br/>
-
-              <label for="exampleInputPassword1" style="font-size:18px;">Pagar:
-                  R$<?=number_format($pagar_,2,",",".");?></label>
-
+            <div class="form-group col-sm-6 col-md-2">
+              <label for="categoria_filtro">Categoria</label>
+              <select class="form-control" id="categoria_filtro" name="categoria_filtro">
+                <option value="">Todas</option>
+                <? foreach ($categorias as $categoria) { ?>
+                <option value="<?=htmlspecialchars($categoria, ENT_QUOTES, 'UTF-8')?>" <?=$categoria_filtro === $categoria ? 'selected' : ''?>><?=htmlspecialchars($categoria, ENT_QUOTES, 'UTF-8')?></option>
+                <? } ?>
+              </select>
+            </div>
+            <div class="form-group col-sm-6 col-md-2">
+              <label class="hidden-xs hidden-sm" aria-hidden="true">&nbsp;</label>
+              <div class="financeiro-filter-actions">
+                <button type="submit" class="btn btn-primary"><i class="fa fa-search" aria-hidden="true"></i> Pesquisar</button>
+                <a href="geral.php?pg=financeiro" class="btn btn-default">Limpar</a>
+              </div>
             </div>
           </div>
-          <!-- /.box-body -->
-			</div>
-      <!-- /.col -->
-    </div>
-
-
-
-      <div class="col-md-9">
-        <div class="box  box-primary">
-          <!-- /.box-header -->
-          <div class="box-body">
-            <div class="form-group">
-							<button type="submit" class="btn btn-danger" onclick="debito()" style="float:right; margin-bottom:1%; margin-left:3%;">Adicionar Débito</button>
-						  <button type="submit" class="btn btn-success" style="float:right; margin-bottom:1%; margin-left:3%;" onclick="faturamento()">Adicionar Faturamento</button>
-            </div>
-
-            <table class="table table-bordered" id="tabela_padrao">
+        </form>
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped financeiro-table">
+              <thead>
               <tr>
-                <th>Data</th>
+                <th>Vencimento</th>
                 <th>Descrição</th>
-                <th>Cliente/categoria</th>
+                <th>Comprador</th>
+                <th>Categoria</th>
                 <th>Valor</th>
+                <th>Pagamento</th>
                 <th>Tipo</th>
-                <th style="width:15%;">Funções</th>
-              </tr>
+                <th>Status</th>
+                <th style="width:1%; white-space:nowrap;"><span class="sr-only">Ações</span></th>
+              </tr></thead>
+              <tbody>
 							<?
-							if(($tipo == 'Todas') || ($tipo == '')){ $tipo = 'x';}
-							if(($status == 'Todas') || ($status == '')){ $status = 'x';}
-							if($status == 'Confirmado'){ $status = 1; }
-							if($status == 'Aguardando'){ $status = '0'; }
-
-              foreach($sql as $linha){
+              $quantidade_lancamentos = 0;
+              foreach(($sql ?: array()) as $linha){
+                $comprador = $venda = array();
                 $id_animal = $linha['id_animal'];
                 if($id_animal){
                 $venda = DBRead('vendas', "WHERE id_animal = '$id_animal'");
@@ -461,25 +514,21 @@ function fechar_alterar(){
                 $data['8'] = $data_atual['2'];
                 $data['9'] = $data_atual['3'];
 
-   							if(($linha['tipo'] == 0) && ($linha['status'] == 0) ){?>  <tr> <? }
-  							if(($linha['tipo'] == 0) && ($linha['status'] == 1)) { ?>  <tr style="color:#093; font-size:15px;"> <? }
-  							if(($linha['tipo'] == 1) && ($linha['status'] == 0)) {?>  <tr> <? }
-   						  if(($linha['tipo'] == 1) && ($linha['status'] == 1)) {?>  <tr style="color:#F00; font-size:15px;"> <? }
-
-                if( (($tipo == $linha['tipo']) || ($tipo == 'x'))  && (($status == $linha['status']) || ($status == 'x'))){ ?>
+                $quantidade_lancamentos++;
+                ?>
+                <tr>
                   <td><?=$data?></td>
-                  <td><?=$linha['titulo']?></td>
+                  <td><?=htmlspecialchars($linha['titulo'], ENT_QUOTES, 'UTF-8')?></td>
                   <td>
                   <?
                   if(($linha['tipo'] == 0) || ($linha['tipo'] == 2) ){
-                    echo $comprador[0]['nome'];
+                    echo htmlspecialchars($comprador[0]['nome'] ?? '', ENT_QUOTES, 'UTF-8');
                   }
-                  if($linha['tipo'] == 1){
-                    echo $linha['categoria'];
-                  }
+
                   ?>
                 </td>
-                  <td>R$ <? if($linha['tipo'] == 1){ echo "- ";} ?> <?=number_format($linha['valor'],2,",",".");?></td>
+                  <td><?=htmlspecialchars($linha['categoria'] ?? '—', ENT_QUOTES, 'UTF-8')?></td>
+                  <td class="financeiro-valor <?=$linha['tipo'] == 1 ? 'text-danger' : 'text-success'?>">R$ <? if($linha['tipo'] == 1){ echo "- ";} ?> <?=number_format($linha['valor'],2,",",".");?></td>
                   <td><?
                   if(($linha['tipo'] == 0) && ($linha['id_animal'] > 1)){
                     echo $venda[0]['tipo_venda']," - ", $linha['forma_de_pagamento'];
@@ -493,24 +542,21 @@ function fechar_alterar(){
                     echo $linha['forma_de_pagamento'];
                   }
                   ?></td>
-                  <td>
-                    <select name="" id="" onchange="atualizar_financeiro(this.value,<?=$linha['id']?>)" style="margin:0%; padding:0%; height:30px;">
-                      <option value="">Selecionar</option>
-                      <option value=""></option>
-                      <option value="0">Confirmar</option>
-                      <option value="1">Cancelar</option>
-                      <option value="2">Alterar</option>
-                      <option value="3">Excluir</option>
-                    </select>
+                  <td><span class="financeiro-badge <?=$linha['tipo'] ? 'despesa' : 'receita'?>"><?=$linha['tipo'] ? 'Despesa' : 'Receita'?></span></td>
+                  <td><span class="label <?=$linha['status'] ? 'label-success' : 'financeiro-pendente'?>"><?=$linha['status'] ? 'Confirmado' : 'Pendente'?></span></td>
+                  <td class="financeiro-acoes">
+                    <? foreach (array(array('confirmar', 'Confirmar', 'check', 'success'), array('cancelar', 'Cancelar', 'undo', 'warning'), array('alterar', 'Abrir registro', 'search', 'primary'), array('abrir_excluir', 'Excluir', 'trash-o', 'danger')) as $acao) { ?>
+                    <button type="button" class="text-<?=$acao[3]?>" onclick="<?=$acao[0]?>(<?=(int)$linha['id']?>)" title="<?=$acao[1]?>" aria-label="<?=$acao[1]?> lançamento"><i class="fa fa-<?=$acao[2]?>" aria-hidden="true"></i></button>
+                    <? } ?>
                   </td>
                 </tr>
-              <? } } ?>
+              <? } ?>
+              <? if (!$quantidade_lancamentos) { ?>
+                <tr><td colspan="9" class="text-center text-muted">Nenhum lançamento encontrado para os filtros selecionados.</td></tr>
+              <? } ?>
+              </tbody>
             </table>
-          </div>
-          <!-- /.box-body -->
         </div>
-      <!-- /.col -->
+      </div>
     </div>
-    <!-- /.row -->
   </section>
-  <!-- /.content -->
