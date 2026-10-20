@@ -310,6 +310,7 @@ $data_expira2 = $data;
 <?php require __DIR__ . '/includes/alertas_pesagem.php'; ?>
 <?php require __DIR__ . '/includes/alertas_exposicao.php'; ?>
 <?php require __DIR__ . '/includes/alertas_vendas.php'; ?>
+<?php require __DIR__ . '/includes/alertas_financeiro.php'; ?>
 <?php require __DIR__ . '/includes/alertas_chip.php'; ?>
 <script src="dist/js/confirmacao-exclusao.js?v=<?=filemtime(__DIR__ . '/dist/js/confirmacao-exclusao.js')?>"></script>
 <script src="dist/js/busca-animais.js?v=<?=filemtime(__DIR__ . '/dist/js/busca-animais.js')?>"></script>

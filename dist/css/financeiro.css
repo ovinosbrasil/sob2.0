@@ -68,7 +68,9 @@
 .financeiro-chart .receitas { fill: #00a65a; fill-opacity: .55; }
 .financeiro-chart .despesas { fill: #dd4b39; fill-opacity: .55; }
 .financeiro-toolbar { padding: 15px 18px; }
-.financeiro-toolbar .box-title { font-size: 16px; font-weight: 600; }
+.financeiro-toolbar::before,
+.financeiro-toolbar::after { content: none; }
+.financeiro-toolbar .box-title { margin: 0; font-size: 16px; font-weight: 600; }
 .financeiro-content .form-group label { font-size: 12px; }
 .financeiro-table { margin-top: 12px; margin-bottom: 0; }
 .financeiro-table > thead > tr > th { white-space: nowrap; }
@@ -80,6 +82,50 @@
 .financeiro-acoes button:focus-visible { outline: 2px solid #008d4c; outline-offset: 1px; }
 @media (max-width: 767px) {
   .financeiro-content .box-body { padding: 12px; }
-  .financeiro-toolbar .dropdown { width: 100%; }
-  .financeiro-toolbar .dropdown > .btn { width: 100%; }
+  .financeiro-toolbar > .btn { width: 100%; }
+}
+
+.financeiro-novo-modal .modal-dialog {
+  width: 480px;
+  max-width: calc(100vw - 32px);
+  margin: 10vh auto;
+}
+.financeiro-novo-modal .modal-content { border: 0; border-radius: 12px; }
+.financeiro-tipos { display: flex; gap: 12px; margin-top: 20px; }
+.financeiro-tipo {
+  flex: 1;
+  padding: 22px 12px;
+  background: #fff;
+  border: 1px solid #e5e9ed;
+  border-radius: 8px;
+  text-align: center;
+  cursor: pointer;
+}
+.financeiro-tipo > i { display: block; margin-bottom: 12px; font-size: 28px; }
+.financeiro-tipo > strong { display: block; margin-bottom: 6px; font-size: 16px; }
+.financeiro-tipo > span { font-size: 12px; }
+.financeiro-tipo:hover { background: #f7faf8; border-color: #00a65a; }
+.financeiro-tipo:focus-visible { outline: 2px solid #008d4c; outline-offset: 2px; }
+@media (max-width: 420px) {
+  .financeiro-tipos { flex-direction: column; }
+}
+
+.financeiro-cadastro-modal .modal-dialog {
+  width: 600px;
+  max-width: calc(100vw - 32px);
+  margin: 6vh auto;
+}
+.financeiro-cadastro-modal .modal-content { border: 0; border-radius: 12px; }
+.financeiro-cadastro-modal .modal-body { padding: 20px; }
+.financeiro-cadastro-modal .modal-header,
+.financeiro-cadastro-modal .modal-footer { padding: 16px 20px; }
+.financeiro-cadastro-modal .modal-body > .form-group:last-child { margin-bottom: 0; }
+
+#financeiro-confirmacao-modal .financeiro-icone-confirmar {
+  background: #e7f5ee;
+  color: #008d4c;
+}
+#financeiro-confirmacao-modal .financeiro-icone-voltar {
+  background: #fff4ce;
+  color: #876300;
 }

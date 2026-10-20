@@ -6,7 +6,7 @@ if (isset($argv[1])) {
     $_POST = array('evento' => 'Feira', 'data' => '15/10/2026', 'cidade' => 'Cidade', 'local' => 'Parque', 'comprador' => 'Cliente', 'valor' => '100', 'tipo_venda' => 'Exposição', 'forma' => 'Dinheiro', 'parcelas' => 1, 'observacoes' => '');
     $_GET = array_merge($_GET, $caso['get'] ?? array());
     $_POST = array_merge($_POST, $caso['post'] ?? array());
-    $_SESSION = array(); $gravacoes = array();
+    $_SESSION = array(); $gravacoes = array(); $financeiroTeste = array();
     set_error_handler(function ($n, $m) { throw new RuntimeException($m); });
     function DBEscape($valor) { return addslashes($valor); }
     function DBRead($tabela, $params = '', $campos = '*') {
@@ -25,6 +25,7 @@ if (isset($argv[1])) {
     }
     function DBCreate($tabela, $dados, $id = false) {
         global $gravacoes, $caso; $gravacoes[] = 'create:' . $tabela;
+        if ($tabela === 'controle_financeiro') $GLOBALS['financeiroTeste'][] = $dados;
         return ($caso['modo'] ?? '') === 'falha' ? false : ($id ? 7 : true);
     }
     function DBUpdate($tabela, $dados, $where) { global $gravacoes; $gravacoes[] = 'update:' . $tabela; return true; }
@@ -46,7 +47,7 @@ if (isset($argv[1])) {
     }
     register_shutdown_function(function () {
         global $gravacoes;
-        echo json_encode(array('alerta' => $_SESSION['alerta_exposicao'] ?? null, 'campos' => $_SESSION['campos_exposicao'] ?? null, 'gravacoes' => $gravacoes));
+        echo json_encode(array('alerta' => $_SESSION['alerta_exposicao'] ?? null, 'campos' => $_SESSION['campos_exposicao'] ?? null, 'financeiro' => $GLOBALS['financeiroTeste'], 'gravacoes' => $gravacoes));
     });
     $codigo = file_get_contents(__DIR__ . '/../exposicao/' . $caso['arquivo']);
     $codigo = str_replace("require_once __DIR__ . '/../_config.php';", '', $codigo);
@@ -77,6 +78,7 @@ $casos = array(
     array('arquivo'=>'_animal_leilao.php', 'get'=>array('id_animal'=>0), 'tipo'=>'warning', 'semGravacao'=>true),
     array('arquivo'=>'_excluir_animal.php', 'modo'=>'exposicao_ausente', 'tipo'=>'warning', 'semGravacao'=>true),
     array('arquivo'=>'_vender_animal.php', 'tipo'=>'success', 'grava'=>'create:controle_financeiro'),
+    array('arquivo'=>'_vender_animal.php', 'post'=>array('valor'=>'100.00', 'parcelas'=>3, 'forma'=>'Pix', 'data'=>'31/01/2026'), 'tipo'=>'success', 'parcelamento'=>true),
     array('arquivo'=>'_vender_animal.php', 'modo'=>'comprador_ausente', 'tipo'=>'warning', 'semGravacao'=>true),
     array('arquivo'=>'_vender_animal.php', 'post'=>array('valor'=>''), 'tipo'=>'warning', 'semGravacao'=>true),
     array('arquivo'=>'_excluir_venda.php', 'modo'=>'vendido', 'tipo'=>'success', 'grava'=>'delete:vendas'),
@@ -85,6 +87,10 @@ $casos = array(
 foreach ($casos as $caso) {
     $comando = escapeshellarg(PHP_BINARY) . ' ' . escapeshellarg(__FILE__) . ' ' . escapeshellarg(base64_encode(json_encode($caso)));
     $resultado = json_decode(shell_exec($comando), true);
+    if (!empty($caso['parcelamento'])) {
+        $f = $resultado['financeiro'];
+        if (array_column($f, 'valor') !== array('33.34','33.33','33.33') || array_column($f, 'data') !== array('2026-01-31','2026-02-28','2026-03-31') || array_column($f, 'titulo') !== array('Venda animal - Animal 1/3','Venda animal - Animal 2/3','Venda animal - Animal 3/3') || $f[0]['forma_de_pagamento'] !== 'Pix') throw new RuntimeException('Parcelamento da exposição incorreto.');
+    }
     if (($resultado['alerta']['tipo'] ?? null) !== $caso['tipo']) throw new RuntimeException('Alerta incorreto: '.json_encode($caso).' '.json_encode($resultado));
     if (!empty($caso['semGravacao']) && $resultado['gravacoes']) throw new RuntimeException('Gravação indevida.');
     if (isset($caso['grava']) && !in_array($caso['grava'], $resultado['gravacoes'], true)) throw new RuntimeException('Gravação esperada ausente.');

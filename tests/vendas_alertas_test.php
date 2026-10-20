@@ -29,6 +29,7 @@ if (isset($argv[1])) {
 }
 $casos=array(
  array('tipo'=>'success','financeiro'=>100),
+ array('tipo'=>'success','post'=>array('animal_2'=>'Segundo','preco_conjunto_1'=>'33.33','preco_conjunto_2'=>'66.67','parcelas'=>'3'),'financeiro'=>100,'pacote'=>true),
  array('tipo'=>'success','post'=>array('animal_2'=>'Segundo','preco_conjunto_2'=>'200'),'financeiro'=>300),
  array('tipo'=>'warning','post'=>array('comprador'=>'')),
  array('tipo'=>'warning','modo'=>'comprador_ausente'),
@@ -60,7 +61,12 @@ foreach($casos as $caso){
  if(isset($caso['financeiro'])){
   $lancamentos=array_values(array_filter($resultado['gravacoes'],function($g){return $g['tabela']==='controle_financeiro' && $g['operacao']==='create';}));
   if(array_sum(array_column(array_column($lancamentos,'dados'),'valor'))!=$caso['financeiro'])throw new RuntimeException('Total financeiro incorreto.');
-  if(array_column(array_column($lancamentos,'dados'),'data')!==array('2026-01-31','2026-02-28'))throw new RuntimeException('Datas das parcelas inválidas.');
+  if(array_column(array_column($lancamentos,'dados'),'data')!==(!empty($caso['pacote']) ? array('2026-01-31','2026-02-28','2026-03-31') : array('2026-01-31','2026-02-28')))throw new RuntimeException('Datas das parcelas inválidas.');
+  if (!empty($caso['pacote'])) {
+   $dadosPacote = array_column($lancamentos, 'dados');
+   if (array_column($dadosPacote, 'valor') !== array('33.34','33.33','33.33')) throw new RuntimeException('Divisão do pacote incorreta.');
+   if (array_column($dadosPacote, 'titulo') !== array('Pacote de vendas 1/3','Pacote de vendas 2/3','Pacote de vendas 3/3')) throw new RuntimeException('Descrição do pacote incorreta.');
+  }
   if($resultado['campos']!==null)throw new RuntimeException('Formulário não limpo após sucesso.');
  }
 }

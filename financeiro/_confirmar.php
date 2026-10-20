@@ -1,13 +1,7 @@
-<?
-include "../_config.php";
-
-$id_financeiro = $_GET['id_financeiro'];
-$data_inicial = $_GET['data_inicial'];
-$data_final = $_GET['data_final'];
-
-$dados = array(
-  'status'			=> 1
-);
-DBUpdate('controle_financeiro', $dados, "id = '$id_financeiro'");
-echo "<META HTTP-EQUIV=REFRESH CONTENT='0; URL=../geral.php?pg=financeiro&data_inicial=$data_inicial&data_final=$data_final'>";
-?>
+<?php
+require_once __DIR__ . '/../_config.php';
+require_once __DIR__ . '/_alertas.php';
+$registro = registroFinanceiro();
+$id = (int)$registro['id'];
+gravarFinanceiro('DBUpdate', 'controle_financeiro', array('status' => 1), "id = '$id'");
+avisarFinanceiro('success', 'Lançamento confirmado com sucesso.');

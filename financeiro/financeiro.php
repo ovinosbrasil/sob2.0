@@ -1,11 +1,20 @@
 <?
 require_once __DIR__ . '/../_config.php';
+require_once __DIR__ . '/../includes/paginacao_financeiro.php';
+$hFinanceiro = function ($valor) {
+  $texto = (string)$valor;
+  // Conexões legadas retornam Latin-1; vendas de materiais usam UTF-8.
+  if (!preg_match('//u', $texto)) {
+    $texto = iconv('Windows-1252', 'UTF-8', $texto);
+  }
+  return htmlspecialchars($texto, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+};
 
 $data_inicial = ($_POST['data_inicial'] ?? ''); if(!$data_inicial){ $data_inicial = ($_GET['data_inicial'] ?? ''); } if(!$data_inicial){ $data_inicial = date('01/01/Y'); }
 $data_final = ($_POST['data_final'] ?? ''); if(!$data_final){ $data_final = ($_GET['data_final'] ?? ''); } if(!$data_final){ $data_final = date('31/12/Y'); }
-$status = $_POST['status_filtro'] ?? 'Todas';
-$tipo = $_POST['tipo_filtro'] ?? 'Todas';
-$categoria_filtro = $_POST['categoria_filtro'] ?? '';
+$status = $_POST['status_filtro'] ?? $_GET['status_filtro'] ?? 'Todas';
+$tipo = $_POST['tipo_filtro'] ?? $_GET['tipo_filtro'] ?? 'Todas';
+$categoria_filtro = $_POST['categoria_filtro'] ?? $_GET['categoria_filtro'] ?? '';
 $receber = $receber_ = $pagar = $pagar_ = 0;
 
 $data = $data_inicial;
@@ -41,7 +50,7 @@ $data_final_ = $data;
 
 
 
-$sql = DBRead("controle_financeiro", "WHERE data >= '$data_inicial_' and data <= '$data_final_'  ORDER BY data asc ");
+$sql = DBRead("controle_financeiro", "WHERE data >= '$data_inicial_' and data <= '$data_final_'  ORDER BY data asc, id asc ");
 
 $categorias = array();
 foreach (($sql ?: array()) as $registro) {
@@ -54,6 +63,11 @@ $sql = array_values(array_filter($sql ?: array(), function ($registro) use ($tip
     && ($status !== 'Aguardando' || !$registro['status'])
     && ($categoria_filtro === '' || ($registro['categoria'] ?? '') === $categoria_filtro);
 }));
+$paginacaoFinanceiro = paginacaoFinanceiro(count($sql), array(
+  'pg' => 'financeiro', 'data_inicial' => $data_inicial, 'data_final' => $data_final,
+  'tipo_filtro' => $tipo, 'status_filtro' => $status, 'categoria_filtro' => $categoria_filtro
+));
+$lancamentosPagina = array_slice($sql, $paginacaoFinanceiro['inicio'], $paginacaoFinanceiro['por_pagina']);
 $meses_grafico = array();
 $inicio_grafico = new DateTime(substr($data_inicial_, 0, 7) . '-01');
 $fim_grafico = new DateTime(substr($data_final_, 0, 7) . '-01');
@@ -95,40 +109,20 @@ function atualizar_financeiro(tipo,id_financeiro){
 
 
 function confirmar(id_financeiro){
-		data_inicial = document.getElementById("data_inicial").value;
-		data_final = document.getElementById("data_final").value;
-    window.location.href = "financeiro/_confirmar.php?id_financeiro="+id_financeiro+"&data_inicial="+data_inicial+"&data_final="+data_final;
+  pedirConfirmacaoFinanceiro('confirmar', id_financeiro);
 }
 
 function cancelar(id_financeiro){
-		data_inicial = document.getElementById("data_inicial").value;
-		data_final = document.getElementById("data_final").value;
-    window.location.href = "financeiro/_cancelar.php?id_financeiro="+id_financeiro+"&data_inicial="+data_inicial+"&data_final="+data_final;
+  pedirConfirmacaoFinanceiro('cancelar', id_financeiro);
 }
 
 function abrir_excluir(id_financeiro){
-if(window.XMLHttpRequest) { PP = new XMLHttpRequest();} else if(window.ActiveXObject) { PP = new ActiveXObject("Microsoft.XMLHTTP"); }
-// Arquivo PHP juntamente com o valor digitado no campo (método GET)
- var url = "financeiro/palco_excluir.php?id_financeiro="+id_financeiro;
-// Chamada do método open para processar a requisição
-PP.open("Get", url, true);
-// Quando o objeto recebe o retorno, chamamos a seguinte função;
-PP.onreadystatechange = function() {
-if (PP.readyState == 4) {
-resposta = PP.responseText;
-document.getElementById("palco_excluir").innerHTML = resposta; document.getElementById("palco_excluir").style.display = 'block';
-}
-}
-PP.send(null);
-document.getElementById("transparencia").style.display = 'block';
+  pedirConfirmacaoFinanceiro('excluir', id_financeiro);
 }
 
 function excluir(id_financeiro){
-		data_inicial = document.getElementById("data_inicial").value;
-		data_final = document.getElementById("data_final").value;
-    window.location.href = "financeiro/_excluir.php?id_financeiro="+id_financeiro+"&data_inicial="+data_inicial+"&data_final="+data_final;
+  pedirConfirmacaoFinanceiro('excluir', id_financeiro);
 }
-
 
 function fechar_excluir(){
   document.getElementById("transparencia").style.display = 'none';
@@ -136,216 +130,119 @@ function fechar_excluir(){
 }
 
 function faturamento(){
-	document.getElementById("transparencia").style.display = 'block';
-	document.getElementById("palco_faturamento").style.display = 'block';
+  jQuery('#palco_faturamento').modal('show');
 }
 
 function fechar_faturamento(){
-  document.getElementById("transparencia").style.display = 'none';
-  document.getElementById("palco_faturamento").style.display = 'none';
+  jQuery('#palco_faturamento').modal('hide');
 }
 
 function debito(){
-	document.getElementById("transparencia").style.display = 'block';
-	document.getElementById("palco_debito").style.display = 'block';
+  jQuery('#palco_debito').modal('show');
 }
 
 function fechar_debito(){
-  document.getElementById("transparencia").style.display = 'none';
-  document.getElementById("palco_debito").style.display = 'none';
+  jQuery('#palco_debito').modal('hide');
 }
 
 function alterar(id_financeiro){
-if(window.XMLHttpRequest) { PP = new XMLHttpRequest();} else if(window.ActiveXObject) { PP = new ActiveXObject("Microsoft.XMLHTTP"); }
-// Arquivo PHP juntamente com o valor digitado no campo (método GET)
-var url = "financeiro/palco_alterar.php?id_financeiro="+id_financeiro;
-
-// Chamada do método open para processar a requisição
-PP.open("Get", url, true);
-// Quando o objeto recebe o retorno, chamamos a seguinte função;
-PP.onreadystatechange = function() {
-if (PP.readyState == 4) {
-resposta = PP.responseText;
-document.getElementById("palco_alterar").innerHTML = resposta; document.getElementById("palco_alterar").style.display = 'block';
-}
-}
-PP.send(null);
-document.getElementById("transparencia").style.display = 'block';
+  var requisicao = new XMLHttpRequest();
+  requisicao.open('GET', 'financeiro/palco_alterar.php?id_financeiro=' + encodeURIComponent(id_financeiro), true);
+  requisicao.onload = function () {
+    if (requisicao.status !== 200) {
+      SobAlertas.erro({mensagem: 'Não foi possível carregar o lançamento. Atualize a página e tente novamente.'});
+      return;
+    }
+    document.getElementById('financeiro-alterar-conteudo').innerHTML = requisicao.responseText;
+    document.dispatchEvent(new Event('financeiro:edicao-carregada'));
+    if (jQuery.fn.priceFormat) jQuery('#valor_alterar').priceFormat();
+    jQuery('#palco_alterar').modal('show');
+  };
+  requisicao.onerror = function () { SobAlertas.erro({mensagem: 'Não foi possível carregar o lançamento. Tente novamente.'}); };
+  requisicao.send();
 }
 
 function fechar_alterar(){
-  document.getElementById("transparencia").style.display = 'none';
-  document.getElementById("palco_alterar").style.display = 'none';
+  jQuery('#palco_alterar').modal('hide');
 }
 </script>
 
 
 <div class="row" id="palco_excluir" style=" z-index:9999999999;  left:40%; top:5%;  position:absolute; position:fixed;"></div>
-<div class="row" id="palco_alterar" style=" z-index:999999999;  left:20%; top:5%;  position:absolute; position:fixed; display:none;"></div>
-<div class="row" id="palco_faturamento" style=" z-index:999999999999;  left:20%; top:5%; position:absolute; position:fixed; display:none;">
-    <!-- left column -->
-    <div class="col-md-9">
-      <!-- general form elements -->
-      <div class="box box-success">
-        <div class="box-header with-border">
-          <h3 class="box-title">Cadastrar faturamento</h3>
+<div class="modal fade financeiro-cadastro-modal" id="palco_alterar" tabindex="-1" role="dialog" aria-labelledby="titulo-alterar-financeiro">
+  <div class="modal-dialog" role="document"><div class="modal-content" id="financeiro-alterar-conteudo"></div></div>
+</div>
+<? foreach (array('debito' => 'despesa', 'faturamento' => 'receita') as $cadastro => $rotulo) { ?>
+<div class="modal fade financeiro-cadastro-modal" id="palco_<?=$cadastro?>" tabindex="-1" role="dialog" aria-labelledby="titulo-<?=$cadastro?>">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <form method="post" action="financeiro/_<?=$cadastro?>.php" data-alertas-financeiro="<?=$cadastro?>" novalidate>
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Fechar"><span aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title" id="titulo-<?=$cadastro?>">Cadastrar <?=$rotulo?></h4>
         </div>
-        <!-- /.box-header -->
-        <!-- form start -->
-        <form method="post" action="financeiro/_faturamento.php">
-        <div class="box-body">
-          <div class="col-md-4 ">
-            <div class="form-group">
-              <label for="exampleInputEmail1">Descrição<span style="color:#F00;">*</span></label>
-              <input type="text" class="form-control" id="descricao_faturamento" name="descricao_faturamento" placeholder="Digite aqui...">
+        <div class="modal-body">
+          <div class="form-group">
+            <label for="descricao_<?=$cadastro?>">Descrição <span class="text-danger">*</span></label>
+            <input type="text" class="form-control" id="descricao_<?=$cadastro?>" name="descricao_<?=$cadastro?>" placeholder="Digite a descrição" required>
+          </div>
+          <div class="row">
+            <div class="col-sm-6 form-group">
+              <label for="data_<?=$cadastro?>">Vencimento <span class="text-danger">*</span></label>
+              <div class="input-group date">
+                <span class="input-group-addon"><i class="fa fa-calendar" aria-hidden="true"></i></span>
+                <input type="text" class="form-control" id="data_<?=$cadastro?>" name="data_<?=$cadastro?>" value="<?=date('d/m/Y')?>" required>
+              </div>
             </div>
-
-            <div class="form-group">
-                <label for="exampleInputPassword1">Forma de pagamento<span style="color:#F00;">*</span></label>
-                <select class="form-control select" name="forma_faturamento" id="forma_faturamento">
-                  <option value="">Selecionar forma</option>
-                  <option value=""></option>
-                  <option value="Boleto">Boleto</option>
-                  <option value="Dinheiro">Dinheiro</option>
-                  <option value="Depósito">Depósito</option>
-                  <option value="Cartão">Cartão</option>
-                  <option value="Transação bancária">Transação bancária</option>
-                </select>
+            <div class="col-sm-6 form-group">
+              <label for="valor_<?=$cadastro?>">Valor total <span class="text-danger">*</span></label>
+              <div class="input-group">
+                <span class="input-group-addon">R$</span>
+                <input type="text" class="form-control" id="valor_<?=$cadastro?>" name="valor_<?=$cadastro?>" placeholder="0,00" inputmode="decimal" required>
+              </div>
             </div>
           </div>
-
-          <div class="col-md-4 " style="margin-left:-12px;">
-            <div class="form-group">
-                <label for="exampleInputPassword1">Data<span style="color:#F00;">*</span></label>
-                <div class="input-group date">
-                  <div class="input-group-addon">
-                    <i class="fa fa-calendar"></i>
-                  </div>
-                  <input type="text" class="form-control pull-right" id="data_faturamento" name="data_faturamento" value="<?=date('d/m/Y');?>">
-                </div>
-            </div>
-
-            <div class="form-group">
-              <label for="exampleInputPassword1">Repetir parcelas</label>
-              <select class="form-control select" name="parcelas_faturamento" id="parcelas_faturamento">
-                <option value="1">1x</option>
-                <option value=""></option>
-                <option value="2">2x</option>
-                <option value="3">3x</option>
-                <option value="4">4x</option>
-                <option value="5">5x</option>
-                <option value="6">6x</option>
-                <option value="7">7x</option>
-                <option value="8">8x</option>
-                <option value="9">9x</option>
-                <option value="10">10x</option>
+          <div class="row">
+            <div class="col-sm-6 form-group">
+              <label for="forma_<?=$cadastro?>">Forma de pagamento <span class="text-danger">*</span></label>
+              <select class="form-control" id="forma_<?=$cadastro?>" name="forma_<?=$cadastro?>" required>
+                <option value="">Selecionar forma</option>
+                <? foreach (array('Pix', 'Boleto', 'Dinheiro', 'Depósito', 'Cartão', 'Transação bancária') as $forma_cadastro) { ?>
+                <option value="<?=$forma_cadastro?>"><?=$forma_cadastro?></option>
+                <? } ?>
               </select>
             </div>
-
-        </div>
-
-      <div class="col-md-4">
-        <div class="form-group">
-          <label for="exampleInputPassword1">Valor<span style="color:#F00;">*</span></label>
-          <input type="text" id="valor_faturamento" name="valor_faturamento" class="form-control" placeholder="R$ 00,00">
-        </div>
-
-
-      </div>
-      <button type="submit" class="btn btn-success" style="margin-left:1.5%;">Cadastrar Faturamento</button>
-    </form>
-    <button type="button" class="btn btn-danger" style="float:right; margin-right:2.5%;" onclick="fechar_faturamento()">Fechar</button>
-  </div></div></div></div>
-
-<div class="row" id="palco_debito" style=" z-index:99999999;  left:20%; top:5%;  position:absolute; position:fixed; display:none;">
-      <!-- left column -->
-      <div class="col-md-9">
-        <!-- general form elements -->
-        <div class="box box-danger">
-          <div class="box-header with-border">
-            <h3 class="box-title">Cadastrar Débito</h3>
-          </div>
-          <!-- /.box-header -->
-          <!-- form start -->
-          <form method="post" action="financeiro/_debito.php">
-          <div class="box-body">
-            <div class="col-md-4 ">
-              <div class="form-group">
-                <label for="exampleInputEmail1">Descrição<span style="color:#F00;">*</span></label>
-                <input type="text" class="form-control" id="descricao_debito" name="descricao_debito" placeholder="Digite aqui...">
-              </div>
-
-              <div class="form-group">
-                  <label for="exampleInputPassword1">Forma de pagamento<span style="color:#F00;">*</span></label>
-                  <select class="form-control select" name="forma_debito" id="forma_debito">
-                    <option value="">Selecionar forma</option>
-                    <option value=""></option>
-                    <option value="Boleto">Boleto</option>
-                    <option value="Dinheiro">Dinheiro</option>
-                    <option value="Cartão">Cartão</option>
-                    <option value="Transação bancária">Transação bancária</option>
-                  </select>
-              </div>
+            <div class="col-sm-6 form-group">
+              <label for="parcelas_<?=$cadastro?>">Parcelas</label>
+              <select class="form-control" id="parcelas_<?=$cadastro?>" name="parcelas_<?=$cadastro?>">
+                <? for ($parcela_cadastro = 1; $parcela_cadastro <= 10; $parcela_cadastro++) { ?>
+                <option value="<?=$parcela_cadastro?>"><?=$parcela_cadastro?>x</option>
+                <? } ?>
+              </select>
+              <small class="help-block">O valor total será dividido entre os meses.</small>
             </div>
-
-            <div class="col-md-4 " style="margin-left:-12px;">
-              <div class="form-group">
-                  <label for="exampleInputPassword1">Data<span style="color:#F00;">*</span></label>
-                  <div class="input-group date">
-                    <div class="input-group-addon">
-                      <i class="fa fa-calendar"></i>
-                    </div>
-                    <input type="text" class="form-control pull-right" id="data_debito" name="data_debito" value="<?=date('d/m/Y');?>">
-                  </div>
-              </div>
-
-              <div class="form-group">
-                <label for="exampleInputPassword1">Categoria<span style="color:#F00;">*</span></label>
-                <select class="form-control select" name="categoria_debito" id="categoria_debito">
-                  <option value="">Selecionar</option>
-                  <option value=""></option>
-                  <option value="Custos fixos (Água, luz, telefone)">Custos fixos (Água, luz, telefone)</option>
-                  <option value="Infraestrutura">Infraestrutura</option>
-                  <option value="Pagamento Profissional">Pagamento Profissional</option>
-                  <option value="Encargos de funcionários">Encargos de funcionários</option>
-                  <option value="Contabilidade">Contabilidade</option>
-                  <option value="Marketing">Marketing</option>
-                  <option value="Outros">Outros</option>
-                </select>
-              </div>
-
           </div>
-
-        <div class="col-md-4">
+          <? if ($cadastro === 'debito') { ?>
           <div class="form-group">
-            <label for="exampleInputPassword1">Valor<span style="color:#F00;">*</span></label>
-            <input type="text" id="valor_debito" name="valor_debito" class="form-control" placeholder="R$ 00,00">
-          </div>
-
-          <div class="form-group">
-            <label for="exampleInputPassword1">Parcelas</label>
-            <select class="form-control select" name="parcelas_debito" id="parcelas_debito">
-              <option value="1">1x</option>
-              <option value=""></option>
-              <option value="2">2x</option>
-              <option value="3">3x</option>
-              <option value="4">4x</option>
-              <option value="5">5x</option>
-              <option value="6">6x</option>
-              <option value="7">7x</option>
-              <option value="8">8x</option>
-              <option value="9">9x</option>
-              <option value="10">10x</option>
+            <label for="categoria_debito">Categoria <span class="text-danger">*</span></label>
+            <select class="form-control" id="categoria_debito" name="categoria_debito" required>
+              <option value="">Selecionar categoria</option>
+              <? foreach (array('Custos fixos (Água, luz, telefone)', 'Infraestrutura', 'Pagamento Profissional', 'Encargos de funcionários', 'Contabilidade', 'Marketing', 'Outros') as $categoria_cadastro) { ?>
+              <option value="<?=$categoria_cadastro?>"><?=$categoria_cadastro?></option>
+              <? } ?>
             </select>
+          </div>
+          <? } ?>
         </div>
-
-      </div>
-    <button type="submit" class="btn btn-success" style="margin-left:1.5%;">Cadastrar Débito</button>
-  </form>
-<button type="button" class="btn btn-danger" style="float:right; margin-right:2.5%;" onclick="fechar_debito()">Fechar</button>
-</div></div></div></div>
-
-
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-success">Cadastrar <?=$rotulo?></button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+<? } ?>
 
 <link rel="stylesheet" href="dist/css/financeiro.css?v=<?=filemtime(__DIR__ . '/../dist/css/financeiro.css')?>">
 
@@ -407,29 +304,24 @@ function fechar_alterar(){
     <div class="box" style="border-top:0;">
       <div class="box-header with-border financeiro-toolbar">
         <h2 class="box-title">Lançamentos</h2>
-        <div class="dropdown">
-          <button type="button" class="btn btn-success dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-plus" aria-hidden="true"></i> Novo lançamento <span class="caret"></span></button>
-          <ul class="dropdown-menu dropdown-menu-right">
-            <li><a href="#" onclick="faturamento(); return false;">Adicionar receita</a></li>
-            <li><a href="#" onclick="debito(); return false;">Adicionar despesa</a></li>
-          </ul>
-        </div>
+        <button type="button" class="btn btn-success" id="abrir-novo-lancamento" data-toggle="modal" data-target="#novo-lancamento-modal"><i class="fa fa-plus" aria-hidden="true"></i> Novo lançamento</button>
       </div>
       <div class="box-body">
         <form method="post" action="geral.php?pg=financeiro">
+          <input type="hidden" name="por_pagina" value="<?=$paginacaoFinanceiro['por_pagina']?>">
           <div class="row">
             <div class="form-group col-sm-6 col-md-2">
               <label for="data_inicial">Data Inicial</label>
               <div class="input-group date">
                 <div class="input-group-addon"><i class="fa fa-calendar" aria-hidden="true"></i></div>
-                <input type="text" class="form-control" id="data_inicial" name="data_inicial" value="<?=htmlspecialchars($data_inicial, ENT_QUOTES, 'UTF-8')?>">
+                <input type="text" class="form-control" id="data_inicial" name="data_inicial" value="<?=$hFinanceiro($data_inicial)?>">
               </div>
             </div>
             <div class="form-group col-sm-6 col-md-2">
               <label for="data_final">Data Final</label>
               <div class="input-group date">
                 <div class="input-group-addon"><i class="fa fa-calendar" aria-hidden="true"></i></div>
-                <input type="text" class="form-control" id="data_final" name="data_final" value="<?=htmlspecialchars($data_final, ENT_QUOTES, 'UTF-8')?>">
+                <input type="text" class="form-control" id="data_final" name="data_final" value="<?=$hFinanceiro($data_final)?>">
               </div>
             </div>
             <div class="form-group col-sm-6 col-md-2">
@@ -453,7 +345,7 @@ function fechar_alterar(){
               <select class="form-control" id="categoria_filtro" name="categoria_filtro">
                 <option value="">Todas</option>
                 <? foreach ($categorias as $categoria) { ?>
-                <option value="<?=htmlspecialchars($categoria, ENT_QUOTES, 'UTF-8')?>" <?=$categoria_filtro === $categoria ? 'selected' : ''?>><?=htmlspecialchars($categoria, ENT_QUOTES, 'UTF-8')?></option>
+                <option value="<?=$hFinanceiro($categoria)?>" <?=$categoria_filtro === $categoria ? 'selected' : ''?>><?=$hFinanceiro($categoria)?></option>
                 <? } ?>
               </select>
             </div>
@@ -472,8 +364,7 @@ function fechar_alterar(){
               <tr>
                 <th>Vencimento</th>
                 <th>Descrição</th>
-                <th>Comprador</th>
-                <th>Categoria</th>
+                <th>Comprador / Categoria</th>
                 <th>Valor</th>
                 <th>Pagamento</th>
                 <th>Tipo</th>
@@ -483,7 +374,7 @@ function fechar_alterar(){
               <tbody>
 							<?
               $quantidade_lancamentos = 0;
-              foreach(($sql ?: array()) as $linha){
+              foreach($lancamentosPagina as $linha){
                 $comprador = $venda = array();
                 $id_animal = $linha['id_animal'];
                 if($id_animal){
@@ -516,18 +407,10 @@ function fechar_alterar(){
 
                 $quantidade_lancamentos++;
                 ?>
-                <tr>
+                <tr data-financeiro-id="<?=(int)$linha['id']?>" data-financeiro-nome="<?=$hFinanceiro($linha['titulo'])?>">
                   <td><?=$data?></td>
-                  <td><?=htmlspecialchars($linha['titulo'], ENT_QUOTES, 'UTF-8')?></td>
-                  <td>
-                  <?
-                  if(($linha['tipo'] == 0) || ($linha['tipo'] == 2) ){
-                    echo htmlspecialchars($comprador[0]['nome'] ?? '', ENT_QUOTES, 'UTF-8');
-                  }
-
-                  ?>
-                </td>
-                  <td><?=htmlspecialchars($linha['categoria'] ?? '—', ENT_QUOTES, 'UTF-8')?></td>
+                  <td><?=$hFinanceiro($linha['titulo'])?></td>
+                  <td><?=$hFinanceiro(($linha['tipo'] == 1 ? ($linha['categoria'] ?? '') : ($comprador[0]['nome'] ?? '')) ?: '—')?></td>
                   <td class="financeiro-valor <?=$linha['tipo'] == 1 ? 'text-danger' : 'text-success'?>">R$ <? if($linha['tipo'] == 1){ echo "- ";} ?> <?=number_format($linha['valor'],2,",",".");?></td>
                   <td><?
                   if(($linha['tipo'] == 0) && ($linha['id_animal'] > 1)){
@@ -552,11 +435,80 @@ function fechar_alterar(){
                 </tr>
               <? } ?>
               <? if (!$quantidade_lancamentos) { ?>
-                <tr><td colspan="9" class="text-center text-muted">Nenhum lançamento encontrado para os filtros selecionados.</td></tr>
+                <tr><td colspan="8" class="text-center text-muted">Nenhum lançamento encontrado para os filtros selecionados.</td></tr>
               <? } ?>
               </tbody>
             </table>
         </div>
       </div>
+      <?php renderPaginacaoFinanceiro($paginacaoFinanceiro); ?>
     </div>
   </section>
+
+<div class="modal fade financeiro-novo-modal" id="novo-lancamento-modal" tabindex="-1" role="dialog" aria-labelledby="novo-lancamento-titulo" aria-describedby="novo-lancamento-descricao">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Fechar"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="novo-lancamento-titulo">Novo lançamento</h4>
+      </div>
+      <div class="modal-body">
+        <p class="text-muted" id="novo-lancamento-descricao">Selecione o tipo de lançamento que deseja cadastrar.</p>
+        <div class="financeiro-tipos">
+          <button type="button" class="financeiro-tipo" data-tipo-lancamento="despesa">
+            <i class="fa fa-arrow-circle-up text-danger" aria-hidden="true"></i>
+            <strong>Despesa</strong><span class="text-muted">Registrar uma conta a pagar</span>
+          </button>
+          <button type="button" class="financeiro-tipo" data-tipo-lancamento="receita">
+            <i class="fa fa-arrow-circle-down text-success" aria-hidden="true"></i>
+            <strong>Receita</strong><span class="text-muted">Registrar um valor a receber</span>
+          </button>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  jQuery('.financeiro-cadastro-modal').on('shown.bs.modal', function () {
+    jQuery(this).find('input').first().focus();
+  }).on('hidden.bs.modal', function () {
+    document.getElementById('abrir-novo-lancamento').focus();
+  });
+  var modal = jQuery('#novo-lancamento-modal');
+  var tipoSelecionado = null;
+  modal.on('show.bs.modal', function () { tipoSelecionado = null; });
+  modal.on('shown.bs.modal', function () {
+    modal.find('[data-tipo-lancamento]').first().focus();
+  });
+  modal.find('[data-tipo-lancamento]').on('click', function () {
+    tipoSelecionado = this.getAttribute('data-tipo-lancamento');
+    modal.modal('hide');
+  });
+  modal.on('hidden.bs.modal', function () {
+    if (tipoSelecionado === 'despesa') { debito(); }
+    if (tipoSelecionado === 'receita') { faturamento(); }
+    tipoSelecionado = null;
+  });
+});
+</script>
+
+<div class="modal fade sob-confirmacao-exclusao" id="financeiro-confirmacao-modal" tabindex="-1" role="dialog" aria-modal="true" aria-labelledby="financeiro-confirmacao-titulo" aria-describedby="financeiro-confirmacao-descricao">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <button type="button" class="fechar-confirmacao" data-dismiss="modal" aria-label="Fechar">&times;</button>
+      <div class="icone-confirmacao" id="financeiro-confirmacao-icone" aria-hidden="true"><i class="fa fa-trash-o" id="financeiro-confirmacao-simbolo"></i></div>
+      <h3 id="financeiro-confirmacao-titulo"></h3>
+      <p id="financeiro-confirmacao-descricao"></p>
+      <div class="animal-confirmacao"><strong id="financeiro-confirmacao-nome"></strong></div>
+      <div class="acoes-confirmacao">
+        <button type="button" class="btn btn-default" id="financeiro-confirmacao-cancelar" data-dismiss="modal">Cancelar</button>
+        <button type="button" class="btn" id="financeiro-confirmacao-prosseguir"></button>
+      </div>
+    </div>
+  </div>
+</div>
+<script src="dist/js/confirmacao-financeiro.js?v=<?=filemtime(__DIR__ . '/../dist/js/confirmacao-financeiro.js')?>"></script>

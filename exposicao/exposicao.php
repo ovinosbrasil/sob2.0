@@ -97,7 +97,7 @@ $urlPaginaAnimaisExposicao = function ($pagina) use ($id_evento, $porPaginaAnima
   </div>
 </section>
 <div class="modal fade" id="modal-venda-exposicao" tabindex="-1" role="dialog" aria-labelledby="titulo-modal-venda-exposicao">
-  <div class="modal-dialog modal-lg" role="document"><div class="modal-content">
+  <div class="modal-dialog modal-lg" role="document"><div class="modal-content" style="border:0; border-radius:12px;">
     <form data-alertas-exposicao id="form-venda-exposicao" method="post" action="exposicao/_vender_animal.php">
       <div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Fechar">&times;</button><h4 class="modal-title" id="titulo-modal-venda-exposicao">Cadastrar venda</h4></div>
       <div class="modal-body"><div class="row">
@@ -106,8 +106,8 @@ $urlPaginaAnimaisExposicao = function ($pagina) use ($id_evento, $porPaginaAnima
         <div class="form-group col-sm-6 col-md-3"><label for="tipo-venda-exposicao">Tipo de venda<span class="text-danger">*</span></label><select class="form-control" id="tipo-venda-exposicao" name="tipo_venda" required><option value="Exposição">Exposição</option><option value="Leilão">Leilão</option></select></div>
         <div class="form-group col-sm-6 col-md-3"><label for="parcelas-venda-exposicao">Parcelas</label><select class="form-control" id="parcelas-venda-exposicao" name="parcelas"><?php for ($parcelaExposicao = 1; $parcelaExposicao <= 24; $parcelaExposicao++): ?><option value="<?=$parcelaExposicao?>"><?=$parcelaExposicao?>x</option><?php endfor; ?></select></div>
         <div class="form-group col-sm-6 col-md-3"><label for="data-venda-exposicao">Data<span class="text-danger">*</span></label><div class="input-group date"><span class="input-group-addon"><i class="fa fa-calendar"></i></span><input type="text" class="form-control" id="data-venda-exposicao" name="data" maxlength="10" placeholder="dd/mm/aaaa" required></div></div>
-        <div class="form-group col-sm-6 col-md-3"><label for="valor">Valor<span class="text-danger">*</span></label><input type="text" class="form-control" id="valor" name="valor" required></div>
-        <div class="form-group col-sm-6"><label for="forma-venda-exposicao">Forma de pagamento</label><select class="form-control" id="forma-venda-exposicao" name="forma"><option value="">Selecionar</option><?php foreach (array('Boleto', 'Cheque', 'Dinheiro', 'Depósito', 'Transferência', 'Troca') as $formaExposicao): ?><option value="<?=$hDetalheExposicao($formaExposicao)?>"><?=$hDetalheExposicao($formaExposicao)?></option><?php endforeach; ?></select></div>
+        <div class="form-group col-sm-6 col-md-3"><label for="valor">Valor total<span class="text-danger">*</span></label><div class="input-group"><span class="input-group-addon">R$</span><input type="text" class="form-control" id="valor" name="valor" placeholder="0,00" inputmode="decimal" required></div><small class="help-block">Total dividido entre as parcelas mensais.</small></div>
+        <div class="form-group col-sm-6"><label for="forma-venda-exposicao">Forma de pagamento</label><select class="form-control" id="forma-venda-exposicao" name="forma"><option value="">Selecionar</option><?php foreach (array('Pix', 'Boleto', 'Cheque', 'Dinheiro', 'Depósito', 'Transferência', 'Troca') as $formaExposicao): ?><option value="<?=$hDetalheExposicao($formaExposicao)?>"><?=$hDetalheExposicao($formaExposicao)?></option><?php endforeach; ?></select></div>
         <div class="form-group col-sm-6"><label for="observacoes-venda-exposicao">Observações</label><textarea class="form-control" id="observacoes-venda-exposicao" name="observacoes" rows="3"></textarea></div>
       </div></div>
       <div class="modal-footer"><button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button><button type="submit" class="btn btn-success">Cadastrar venda</button></div>

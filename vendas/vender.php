@@ -179,7 +179,7 @@ $hVenda = function ($valor) { return htmlspecialchars((string)$valor, ENT_QUOTES
 </section>
 
 <template id="modelo-busca-animal-venda">
-<?php renderBuscaAnimais(array('id'=>'animal_LINHA', 'name'=>'animal_LINHA', 'label'=>'Animal', 'tipo'=>'rebanho', 'required'=>true)); ?>
+<?php renderBuscaAnimais(array('id'=>'animal_LINHA', 'name'=>'animal_LINHA', 'label'=>'Animal', 'tipo'=>'rebanho_ativo', 'required'=>true)); ?>
 </template>
 <section class="content">
   <form id="form-venda-conjunta" role="form" action="vendas/_venda_conjunta.php" method="post" onsubmit="return ativar_venda();">
@@ -214,6 +214,7 @@ $hVenda = function ($valor) { return htmlspecialchars((string)$valor, ENT_QUOTES
               <select class="form-control select" id="forma" name="forma">
                 <?php $formaVenda = $camposVenda['forma'] ?? ($venda[0]['forma_de_pagamento'] ?? ''); if ($formaVenda !== ''): ?><option value="<?=$hVenda($formaVenda)?>"><?=$hVenda($formaVenda)?></option><?php endif; ?>
                 <option value="">Selecionar</option>
+                <option value="Pix">Pix</option>
                 <option value="Boleto">Boleto</option><option value="Cheque">Cheque</option><option value="Dinheiro">Dinheiro</option><option value="Depósito">Depósito</option><option value="Transferência">Transferência</option><option value="Troca">Troca</option>
               </select>
             </div>
@@ -242,6 +243,7 @@ $hVenda = function ($valor) { return htmlspecialchars((string)$valor, ENT_QUOTES
             <div class="form-group">
               <label for="valor_total">Valor total<span class="text-danger">*</span></label>
               <div class="input-group"><span class="input-group-addon">R$</span><input type="text" class="form-control" id="valor_total" name="valor_total" value="0.00" readonly></div>
+              <small class="help-block">O valor total será dividido entre as parcelas mensais.</small>
             </div>
           </div>
         </div>

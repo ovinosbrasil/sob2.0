@@ -41,6 +41,8 @@ for ($x = 1; $x <= 6; $x++) {
     $totalVenda += (float)$valorLinha;
 }
 if (!$animaisVenda) avisarVenda('warning', 'Adicione pelo menos um animal à venda.');
+$totalCentavosPacote = (int)round($totalVenda * 100);
+if ($totalCentavosPacote < $parcelas) avisarVenda('warning', 'O total deve permitir pelo menos R$ 0,01 por parcela.');
 $tipo = $campos['tipo_venda'];
 $forma = $campos['forma'] ?? '';
 $observacoes = str_replace("'", '"', $campos['observacoes'] ?? '');
@@ -132,13 +134,17 @@ gravarVenda('DBUpdate', 'matriz', $dados, "id_femea = '$id_femea'");
 
 }
 // O total é calculado no servidor a partir dos animais validados.
-$valor = $totalVenda / $parcelas;
+$valorBasePacote = intdiv($totalCentavosPacote, $parcelas);
+$restoPacote = $totalCentavosPacote % $parcelas;
+$descricaoPacote = count($animaisVenda) > 1 ? 'Pacote de vendas' : 'Venda animal - ' . ($campos['animal_1'] ?? '');
 for ($parcela = 0; $parcela < $parcelas; $parcela++) {
+    $centavosPacote = $valorBasePacote + ($parcela < $restoPacote ? 1 : 0);
+    $valor = intdiv($centavosPacote, 100) . '.' . sprintf('%02d', $centavosPacote % 100);
     $mesParcela = $dataVenda->modify('first day of this month')->modify('+' . $parcela . ' months');
     $diaParcela = min((int)$dataVenda->format('d'), (int)$mesParcela->format('t'));
     $dataParcela = $mesParcela->setDate((int)$mesParcela->format('Y'), (int)$mesParcela->format('m'), $diaParcela);
     gravarVenda('DBCreate', 'controle_financeiro', array(
-        'titulo' => 'Venda conjunta', 'data' => $dataParcela->format('Y-m-d'),
+        'titulo' => $descricaoPacote . ' ' . ($parcela + 1) . '/' . $parcelas, 'data' => $dataParcela->format('Y-m-d'),
         'valor' => $valor, 'forma_de_pagamento' => $forma, 'id_comprador' => $id_comprador,
         'categoria' => '', 'id_tipo' => 0, 'obs' => $observacoes, 'status' => 0, 'tipo' => 0,
         'id_animal' => 0, 'id_embriao' => 0, 'id_semen' => 0

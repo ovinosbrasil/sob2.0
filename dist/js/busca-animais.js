@@ -9,8 +9,8 @@
 
   function classeSituacao(situacao) {
     var valor = textoSeguro(situacao).toLowerCase();
-    if (valor === 'rebanho' || valor === 'vendido' || valor === 'ativa') return 'is-success';
-    if (valor === 'terceiros') return 'is-muted';
+    if (valor === 'vendido' || valor === 'ativa') return 'is-success';
+    if (valor === 'rebanho' || valor === 'terceiros') return 'is-muted';
     return 'is-danger';
   }
 

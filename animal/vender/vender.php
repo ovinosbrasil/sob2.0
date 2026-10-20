@@ -1,7 +1,15 @@
 <?php require_once __DIR__ . '/../../includes/busca_compradores.php'; ?>
 <script type="text/javascript">
 function desfazer_venda2(){
-    window.location.href = "animal/vender/_desfazer_venda.php?id_animal=<?=$id_animal?>";
+  confirmarExclusao({
+    titulo: 'Desfazer venda?',
+    nome: <?=json_encode($animal[0]['nome'], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT)?>,
+    descricao: 'O animal voltará ao rebanho. A venda e todos os lançamentos financeiros vinculados ao animal, incluindo as parcelas, serão removidos. Esta ação não pode ser desfeita.',
+    textoConfirmar: 'Desfazer venda',
+    aoConfirmar: function () {
+      window.location.href = 'animal/vender/_desfazer_venda.php?id_animal=<?=(int)$id_animal?>';
+    }
+  });
 }
 
 
@@ -156,8 +164,12 @@ $comprador = DBRead('mercado', "WHERE id = '$comprador'");
   <!-- general form elements -->
   <div class="box-body">
     <div class="form-group">
-      <label for="exampleInputPassword1">Valor<span style="color:#F00;">*</span></label>
-      <input type="text" class="form-control" id="valor" name="valor" value="<?=$venda[0]['preco_de_venda']*100?>">
+      <label for="exampleInputPassword1">Valor total<span style="color:#F00;">*</span></label>
+      <div class="input-group">
+        <span class="input-group-addon">R$</span>
+        <input type="text" class="form-control" id="valor" name="valor" placeholder="0,00" inputmode="decimal" value="<?=number_format((float)($venda[0]['preco_de_venda'] ?? 0), 2, '.', '')?>">
+      </div>
+      <small class="help-block">O valor total será dividido entre as parcelas mensais.</small>
     </div>
 
     <div class="form-group">
@@ -165,6 +177,7 @@ $comprador = DBRead('mercado', "WHERE id = '$comprador'");
       <select class="form-control select" id="forma" name="forma">
         <? if($venda[0]['forma_de_pagamento']){ ?><option value="<?=$venda[0]['forma_de_pagamento']?>"><?=$venda[0]['forma_de_pagamento']?></option> <? }else{?> <option value="">Selecionar</option><? } ?>
         <option></option>
+        <option value="Pix">Pix</option>
         <option value="Boleto">Boleto</option>
         <option value="Cheque">Cheque</option>
         <option value="Dinheiro">Dinheiro</option>

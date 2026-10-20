@@ -100,8 +100,12 @@ function validarVendaSemen() {
               </select>
             </div>
             <div class="form-group">
-              <label for="valor-venda-semen">Valor<span class="text-danger">*</span></label>
+              <label for="valor-venda-semen">Valor total<span class="text-danger">*</span></label>
+              <div class="input-group">
+                <span class="input-group-addon">R$</span>
               <input type="text" class="form-control" id="valor-venda-semen" name="valor" inputmode="numeric" maxlength="13" placeholder="0,00" value="<?=htmlspecialchars($dadosVenda['valor'] ?? '', ENT_QUOTES, 'UTF-8')?>" required>
+              </div>
+              <small class="help-block">O valor total será dividido entre as parcelas mensais.</small>
             </div>
           </div>
 
@@ -110,7 +114,7 @@ function validarVendaSemen() {
               <label for="forma-venda-semen">Forma de pagamento</label>
               <select class="form-control" id="forma-venda-semen" name="forma">
                 <option value="">Selecionar</option>
-                <?php foreach (array('Boleto', 'Cheque', 'Dinheiro', 'Depósito', 'Transferência', 'Troca') as $forma): ?><option value="<?=$forma?>"<?=($dadosVenda['forma'] ?? '') === $forma ? ' selected' : ''?>><?=$forma?></option><?php endforeach; ?>
+                <?php foreach (array('Pix', 'Boleto', 'Cheque', 'Dinheiro', 'Depósito', 'Transferência', 'Troca') as $forma): ?><option value="<?=$forma?>"<?=($dadosVenda['forma'] ?? '') === $forma ? ' selected' : ''?>><?=$forma?></option><?php endforeach; ?>
               </select>
             </div>
             <div class="form-group">

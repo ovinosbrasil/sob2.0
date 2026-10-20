@@ -15,12 +15,15 @@ $comprador = DBRead('mercado', "WHERE nome = '$comprador'");
 if (!$comprador) avisarExposicao('warning', 'Selecione um comprador cadastrado.', $id_evento, 'vendas');
 $id_comprador = $comprador[0]['id'];
 $data = $dataVenda->format('Y-m-d');
-$parcelas = $_POST['parcelas'];
+$parcelas = filter_var($_POST['parcelas'] ?? 1, FILTER_VALIDATE_INT, array('options' => array('min_range' => 1, 'max_range' => 24)));
 $tipo = $_POST['tipo_venda'];
 $forma = $_POST['forma'];
 $valor = $_POST['valor'];
 $valor = str_replace("," , "" , $valor);
 $valor_venda = (float)$valor;
+if (!$parcelas || !preg_match('/^\d+(?:\.\d{1,2})?$/D', $valor) || !is_finite($valor_venda) || $valor_venda <= 0 || round($valor_venda * 100) < $parcelas) {
+    avisarExposicao('warning', 'Informe um valor total válido e de 1 a 24 parcelas, com pelo menos R$ 0,01 por parcela.', $id_evento, 'vendas');
+}
 $observacoes = str_replace("'", '"',$_POST['observacoes']);
 
 $dados = array(
@@ -105,37 +108,35 @@ gravarExposicao('DBUpdate', 'matriz', $dados, "id_femea = '$id_femea'");
 
 
 //FINANCEIRO
-$parcelas = max(1, (int)$parcelas);
-$valor = $valor_venda/$parcelas;
+$totalCentavosVenda = (int)round((float)$valor_venda * 100);
+$valorBaseParcela = intdiv($totalCentavosVenda, $parcelas);
+$restoCentavosVenda = $totalCentavosVenda % $parcelas;
 $descricao = "Venda animal - ".$animal[0]['nome'];
-while($parcelas > 0){
+$dataPrimeiraParcela = new DateTime($data);
+for ($indiceParcela = 0; $indiceParcela < $parcelas; $indiceParcela++) {
+    $mesParcela = (clone $dataPrimeiraParcela)->modify('first day of this month')->modify('+' . $indiceParcela . ' months');
+    $diaParcela = min((int)$dataPrimeiraParcela->format('d'), (int)$mesParcela->format('t'));
+    $data = $mesParcela->format('Y-m-') . sprintf('%02d', $diaParcela);
+    $centavosParcela = $valorBaseParcela + ($indiceParcela < $restoCentavosVenda ? 1 : 0);
+    $valor = intdiv($centavosParcela, 100) . '.' . sprintf('%02d', $centavosParcela % 100);
 	$dados = array(
-	'titulo'			=> $descricao,
+	'titulo'			=> $descricao . ' ' . ($indiceParcela + 1) . '/' . $parcelas,
 	'data'				=> $data,
 	'valor'		=> $valor,
 	'id_animal'		=> $id_animal,
-	'id_comprador'	=> $id_comprador,
   'forma_de_pagamento' => $forma,
   'categoria' => '',
   'id_tipo' => 0,
   'obs' => $observacoes,
   'status' => 0,
   'tipo' => 0,
+  'id_comprador' => $id_comprador,
   'id_embriao' => 0,
   'id_semen' => 0
 );
 
 gravarExposicao('DBCreate', 'controle_financeiro', $dados);
 
-list($ano, $mes, $dias) = explode('-', $data);
-$mes = $mes+1;
-if($mes == 13){ $mes = 1; $ano = $ano+1; }
-if(($mes == 2) && (($dias == 29) || ($dias == 30) || ($dias == 31)) ){ $dia = 28; }
-if($dias == 31){ $dias = 30;}
-
-$data = $ano.'-'.$mes.'-'.$dias;
-$parcelas--;
-$status = 0;
 }
 //FIM FINANCEIRO
 avisarExposicao('success', 'Venda cadastrada com sucesso.', $id_evento, 'vendas');

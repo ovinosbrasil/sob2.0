@@ -36,7 +36,7 @@ try {
         $valorNormalizado = str_replace(',', '.', $valorNormalizado);
     }
     $tiposVenda = array('Fazenda', 'Leilão', 'Exposição', 'Virtual');
-    $formasPagamento = array('', 'Boleto', 'Cheque', 'Dinheiro', 'Depósito', 'Transferência', 'Troca');
+    $formasPagamento = array('', 'Pix', 'Boleto', 'Cheque', 'Dinheiro', 'Depósito', 'Transferência', 'Troca');
     if (!$doses || $doses < 1 || !$parcelas || $parcelas < 1 || $parcelas > 24
         || !$dataVenda || $dataVenda->format('d/m/Y') !== $dadosFormulario['data']
         || !is_numeric($valorNormalizado) || (float)$valorNormalizado < 0
@@ -96,7 +96,7 @@ try {
     mysqli_stmt_execute($stmt);
     mysqli_stmt_close($stmt);
 
-    $titulo = 'Sêmen: ' . $macho['nome'];
+    $descricaoFinanceira = 'Venda de sêmen - ' . $macho['nome'] . ' - ' . $doses . ' Doses';
     $categoria = '';
     $observacaoFinanceira = '';
     for ($parcela = 0; $parcela < $parcelas; $parcela++) {
@@ -106,6 +106,7 @@ try {
         $centavos = intdiv($totalCentavos, $parcelas) + ($parcela < $totalCentavos % $parcelas ? 1 : 0);
         $valorParcela = $centavos / 100;
         $dataVencimento = $vencimento->format('Y-m-d');
+        $titulo = $descricaoFinanceira . ' - ' . ($parcela + 1) . '/' . $parcelas;
         $stmt = mysqli_prepare($link, 'INSERT INTO controle_financeiro (titulo, data, valor, id_animal, forma_de_pagamento, id_comprador, id_semen, categoria, id_tipo, obs, status, tipo, id_embriao) VALUES (?, ?, ?, 0, ?, ?, ?, ?, 0, ?, 0, 0, 0)');
         mysqli_stmt_bind_param($stmt, 'ssdsiiss', $titulo, $dataVencimento, $valorParcela, $dadosFormulario['forma'], $idComprador, $idVenda, $categoria, $observacaoFinanceira);
         mysqli_stmt_execute($stmt);

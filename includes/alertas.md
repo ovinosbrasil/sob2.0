@@ -116,3 +116,19 @@ ou lançamentos financeiros não podem ser excluídos.
 
 Testes: `php tests/compradores_alertas_test.php` e
 `node tests/compradores_alertas_test.js`.
+
+## Financeiro
+
+`includes/alertas_financeiro.php` carrega o SobAlertas em `pg=financeiro` e
+consome o retorno de sessão uma vez. Cadastro, edição, confirmação, cancelamento
+e exclusão usam `financeiro/_alertas.php` para retornar com alerta e HTTP 303.
+Cadastros e edição validam descrição, vencimento, valor positivo, pagamento,
+categoria da despesa e parcelas no servidor; erros preservam e reabrem o formulário.
+`dist/js/alertas-financeiro.js` aplica as validações no navegador e bloqueia envios
+duplicados. Sucesso só é informado após a gravação. Uma falha durante parcelas
+avisa para conferir os registros antes de tentar novamente, pois o adaptador
+legado não oferece transação entre as gravações.
+
+Testes: `php tests/financeiro_alertas_test.php`,
+`node tests/alertas_financeiro_test.js` e
+`php -d short_open_tag=1 tests/financeiro_layout_test.php`.

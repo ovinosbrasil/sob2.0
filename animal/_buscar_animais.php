@@ -3,7 +3,7 @@ require __DIR__ . '/../_config.php';
 
 header('Content-Type: application/json; charset=utf-8');
 
-$tipos = array('machos', 'femeas', 'femeas_receptoras', 'receptoras', 'rebanho', 'todos');
+$tipos = array('machos', 'femeas', 'femeas_receptoras', 'receptoras', 'rebanho', 'rebanho_ativo', 'todos');
 $tipo = $_GET['tipo'] ?? 'todos';
 $termo = trim((string)($_GET['q'] ?? ''));
 $limiteOrigem = filter_var($_GET['limite_origem'] ?? 0, FILTER_VALIDATE_INT);
@@ -50,13 +50,14 @@ function situacaoBuscaAnimais($status)
     return $situacoes[(int)$status] ?? 'Rebanho';
 }
 
-function consultarBuscaAnimais($link, $tabela, $termoLike, $sexo = null, $limite = 15)
+function consultarBuscaAnimais($link, $tabela, $termoLike, $sexo = null, $limite = 15, $somenteRebanho = false)
 {
     $limite = max(1, min(15, (int)$limite));
     $sql = $tabela === 'animais'
         ? 'SELECT id, nome, sexo, data_de_nascimento, status'
         : 'SELECT id, nome, sexo, NULL AS data_de_nascimento';
     $sql .= " FROM $tabela WHERE nome LIKE ? ESCAPE '!'";
+    if ($tabela === 'animais' && $somenteRebanho) { $sql .= ' AND status = 0'; }
     if ($tabela === 'terceiros') { $sql .= ' AND ativo = 1'; }
     if ($sexo !== null) {
         $sql .= ' AND sexo = ?';
@@ -114,8 +115,8 @@ try {
         mysqli_stmt_close($stmt);
     } else {
         $sexo = $tipo === 'machos' ? 'Macho' : (in_array($tipo, array('femeas', 'femeas_receptoras'), true) ? 'Fêmea' : null);
-        $resultados = consultarBuscaAnimais($link, 'animais', $termoLike, $sexo, $limiteOrigem ?: 15);
-        if ($tipo !== 'rebanho') {
+        $resultados = consultarBuscaAnimais($link, 'animais', $termoLike, $sexo, $limiteOrigem ?: 15, $tipo === 'rebanho_ativo');
+        if (!in_array($tipo, array('rebanho', 'rebanho_ativo'), true)) {
             $resultados = array_merge($resultados, consultarBuscaAnimais($link, 'terceiros', $termoLike, $sexo, $limiteOrigem ?: 15));
         }
         if (!$limiteOrigem) {

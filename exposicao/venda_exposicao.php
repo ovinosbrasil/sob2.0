@@ -137,6 +137,7 @@ function validar(){
               <select class="form-control select" id="forma" name="forma">
                 <? if($venda[0]['forma_de_pagamento']){ ?><option value="<?=$venda[0]['forma_de_pagamento']?>"><?=$venda[0]['forma_de_pagamento']?></option> <? }else{?> <option >Selecionar</option><? } ?>
                 <option></option>
+                <option value="Pix">Pix</option>
                 <option value="Boleto">Boleto</option>
                 <option value="Cheque">Cheque</option>
                 <option value="Dinheiro">Dinheiro</option>
@@ -149,8 +150,8 @@ function validar(){
 
         <div class="col-md-3">
           <div class="form-group">
-            <label for="exampleInputPassword1">Valor<span style="color:#F00;">*</span></label>
-            <input type="text" class="form-control" id="valor" name="valor">
+            <label for="exampleInputPassword1">Valor total<span style="color:#F00;">*</span></label>
+            <div class="input-group"><span class="input-group-addon">R$</span><input type="text" class="form-control" id="valor" name="valor" placeholder="0,00" inputmode="decimal"></div>
           </div>
         </div>
 

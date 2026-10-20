@@ -3,10 +3,10 @@
 function DBRead($table, $where = '') {
     return $table === 'controle_financeiro' ? $GLOBALS['financeiro_fixture'] : array();
 }
-function renderFinanceiro($post, $fixture) {
+function renderFinanceiro($post, $fixture, $get = array()) {
     $GLOBALS['financeiro_fixture'] = $fixture;
     $_POST = $post;
-    $_GET = array();
+    $_GET = $get;
     $source = file_get_contents(__DIR__ . '/../financeiro/financeiro.php');
     $source = str_replace("require_once __DIR__ . '/../_config.php';", '', $source);
     $source = preg_replace('/<link rel="stylesheet"[^\n]+/', '', $source);
@@ -37,3 +37,24 @@ checkFinanceiro(strpos($html, 'Receita paga') !== false && strpos($html, 'Despes
 $html = renderFinanceiro(array(), array());
 checkFinanceiro(strpos($html, 'Nenhum lançamento encontrado') !== false, 'Deve mostrar estado vazio.');
 echo "Financeiro: resumo, gráfico, filtros e estado vazio OK\n";
+
+$varios = array();
+for ($i = 1; $i <= 25; $i++) {
+    $varios[] = array_merge($base, array('id'=>$i, 'tipo'=>1, 'status'=>0, 'valor'=>10, 'titulo'=>'ParcelaTeste-' . $i . '-fim', 'categoria'=>'Internet'));
+}
+$html = renderFinanceiro(array(), $varios, array('pagina'=>2, 'tipo_filtro'=>'1', 'categoria_filtro'=>'Internet'));
+checkFinanceiro(strpos($html, 'ParcelaTeste-11-fim') !== false && strpos($html, 'ParcelaTeste-20-fim') !== false, 'Segunda página deve exibir registros 11 a 20.');
+checkFinanceiro(strpos($html, 'ParcelaTeste-10-fim') === false && strpos($html, 'ParcelaTeste-21-fim') === false, 'Tabela deve limitar os registros à página atual.');
+checkFinanceiro(strpos($html, 'de 25 lançamentos') !== false && strpos($html, 'Pendentes: R$ 250,00') !== false, 'Resumo deve manter o total de todas as páginas.');
+checkFinanceiro(strpos($html, 'categoria_filtro=Internet') !== false && strpos($html, 'tipo_filtro=1') !== false, 'Links devem preservar filtros.');
+$html = renderFinanceiro(array(), $varios, array('pagina'=>999, 'por_pagina'=>20));
+checkFinanceiro(strpos($html, 'ParcelaTeste-21-fim') !== false && strpos($html, 'ParcelaTeste-20-fim') === false, 'Página fora do limite deve exibir a última página válida.');
+echo "Financeiro: paginação, filtros persistidos e totais completos OK\n";
+
+$latin1 = array_merge($fixture[0], array('titulo'=>iconv('UTF-8', 'Windows-1252', 'Venda de sêmen - BURIA 2705 - 15 Doses - 1/3')));
+$html = renderFinanceiro(array(), array($latin1));
+checkFinanceiro(strpos($html, 'Venda de sêmen - BURIA 2705 - 15 Doses - 1/3') !== false, 'Descrição Latin-1 deve aparecer com acentos.');
+$utf8 = array_merge($fixture[0], array('titulo'=>'Venda de embriões <teste>'));
+$html = renderFinanceiro(array(), array($utf8));
+checkFinanceiro(strpos($html, 'Venda de embriões &lt;teste&gt;') !== false, 'Descrição UTF-8 deve preservar acentos e escapar HTML.');
+echo "Financeiro: descrições Latin-1 e UTF-8 com acentos e escape seguro OK\n";

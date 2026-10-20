@@ -6,7 +6,7 @@ $comprador = $_POST['comprador'];
 $comprador = DBRead('mercado', "WHERE nome = '$comprador'");
 $id_comprador = $comprador[0]['id'];
 $data = $_POST['data_venda'];
-include "../../funcoes_data/data.php";
+include __DIR__ . "/../../funcoes_data/data.php";
 $parcelas = $_POST['parcelas'];
 $tipo = $_POST['tipo_venda'];
 $forma = $_POST['forma'];
@@ -15,6 +15,11 @@ $valor = str_replace("," , "" , $valor);
 $valor_compra = $valor;
 $observacoes = str_replace("'", '"',$_POST['observacoes']);
 if(!$parcelas){ $parcelas = 1; }
+$parcelas = filter_var($parcelas, FILTER_VALIDATE_INT, array('options' => array('min_range' => 1, 'max_range' => 24)));
+if (!$parcelas || !is_numeric($valor_compra) || !is_finite((float)$valor_compra) || (float)$valor_compra <= 0 || round((float)$valor_compra * 100) < $parcelas) {
+    http_response_code(400);
+    exit('Informe um valor total válido e de 1 a 24 parcelas, com pelo menos R$ 0,01 por parcela.');
+}
 $dados = array(
 	'id_animal'	=> $id_animal,
 	'data'	=> $data,
@@ -39,69 +44,23 @@ $dados = array(
 DBUpdate('animais', $dados, "id = '$id_animal'");
 
 
-//RANKING REPRODUTOR
+// Os relatórios calculam as médias diretamente das vendas.
 $animal = DBRead('animais', "WHERE id = '$id_animal'");
-$id_macho = $animal[0]['pai'];
-if($animal[0]['terceiro_pai'] == 0){
-$vendas = DBRead('animais', "WHERE status = '2' AND pai = '$id_macho' AND terceiro_pai = '0'");
-$qtd_macho=$qtd_femea=$total_macho=$total_femea=$valor_total=0;
-foreach ($vendas as $vendas_) {
-  $id_cria = $vendas_['id'];
-  $valor = DBRead('vendas', "WHERE id_animal = '$id_cria' AND data > '2011-01-01'");
-	if(!empty($valor[0]['id'])){
-  if($vendas_['sexo'] == 'Macho'){ $total_macho = $total_macho+$valor[0]['preco_de_venda']; $qtd_macho++;}
-  if($vendas_['sexo'] == 'Fêmea'){ $total_femea = $total_femea+$valor[0]['preco_de_venda']; $qtd_femea++;}
-    $valor_total = $valor_total+$valor[0]['preco_de_venda'];
-  }}
-  $media_macho = $qtd_macho ? $total_macho/$qtd_macho : 0;
-  $media_femea = $qtd_femea ? $total_femea/$qtd_femea : 0;
-  $media_total = ($qtd_macho+$qtd_femea) ? $valor_total/($qtd_macho+$qtd_femea) : 0;
-  $qtd_total = $qtd_macho+$qtd_femea;
-  $dados = array(
-    'qtd_vendas'	=> $qtd_total,
-    'venda_macho' => $media_macho,
-    'venda_femea'  => $media_femea,
-    'venda_geral' => $media_total
-  );
-DBUpdate('reprodutor', $dados, "id_macho = '$id_macho'");
-}
-//RANKING FIM REPRODUTOR
-
-//RANKING MATRIZ
-$animal = DBRead('animais', "WHERE id = '$id_animal'");
-$id_femea = $animal[0]['mae'];
-if($animal[0]['terceiro_mae'] == 0){
-$vendas = DBRead('animais', "WHERE status = '2' AND mae = '$id_femea' AND terceiro_mae = '0'");
-$qtd_macho=$qtd_femea=$total_macho=$total_femea=$valor_total=0;
-foreach ($vendas as $vendas_) {
-  $id_cria = $vendas_['id'];
-  $valor = DBRead('vendas', "WHERE id_animal = '$id_cria' AND data > '2011-01-01'");
-	if(!empty($valor[0]['id'])){
-  if($vendas_['sexo'] == 'Macho'){ $total_macho = $total_macho+$valor[0]['preco_de_venda']; $qtd_macho++;}
-  if($vendas_['sexo'] == 'Fêmea'){ $total_femea = $total_femea+$valor[0]['preco_de_venda']; $qtd_femea++;}
-    $valor_total = $valor_total+$valor[0]['preco_de_venda'];
-  }}
-  $media_macho = $qtd_macho ? $total_macho/$qtd_macho : 0;
-  $media_femea = $qtd_femea ? $total_femea/$qtd_femea : 0;
-  $media_total = ($qtd_macho+$qtd_femea) ? $valor_total/($qtd_macho+$qtd_femea) : 0;
-  $qtd_total = $qtd_macho+$qtd_femea;
-  $dados = array(
-    'qtd_vendas'	=> $qtd_total,
-    'venda_macho' => $media_macho,
-    'venda_femea'  => $media_femea,
-    'venda_geral' => $media_total
-  );
-DBUpdate('matriz', $dados, "id_femea = '$id_femea'");
-}
-//RANKING FIM MATRIZ
-
 
 //FINANCEIRO
-$valor = $valor_compra/$parcelas;
+$totalCentavosVenda = (int)round((float)$valor_compra * 100);
+$valorBaseParcela = intdiv($totalCentavosVenda, $parcelas);
+$restoCentavosVenda = $totalCentavosVenda % $parcelas;
 $descricao = "Venda animal - ".$animal[0]['nome'];
-while($parcelas > 0){
+$dataPrimeiraParcela = new DateTime($data);
+for ($indiceParcela = 0; $indiceParcela < $parcelas; $indiceParcela++) {
+    $mesParcela = (clone $dataPrimeiraParcela)->modify('first day of this month')->modify('+' . $indiceParcela . ' months');
+    $diaParcela = min((int)$dataPrimeiraParcela->format('d'), (int)$mesParcela->format('t'));
+    $data = $mesParcela->format('Y-m-') . sprintf('%02d', $diaParcela);
+    $centavosParcela = $valorBaseParcela + ($indiceParcela < $restoCentavosVenda ? 1 : 0);
+    $valor = intdiv($centavosParcela, 100) . '.' . sprintf('%02d', $centavosParcela % 100);
 	$dados = array(
-	'titulo'			=> $descricao,
+	'titulo'			=> $descricao . ' ' . ($indiceParcela + 1) . '/' . $parcelas,
 	'data'				=> $data,
 	'valor'		=> $valor,
 	'id_animal'		=> $id_animal,
@@ -118,15 +77,6 @@ while($parcelas > 0){
 
 DBCreate('controle_financeiro', $dados);
 
-list($ano, $mes, $dias) = explode('-', $data);
-$mes = $mes+1;
-if($mes == 13){ $mes = 1; $ano = $ano+1; }
-if(($mes == 2) && (($dias == 29) || ($dias == 30) || ($dias == 31)) ){ $dia = 28; }
-if($dias == 31){ $dias = 30;}
-
-$data = $ano.'-'.$mes.'-'.$dias;
-$parcelas--;
-$status = 0;
 }
 //FIM FINANCEIRO
 echo "<META HTTP-EQUIV=REFRESH CONTENT='0; URL=../../geral.php?pg=animal&id_animal=$id_animal&aba=vender'>";

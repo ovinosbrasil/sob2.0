@@ -13,7 +13,7 @@ try {
     $dataVenda = DateTimeImmutable::createFromFormat('!d/m/Y', $dados['data']);
     $valorNormalizado = preg_replace('/[^0-9,.-]/', '', $dados['valor']);
     if (strpos($valorNormalizado, ',') !== false) { $valorNormalizado = str_replace('.', '', $valorNormalizado); $valorNormalizado = str_replace(',', '.', $valorNormalizado); }
-    if (!$quantidade || $quantidade < 1 || !$parcelas || $parcelas < 1 || $parcelas > 24 || !$dataVenda || $dataVenda->format('d/m/Y') !== $dados['data'] || !is_numeric($valorNormalizado) || (float)$valorNormalizado < 0 || !in_array($dados['tipo_venda'], array('Fazenda','Leilão','Exposição','Virtual'), true) || !in_array($dados['forma'], array('','Boleto','Cheque','Dinheiro','Depósito','Transferência','Troca'), true) || !$idCompradorSelecionado || $idCompradorSelecionado < 1 || mb_strlen($dados['observacoes'], 'UTF-8') > 200) {
+    if (!$quantidade || $quantidade < 1 || !$parcelas || $parcelas < 1 || $parcelas > 24 || !$dataVenda || $dataVenda->format('d/m/Y') !== $dados['data'] || !is_numeric($valorNormalizado) || (float)$valorNormalizado < 0 || !in_array($dados['tipo_venda'], array('Fazenda','Leilão','Exposição','Virtual'), true) || !in_array($dados['forma'], array('','Pix','Boleto','Cheque','Dinheiro','Depósito','Transferência','Troca'), true) || !$idCompradorSelecionado || $idCompradorSelecionado < 1 || mb_strlen($dados['observacoes'], 'UTF-8') > 200) {
         throw new InvalidArgumentException('Confira o comprador, a data, a quantidade, o valor e o tipo da venda.');
     }
     mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
@@ -29,9 +29,10 @@ try {
     $valor=(float)$valorNormalizado; $totalCentavos=(int)round($valor*100); $dataBanco=$dataVenda->format('Y-m-d'); $idComprador=(int)$comprador['id'];
     $stmt=mysqli_prepare($link,'INSERT INTO venda_embriao (id_embriao, data, doses, forma_de_pagamento, parcelas, tipo_venda, comprador, valor, obs) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)'); mysqli_stmt_bind_param($stmt,'isisisids',$idEmbriao,$dataBanco,$quantidade,$dados['forma'],$parcelas,$dados['tipo_venda'],$idComprador,$valor,$dados['observacoes']); mysqli_stmt_execute($stmt); $idVenda=mysqli_insert_id($link); mysqli_stmt_close($stmt);
     $stmt=mysqli_prepare($link,'UPDATE embriao SET qtd = qtd - ? WHERE id = ?'); mysqli_stmt_bind_param($stmt,'ii',$quantidade,$idEmbriao); mysqli_stmt_execute($stmt); mysqli_stmt_close($stmt);
-    $titulo='Embrião: '.$pai['nome'].' / '.$mae['nome'];
+    $descricaoFinanceira='Venda de embriões - '.$pai['nome'].' / '.$mae['nome'].' - '.$quantidade.' Doses';
     for($parcela=0;$parcela<$parcelas;$parcela++){
         $vencimento=$dataVenda->modify('first day of this month')->modify('+'.$parcela.' months'); $dia=min((int)$dataVenda->format('d'),(int)$vencimento->format('t')); $vencimento=$vencimento->setDate((int)$vencimento->format('Y'),(int)$vencimento->format('m'),$dia); $centavos=intdiv($totalCentavos,$parcelas)+($parcela<$totalCentavos%$parcelas?1:0); $valorParcela=$centavos/100; $dataVencimento=$vencimento->format('Y-m-d');
+        $titulo = $descricaoFinanceira . ' - ' . ($parcela + 1) . '/' . $parcelas;
         $stmt=mysqli_prepare($link,"INSERT INTO controle_financeiro (titulo,data,valor,id_animal,forma_de_pagamento,id_comprador,id_semen,categoria,id_tipo,obs,status,tipo,id_embriao) VALUES (?,?,?,0,?,?,0,'',0,'',0,0,?)"); mysqli_stmt_bind_param($stmt,'ssdsii',$titulo,$dataVencimento,$valorParcela,$dados['forma'],$idComprador,$idVenda); mysqli_stmt_execute($stmt); mysqli_stmt_close($stmt);
     }
     mysqli_commit($link); $emTransacao=false; DBClose($link); $_SESSION['alerta_embrioes']=array('tipo'=>'success','titulo'=>'Sucesso!','mensagem'=>'Venda de embriões cadastrada com sucesso.'); header('Location: ../../geral.php?pg=embrioes',true,303); exit;
