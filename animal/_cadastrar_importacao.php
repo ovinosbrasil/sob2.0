@@ -21,12 +21,8 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') {
     exit;
 }
 try {
-    if (session_status() !== PHP_SESSION_ACTIVE) session_start();
-    if (empty($_SESSION['banco']) || empty($_SESSION['login'])) {
-        http_response_code(401);
-        echo json_encode(array('erro' => 'A sessão expirou. Recarregue a página e entre novamente.'));
-        exit;
-    }
+    require_once __DIR__ . '/../includes/sessao.php';
+    exigirSessaoSob(true);
     require_once __DIR__ . '/../_config.php';
     require_once __DIR__ . '/importacao/cadastrar_animal.php';
     $token = $_POST['token_previa'] ?? '';

@@ -1,12 +1,7 @@
 <?php 
 ob_start();  
-if (session_status() !== PHP_SESSION_ACTIVE) {
-    session_start();
-}
-if (empty($_SESSION['banco']) || empty($_SESSION['login'])) {
-    header('Location: /index.php');
-    exit;
-}
+require_once __DIR__ . '/includes/sessao.php';
+exigirSessaoSob();
 $banco = $_SESSION['banco'];
 $login = $_SESSION['login'];
 

@@ -1,5 +1,55 @@
 # SOB — ambiente local
 
+## Sessões
+
+As rotas protegidas usam `includes/sessao.php`: expiração após 30 minutos sem
+requisições autenticadas e limite absoluto de 8 horas desde o login. A atividade
+não reinicia o limite absoluto. Sessões anteriores a essa atualização exigem
+novo login. O logout destrói os dados da sessão e remove o cookie.
+
+O cookie usa HttpOnly e SameSite=Lax, com Secure quando o PHP identifica HTTPS.
+Em hospedagem com proxy que termina TLS, configure `SESSION_COOKIE_SECURE=1`
+no processo PHP de produção. Cabeçalhos de proxy enviados pelo cliente não são
+usados para decidir essa proteção. O ambiente HTTP local continua funcionando.
+O caminho do cookie e o retorno ao login respeitam instalações em `/sob2.0/`.
+Publique juntos o helper, `_config.php`, `_logar.php`, `_logout.php`, `chip.php`
+e `animal/_cadastrar_importacao.php`. Preserve a seleção de banco da produção;
+o banco fixo deste checkout é apenas uma configuração local.
+
+Verificação: `php tests/sessao_test.php`.
+
+## Migração das senhas de login
+
+Antes de publicar o novo `_logar.php`, execute
+`docker/mysql/migrations/029_hash_senha_login.sql` no **banco central de login**
+(variável `DB_DATABASE`, padrão `siste870_sob`). A migração amplia `user.senha`
+para `VARCHAR(255)` e preserva os valores atuais. Os arquivos de migração
+não são executados automaticamente pelo Compose.
+
+O login valida hashes com `password_verify`. Uma senha antiga válida é
+substituída por `password_hash(PASSWORD_DEFAULT)` antes de abrir a sessão.
+O código verifica o tamanho da coluna antes da conversão e confirma que o
+hash foi persistido integralmente. Não é necessário enviar senhas dos usuários.
+Logins duplicados são recusados e precisam ser regularizados no banco.
+Senhas legadas iniciadas por `$`, contendo NUL ou com mais de 72 bytes
+precisam de redefinição assistida; não são migradas automaticamente.
+
+A compatibilidade legada é temporária. Defina uma data de encerramento,
+providencie redefinição assistida das contas restantes e então configure
+`AUTH_ALLOW_LEGACY_PASSWORDS=0` no ambiente do processo PHP. No Compose,
+adicione essa variável em `app.environment` e recrie o serviço; apenas colocá-la
+no `.env` não a repassa ao container. Com a opção desativada, somente hashes
+reconhecidos são aceitos. Novos provisionamentos devem gravar hashes diretamente.
+O cadastro público atual coleta contato e não define senha.
+
+Valide em homologação: login legado correto converte uma única conta; senha
+errada não altera credenciais; segundo login usa o hash; entrada contendo aspas
+não altera a consulta; coluna curta recusa a migração sem substituir a senha;
+opção legada desativada recusa texto e continua aceitando hashes.
+Faça a validação com dados de teste e backup protegido antes da implantação.
+
+Teste local da verificação de senhas: `php tests/autenticacao_senha_test.php`.
+
 Requisitos: Docker Engine e Docker Compose.
 
 ```bash
