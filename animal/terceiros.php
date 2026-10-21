@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/../includes/csrf.php';
 $id_animal = filter_var($_GET['id_animal'] ?? null, FILTER_VALIDATE_INT);
 $registrosTerceiro = $id_animal && $id_animal > 0 ? DBRead('terceiros', "WHERE id = $id_animal") : false;
 if (!$registrosTerceiro) {
@@ -34,6 +35,7 @@ $statusTerceiro = array(0 => array('Rebanho', 'text-info'), 1 => array('Morto', 
       <div class="box" style="border-top:0;">
         <div class="box-header with-border"><h3 class="box-title">Dados do animal</h3></div>
         <form action="animal/_alterar_terceiro.php?id_animal=<?=$id_animal?>" method="post">
+  <?=campoCsrfSob()?>
           <div class="box-body">
             <div class="row">
               <div class="form-group col-sm-6 col-md-4">

@@ -48,7 +48,7 @@
             nome: nome,
             descricao: 'Confirme se deseja excluir o cadastro deste animal. Esta ação não pode ser desfeita e todas as referências desse animal serão removidas.',
             aoConfirmar: function () {
-                window.location.href = (terceiro ? 'animal/_excluir_terceiro.php' : 'animal/_excluir_animal.php') + '?id_animal=' + encodeURIComponent(id);
+                window.enviarPostCsrfSob('animal/_excluir_animal.php', {id_animal: id});
             }
         });
     }

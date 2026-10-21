@@ -1,5 +1,7 @@
 <?php
 require_once __DIR__ . "/../../_config.php";
+require_once __DIR__ . '/../../includes/csrf.php';
+exigirPostCsrfSob();
 function geraTimestamp($data) {
   $partes = explode('/', $data);
   return mktime(0, 0, 0, $partes[1], $partes[0], $partes[2]);

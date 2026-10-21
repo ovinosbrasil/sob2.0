@@ -1,4 +1,6 @@
-<?php require_once __DIR__ . '/../../includes/busca_compradores.php'; ?>
+<?php
+require_once __DIR__ . '/../../includes/csrf.php';
+require_once __DIR__ . '/../../includes/busca_compradores.php'; ?>
 <script type="text/javascript">
 function desfazer_venda2(){
   confirmarExclusao({
@@ -7,7 +9,7 @@ function desfazer_venda2(){
     descricao: 'O animal voltará ao rebanho. A venda e todos os lançamentos financeiros vinculados ao animal, incluindo as parcelas, serão removidos. Esta ação não pode ser desfeita.',
     textoConfirmar: 'Desfazer venda',
     aoConfirmar: function () {
-      window.location.href = 'animal/vender/_desfazer_venda.php?id_animal=<?=(int)$id_animal?>';
+      enviarPostCsrfSob('animal/vender/_desfazer_venda.php', {id_animal: <?=(int)$id_animal?>});
     }
   });
 }
@@ -63,6 +65,7 @@ $comprador = DBRead('mercado', "WHERE id = '$comprador'");
 }
 ?>
 <form role="form" action="animal/vender/_vender.php?id_animal=<?=$id_animal?>" method="post" onsubmit="return ativar_venda()">
+  <?=campoCsrfSob()?>
 <div class="row">
   <div class="col-md-12">
     <div class="box-body">

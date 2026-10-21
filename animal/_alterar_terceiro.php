@@ -1,6 +1,7 @@
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 <?
 include "../_config.php";
+require_once __DIR__ . '/../includes/csrf.php';
+exigirPostCsrfSob();
 $nome = $_POST['nome_animal'];
 $id_animal = $_GET['id_animal'];
 $sql = DBRead('terceiros', "WHERE nome = '$nome' AND id != '$id_animal'");

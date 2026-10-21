@@ -1,5 +1,7 @@
 <?php
 require __DIR__ . "/../../_config.php";
+require_once __DIR__ . '/../../includes/csrf.php';
+exigirPostCsrfSob();
 
 $id_animal = $_GET['id_animal'];
 $comprador = $_POST['comprador'];

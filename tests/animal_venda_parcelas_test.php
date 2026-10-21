@@ -9,7 +9,10 @@ function DBCreate($table, $dados) { $GLOBALS['gravacoes'][$table][] = $dados; re
 function DBUpdate($table, $dados, $where) { return true; }
 function DBDelete($table, $where) { return true; }
 $_GET = array('id_animal'=>42);
+$_SERVER['REQUEST_METHOD']='POST';
+$_SESSION=array('_csrf_sob'=>'token-teste');
 $_POST = array('comprador'=>'Cliente', 'data_venda'=>'31/01/2026', 'parcelas'=>'3', 'tipo_venda'=>'Fazenda', 'forma'=>'Pix', 'valor'=>'100.00', 'observacoes'=>'');
+$_POST['_csrf_sob']='token-teste';
 $source = file_get_contents(__DIR__ . '/../animal/vender/_vender.php');
 $source = str_replace('require __DIR__ . "/../../_config.php";', '', $source);
 $source = str_replace('__DIR__', var_export(realpath(__DIR__ . '/../animal/vender'), true), $source);

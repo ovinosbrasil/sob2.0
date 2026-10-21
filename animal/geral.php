@@ -1,3 +1,4 @@
+<?php require_once __DIR__ . '/../includes/csrf.php'; ?>
 <script type="text/javascript">
 
 function ativar_geral(){
@@ -87,6 +88,7 @@ if($animal[0]['terceiro_mae']){
 <section class="dados-gerais-animal" aria-labelledby="dados-gerais-animal-titulo">
 <h3 id="dados-gerais-animal-titulo">Dados gerais</h3>
 <form id="form-dados-animal" role="form" action="animal/_alterar.php?id_animal=<?=$id_animal?>" method="post" onsubmit="return ativar_geral()">
+  <?=campoCsrfSob()?>
 <div class="row">
 <div class="col-sm-6 col-md-3">
   <!-- general form elements -->

@@ -6,8 +6,10 @@ function geraTimestamp($data) {
 
 set_time_limit(9999999999999);
 include "../_config.php";
+require_once __DIR__ . '/../includes/csrf.php';
+exigirPostCsrfSob();
 
-$id_animal = (int) ($_GET['id_animal'] ?? 0);
+$id_animal = (int) ($_POST['id_animal'] ?? 0);
 $animal = DBRead('animais', "WHERE id = '$id_animal'");
 if (!$animal) {
   header('Location: ../geral.php');

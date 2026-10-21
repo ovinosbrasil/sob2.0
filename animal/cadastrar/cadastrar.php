@@ -1,4 +1,5 @@
-<?
+<?php
+require_once __DIR__ . '/../../includes/csrf.php';
 function addDayIntoDate($date,$days) {
      $thisyear = substr ( $date, 0, 4 );
      $thismonth = substr ( $date, 4, 2 );
@@ -86,6 +87,7 @@ function cadastrar_monta(x,id_lote,tipo){
 <? if($tipo == 1){ ?>
 <!-- FIM COMPRA -->
   <form role="form" action="animal/cadastrar/_compra.php" method="post" onsubmit="return ativar_compra()" style="clear:both;">
+  <?=campoCsrfSob()?>
     <div class="row" style="display:flex; flex-wrap:wrap;">
       <div class="col-sm-6 col-md-4">
 <div class="form-group">
@@ -202,6 +204,7 @@ function cadastrar_monta(x,id_lote,tipo){
 <? if($tipo == 2){ ?>
 <!-- REBANHO -->
   <form role="form" action="animal/cadastrar/_rebanho.php" method="post" onsubmit="return ativar_rebanho()" style="clear:both;">
+  <?=campoCsrfSob()?>
     <div class="row" style="display:flex; flex-wrap:wrap;">
       <div class="col-sm-6 col-md-4">
 <div class="form-group">
@@ -317,6 +320,7 @@ $dataNascimentoValida = $dataNascimentoValidada && $dataNascimentoValidada->form
 ?>
 <!--NASCIMENTO -->
   <form role="form" action="geral.php?pg=cadastrar_animal&tipo=3" method="post">
+  <?=campoCsrfSob()?>
         <div class="row" style="display:flex; flex-wrap:wrap; align-items:flex-end;">
 
           <div class="col-sm-4">
@@ -860,6 +864,7 @@ $dataNascimentoValida = $dataNascimentoValidada && $dataNascimentoValidada->form
 <? if($tipo == 4){ ?>
 <!-- TERCEIRO -->
   <form role="form" action="animal/cadastrar/_terceiros.php" method="post" onsubmit="return ativar_terceiros()" style="clear:both;">
+  <?=campoCsrfSob()?>
     <div class="row">
       <div class="col-sm-6 col-md-4">
         <div class="form-group">

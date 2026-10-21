@@ -1,5 +1,7 @@
 <?php
 require_once __DIR__ . "/../../_config.php";
+require_once __DIR__ . '/../../includes/csrf.php';
+exigirPostCsrfSob();
 ?>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 <?php

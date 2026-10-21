@@ -10,10 +10,14 @@ function DBUpdate($table, $dados, $where) { $GLOBALS['updatesTeste'][$table] = $
 function DBDelete($table, $where) { $GLOBALS['deletesTeste'][$table] = $where; return true; }
 $source = file_get_contents(__DIR__ . '/../animal/vender/_desfazer_venda.php');
 $source = str_replace('require_once __DIR__ . "/../../_config.php";', '', $source);
+$source = str_replace('__DIR__',var_export(realpath(__DIR__.'/../animal/vender'),true),$source);
 foreach (array(false, array(array('id'=>2, 'sexo'=>'Macho')), array(array('id'=>3, 'sexo'=>'Fêmea'))) as $criasTeste) {
     foreach (array(false, true) as $semVendaTeste) {
         $updatesTeste = $deletesTeste = array();
         $_GET = array('id_animal'=>42);
+        $_POST=array('id_animal'=>42,'_csrf_sob'=>'token-teste');
+        $_SESSION=array('_csrf_sob'=>'token-teste');
+        $_SERVER['REQUEST_METHOD']='POST';
         ob_start(); eval('?>'.$source); ob_end_clean();
         if (isset($updatesTeste['reprodutor'], $updatesTeste['matriz']) || count($updatesTeste) !== 1) throw new RuntimeException('Não deve atualizar médias legadas.');
         if ($updatesTeste['animais']['status'] !== 0 || count($deletesTeste) !== 2 || !isset($deletesTeste['controle_financeiro'], $deletesTeste['vendas'])) throw new RuntimeException('Não concluiu o desfazimento.');

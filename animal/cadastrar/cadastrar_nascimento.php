@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/../../includes/csrf.php';
 $qtd = max(1, (int) ($_GET['x'] ?? 1));
 $id_lote = (int) ($_GET['id_lote'] ?? 0);
 $tipo = (int) ($_GET['tipo'] ?? 0);
@@ -117,6 +118,7 @@ if($tipo == 3){ $pre = "TE"; }
 
 
   <form role="form" action="animal/cadastrar/_nascimento.php?qtd=<?=$qtd?>&id_lote=<?=$id_lote?>&tipo=<?=$tipo?>&y=<?=$y?>&receptora=<?=$receptora?>" method="post" onsubmit="return ativar_nascimento()">
+  <?=campoCsrfSob()?>
         <div class="col-md-12" style="margin-left:-30px;">
            <div class="col-md-3">
              <!-- general form elements -->

@@ -1,7 +1,9 @@
 <?
 include "../../_config.php";
+require_once __DIR__ . '/../../includes/csrf.php';
+exigirPostCsrfSob();
 
-$id_animal = $_GET['id_animal'];
+$id_animal = $_POST['id_animal'];
 $dados = array(
   'data_de_saida'	=> NULL,
   'status'	=> 0,

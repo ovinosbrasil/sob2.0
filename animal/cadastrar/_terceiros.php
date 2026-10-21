@@ -1,5 +1,7 @@
 <?php
 require_once __DIR__ . "/../../_config.php";
+require_once __DIR__ . '/../../includes/csrf.php';
+exigirPostCsrfSob();
 
 $nome = $_POST['nome_animal'];
 $sql = DBRead('terceiros', "WHERE nome = '$nome'");

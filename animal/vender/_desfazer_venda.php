@@ -1,7 +1,10 @@
 <?
-$id_animal = (int)($_GET['id_animal'] ?? 0);
-if ($id_animal < 1) { http_response_code(400); exit('Animal inválido.'); }
 require_once __DIR__ . "/../../_config.php";
+require_once __DIR__ . '/../../includes/csrf.php';
+exigirPostCsrfSob();
+$id_animal = (int)($_POST['id_animal'] ?? 0);
+if ($id_animal < 1) { http_response_code(400); exit('Animal inválido.'); }
+
 $dados = array(
   'status' => 0
 );

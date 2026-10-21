@@ -1,6 +1,7 @@
+<?php require_once __DIR__ . '/../../includes/csrf.php'; ?>
 <script type="text/javascript">
 function desfazer_venda(){
-    window.location.href = "animal/saida/_desfazer_saida.php?id_animal=<?=$id_animal?>";
+    enviarPostCsrfSob('animal/saida/_desfazer_saida.php', {id_animal: <?=(int)$id_animal?>});
 }
 
 function ativar(){
@@ -47,6 +48,7 @@ $data_saida = $data;
 }
 ?>
 <form role="form" action="animal/saida/_saida.php?id_animal=<?=$id_animal?>" method="post" onsubmit="return ativar()">
+  <?=campoCsrfSob()?>
 <div class="row">
 <div class="col-md-3">
   <!-- general form elements -->

@@ -4,6 +4,7 @@ if (isset($argv[1])) {
     $_SESSION=array('_csrf_sob'=>'token-da-sessao');
     $_POST=$caso['post'];
     $_GET=array('id_financeiro'=>7,'id_comprador'=>7,'id_animal'=>1);
+    $_POST['id_animal']=1;
     $_SERVER['REQUEST_METHOD']=$caso['metodo'];
     $leituras=0;$gravacoes=0;
     function DBRead(...$args){$GLOBALS['leituras']++;throw new RuntimeException('Consulta antes de validar CSRF');}
@@ -18,11 +19,13 @@ if (isset($argv[1])) {
     $arquivo=realpath(__DIR__.'/../'.$caso['arquivo']);
     $codigo=file_get_contents($arquivo);
     $codigo=str_replace(array('include "../_config.php";',"require_once __DIR__ . '/../_config.php';"),'',$codigo);
+    $codigo=preg_replace('/(?:include|require|require_once)\s+(?:__DIR__\s*\.\s*)?[\"\'][^\"\']*_config.php[\"\'];/', '', $codigo);
     $codigo=str_replace('__DIR__',var_export(dirname($arquivo),true),$codigo);
     eval('?>'.$codigo);exit;
 }
 require __DIR__.'/../includes/csrf.php';
 $arquivos=array('perfil/_alterar.php','vendas/_comprador.php','vendas/_alterar_comprador.php','vendas/_excluir_comprador.php','vendas/_venda_conjunta.php','vendas/_excluir_venda.php','financeiro/_cadastrar.php','financeiro/_alterar.php','financeiro/_excluir.php','financeiro/_confirmar.php','financeiro/_cancelar.php');
+$arquivos=array_merge($arquivos,array('animal/_excluir_animal.php', 'animal/_alterar.php', 'animal/_alterar_terceiro.php', 'animal/saida/_saida.php', 'animal/saida/_desfazer_saida.php', 'animal/cadastrar/_rebanho.php', 'animal/cadastrar/_compra.php', 'animal/cadastrar/_terceiros.php', 'animal/cadastrar/_nascimento.php', 'animal/vender/_vender.php', 'animal/vender/_desfazer_venda.php'));
 $casos=array(
     array('metodo'=>'GET','post'=>array('_csrf_sob'=>'token-da-sessao'),'status'=>405),
     array('metodo'=>'POST','post'=>array(),'status'=>403),

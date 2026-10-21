@@ -6,6 +6,8 @@ function geraTimestamp($data) {
 
 set_time_limit(9999999999999);
 include "../_config.php";
+require_once __DIR__ . '/../includes/csrf.php';
+exigirPostCsrfSob();
 $id_animal = $_GET['id_animal'];
 $nome = $_POST['nome_animal'];
 

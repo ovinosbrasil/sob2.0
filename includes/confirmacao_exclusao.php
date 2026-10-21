@@ -1,3 +1,6 @@
+<?php require_once __DIR__ . '/csrf.php'; ?>
+<form id="sob-post-csrf" method="post" hidden><?=campoCsrfSob()?></form>
+<script src="dist/js/csrf.js?v=<?=filemtime(__DIR__ . '/../dist/js/csrf.js')?>"></script>
 <div class="modal fade sob-confirmacao-exclusao" id="confirmacao-exclusao" tabindex="-1" role="dialog" aria-modal="true" aria-labelledby="confirmacao-exclusao-titulo" aria-describedby="confirmacao-exclusao-descricao">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
