@@ -1,5 +1,36 @@
 # SOB — ambiente local
 
+## Limite de tentativas de login
+
+Antes de publicar `_logar.php` e `includes/limite_login.php`, execute
+`docker/mysql/migrations/030_limite_tentativas_login.sql` no banco central
+de login (`DB_DATABASE`). A tabela usa InnoDB e locks para serializar as
+tentativas concorrentes por conta e IP. Se a tabela não estiver disponível,
+o login é recusado; não há liberação sem o limitador.
+
+Cinco falhas por conta ou 50 por IP dentro de 15 minutos bloqueiam novas
+tentativas por 15 minutos a partir da falha que atingiu o limite. Tentativas
+bloqueadas não prolongam esse prazo. Sucesso limpa as falhas da conta e
+preserva as do IP. O ID da conta identifica também variações de login que
+o banco considere equivalentes. Contas inexistentes também são limitadas.
+Criar outra sessão ou limpar cookies não reinicia os contadores.
+
+Somente fingerprints SHA-256 dos identificadores entram na tabela, com
+contagem e horários; não são dados anonimizados. Registros sem atualização
+há mais de 24 horas são removidos em lotes de até 100 a cada tentativa.
+O SQL contém a limpeza diária opcional para instalações sem tráfego regular.
+Eventos de sucesso, falha e bloqueio são registrados no log PHP sem senha,
+login ou IP. Configure rotação e acesso restrito ao log na hospedagem.
+
+O IP vem de `REMOTE_ADDR`, sem confiar em cabeçalhos enviados pelo cliente.
+Se houver proxy/CDN, configure no servidor web a recuperação do IP real apenas
+a partir de proxies confiáveis; caso contrário, todos podem compartilhar o
+limite do proxy. O limite por conta também vale em redes diferentes e pode
+provocar bloqueio temporário de uma conta alvo de ataque.
+
+Testes: `php tests/limite_login_test.php` e, no container app,
+`php tests/limite_login_mysql_test.php` (tabelas temporárias, sem alterar contas).
+
 ## Sessões
 
 As rotas protegidas usam `includes/sessao.php`: expiração após 30 minutos sem
