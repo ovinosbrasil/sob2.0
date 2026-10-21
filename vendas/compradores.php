@@ -1,4 +1,5 @@
-<?php
+<?php require_once __DIR__ . '/../includes/csrf.php';
+
 require_once __DIR__ . '/../includes/busca_compradores.php';
 function compradoresH($valor) {
     return htmlspecialchars((string)$valor, ENT_QUOTES, 'UTF-8');
@@ -52,6 +53,7 @@ function excluirComprador(id, nome) {
     aoConfirmar: function () {
       var dados = new FormData();
       dados.append('id_comprador', id);
+      dados.append('_csrf_sob', <?=json_encode(tokenCsrfSob())?>);
 
       fetch('vendas/_excluir_comprador.php', {
         method: 'POST',
@@ -128,6 +130,7 @@ function excluirComprador(id, nome) {
     </div>
     <div class="box-body">
       <form data-alertas-compradores method="post" action="vendas/_comprador.php" autocomplete="off">
+        <?=campoCsrfSob()?>
         <div class="row">
           <div class="col-md-4"><div class="form-group"><label for="nome">Nome completo<span class="text-danger">*</span></label><input type="text" class="form-control" id="nome" name="nome" value="<?=compradoresH(($camposComprador['id'] ?? 0) === 0 ? ($camposComprador['campos']['nome'] ?? '') : '')?>" required></div></div>
           <div class="col-md-4"><div class="form-group"><label for="email">E-mail</label><input type="email" class="form-control" id="email" name="email" value="<?=compradoresH(($camposComprador['id'] ?? 0) === 0 ? ($camposComprador['campos']['email'] ?? '') : '')?>"></div></div>

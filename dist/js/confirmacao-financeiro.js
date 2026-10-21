@@ -23,12 +23,12 @@
     botao.onclick = function () {
       if (botao.disabled) return;
       botao.disabled = true;
-      var parametros = new URLSearchParams({
-        id_financeiro: id,
-        data_inicial: document.getElementById('data_inicial').value,
-        data_final: document.getElementById('data_final').value
-      });
-      window.location.href = 'financeiro/_' + acao + '.php?' + parametros.toString();
+      var formulario = document.getElementById('financeiro-acao-form');
+      formulario.action = 'financeiro/_' + acao + '.php';
+      formulario.elements.id_financeiro.value = id;
+      formulario.elements.data_inicial.value = document.getElementById('data_inicial').value;
+      formulario.elements.data_final.value = document.getElementById('data_final').value;
+      formulario.submit();
     };
     jQuery('#financeiro-confirmacao-modal').modal('show');
   };

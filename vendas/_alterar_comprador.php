@@ -1,5 +1,7 @@
 <?php
 require_once __DIR__ . '/../_config.php';
+require_once __DIR__ . '/../includes/csrf.php';
+exigirPostCsrfSob((($_POST['formato'] ?? '') === 'json'));
 require_once __DIR__ . '/_alertas_compradores.php';
 $id = filter_var($_GET['id_comprador'] ?? 0, FILTER_VALIDATE_INT);
 if (!$id || $id < 1 || !DBRead('mercado', "WHERE id = '$id'")) finalizarComprador('warning', 'Comprador não encontrado. Atualize a página e tente novamente.', 0, 404);

@@ -1,4 +1,6 @@
 <?php
+require_once __DIR__ . "/../includes/csrf.php";
+$_SESSION=array();
 // Render the page without authentication or a database connection.
 function DBRead($table, $where = '') {
     return $table === 'controle_financeiro' ? $GLOBALS['financeiro_fixture'] : array();
@@ -8,7 +10,7 @@ function renderFinanceiro($post, $fixture, $get = array()) {
     $_POST = $post;
     $_GET = $get;
     $source = file_get_contents(__DIR__ . '/../financeiro/financeiro.php');
-    $source = str_replace("require_once __DIR__ . '/../_config.php';", '', $source);
+    $source = str_replace(array("require_once __DIR__ . '/../_config.php';", "require_once __DIR__ . '/../includes/csrf.php';"), '', $source);
     $source = preg_replace('/<link rel="stylesheet"[^\n]+/', '', $source);
     ob_start();
     eval('?>' . $source);

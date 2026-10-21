@@ -1,5 +1,7 @@
 <?
 include "../_config.php";
+require_once __DIR__ . '/../includes/csrf.php';
+exigirPostCsrfSob(false);
 foreach (array('nome', 'cpf', 'celular', 'fazenda') as $campo) {
     if (!isset($_POST[$campo]) || !is_string($_POST[$campo]) || trim($_POST[$campo]) === '') {
         $_SESSION['alerta_perfil'] = array('tipo'=>'warning', 'titulo'=>'Atenção!', 'mensagem'=>'Preencha os campos obrigatórios.');

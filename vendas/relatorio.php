@@ -1,4 +1,4 @@
-<?
+<?php require_once __DIR__ . '/../includes/csrf.php';
 require_once __DIR__ . '/../includes/paginacao_vendas.php';
 $nomeComprador = $_POST['comprador'] ?? $_GET['comprador'] ?? '';
 $id_comprador = null;
@@ -157,7 +157,9 @@ function excluir_venda(botao){
     nome: botao.getAttribute('data-nome'),
     descricao: 'Confirme se deseja excluir esta venda. Esta ação não pode ser desfeita. Os lançamentos financeiros vinculados ao animal serão removidos e ele retornará ao rebanho.',
     aoConfirmar: function () {
-      window.location.href = 'vendas/_excluir_venda.php?tipo=1&id_animal=' + encodeURIComponent(id_animal);
+      var formulario = document.getElementById('excluir-venda-form');
+      formulario.elements.id_animal.value = id_animal;
+      formulario.submit();
     }
   });
 }
@@ -190,6 +192,7 @@ function abrir_venda(id_animal){
         <div class="box" style="border-top:0;">
           <div class="box-body">
             <form method="post" action="geral.php?pg=relatorio_venda&amp;filtro=<?=$filtro?>">
+        <?=campoCsrfSob()?>
               <input type="hidden" name="por_pagina" value="<?=$paginacao['por_pagina'] ?? 10?>">
               <div class="row">
                 <div class="form-group col-sm-3 col-md-2">
@@ -366,3 +369,9 @@ function abrir_venda(id_animal){
     <!-- /.row -->
   </section>
   <!-- /.content -->
+
+<form id="excluir-venda-form" method="post" action="vendas/_excluir_venda.php" hidden>
+  <?=campoCsrfSob()?>
+  <input type="hidden" name="id_animal">
+  <input type="hidden" name="tipo" value="1">
+</form>

@@ -1,3 +1,4 @@
+<?php require_once __DIR__ . '/../includes/csrf.php'; ?>
 <link rel="stylesheet" href="dist/css/alertas.css">
 <script src="dist/js/alertas.js"></script>
 <?php
@@ -39,6 +40,7 @@ $perfilDados = $user[0] ?? array();
 </section>
 <section class="content">
   <form role="form" action="perfil/_alterar.php?id=<?=(int)$id_user?>" method="post" onsubmit="return ativar()">
+        <?=campoCsrfSob()?>
     <div class="box" style="border-top:0;">
       <div class="box-body">
         <h3 class="box-title" style="font-size:18px; margin:0 0 20px;">Dados pessoais</h3>

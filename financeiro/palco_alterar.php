@@ -1,4 +1,5 @@
-<?php
+<?php require_once __DIR__ . '/../includes/csrf.php';
+
 require_once __DIR__ . '/../_config.php';
 require_once __DIR__ . '/registro.php';
 $id_financeiro = (int)($_GET['id_financeiro'] ?? 0);
@@ -18,6 +19,7 @@ $categorias = array_unique(array_merge(array($registro['categoria']), array('Cus
   <h4 class="modal-title" id="titulo-alterar-financeiro">Alterar <?=$rotulo?></h4>
 </div>
 <form method="post" action="financeiro/_alterar.php?id_financeiro=<?=$id_financeiro?>" data-alertas-financeiro="alterar" data-tipo="<?=$tipo?>" novalidate>
+        <?=campoCsrfSob()?>
   <div class="modal-body">
     <div class="form-group">
       <label for="descricao_alterar">Descrição <span class="text-danger">*</span></label>

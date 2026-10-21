@@ -1,9 +1,11 @@
 <?php
 require_once __DIR__ . '/../_config.php';
+require_once __DIR__ . '/../includes/csrf.php';
+exigirPostCsrfSob((($_POST['formato'] ?? '') === 'json'));
 require_once __DIR__ . '/_alertas.php';
-$id_animal = filter_var($_GET['id_animal'] ?? 0, FILTER_VALIDATE_INT);
-$paginaRetorno = !empty($_GET['tipo']) ? 'relatorio_venda' : 'comprador';
-$id_comprador = (int)($_GET['id_comprador'] ?? 0);
+$id_animal = filter_var($_POST['id_animal'] ?? 0, FILTER_VALIDATE_INT);
+$paginaRetorno = !empty($_POST['tipo']) ? 'relatorio_venda' : 'comprador';
+$id_comprador = (int)($_POST['id_comprador'] ?? 0);
 if (!$id_animal || $id_animal < 1 || !DBRead('vendas', "WHERE id_animal = '$id_animal'") || !DBRead('animais', "WHERE id = '$id_animal'")) {
     avisarVenda('warning', 'Venda não encontrada. Atualize a página e tente novamente.', $paginaRetorno, $id_comprador);
 }

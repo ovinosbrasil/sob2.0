@@ -2,7 +2,7 @@
 if(isset($argv[1])) {
  $caso=json_decode(base64_decode($argv[1]),true);
  $_POST=array_merge(array('nome'=>'Cliente','email'=>'cliente@example.com','celular'=>'123','cpf'=>'','cod'=>'','cidade'=>'Cidade','estado'=>'BA','id_comprador'=>'7'),$caso['post']??array());
- $_GET=array_merge(array('id_comprador'=>7),$caso['get']??array());$_SESSION=array();$gravacoes=array();
+ $_GET=array_merge(array('id_comprador'=>7),$caso['get']??array());$_SESSION=array('_csrf_sob'=>'token-teste');$_POST['_csrf_sob']='token-teste';$_SERVER['REQUEST_METHOD']='POST';$gravacoes=array();
  set_error_handler(function($n,$m){throw new RuntimeException($m);});
  function DBEscape($v){return addslashes($v);}
  function DBRead($tabela,$params=''){

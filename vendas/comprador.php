@@ -1,4 +1,5 @@
-<?php
+<?php require_once __DIR__ . '/../includes/csrf.php';
+
 require_once __DIR__ . '/../includes/paginacao_vendas.php';
 function dadosCompradorH($valor) {
     return htmlspecialchars((string)$valor, ENT_QUOTES, 'UTF-8');
@@ -42,7 +43,9 @@ function excluir_venda(botao) {
     nome: botao.getAttribute('data-nome'),
     descricao: 'Confirme se deseja excluir esta venda. Esta ação não pode ser desfeita. Os lançamentos financeiros vinculados ao animal serão removidos e ele retornará ao rebanho.',
     aoConfirmar: function () {
-      window.location.href = 'vendas/_excluir_venda.php?id_animal=' + encodeURIComponent(botao.getAttribute('data-id')) + '&id_comprador=<?=$id_comprador?>';
+      var formulario = document.getElementById('excluir-venda-form');
+      formulario.elements.id_animal.value = botao.getAttribute('data-id');
+      formulario.submit();
     }
   });
 }
@@ -60,6 +63,7 @@ function excluir_venda(botao) {
     <div class="box-header with-border"><h3 class="box-title">Cadastro do comprador</h3></div>
     <div class="box-body">
       <form data-alertas-compradores method="post" action="vendas/_alterar_comprador.php?id_comprador=<?=$id_comprador?>">
+        <?=campoCsrfSob()?>
         <div class="row">
           <?php foreach (array(
               'nome' => array('Nome completo', 'nome', 'text'),
@@ -146,3 +150,9 @@ function excluir_venda(botao) {
     </div>
   </div>
 </section>
+
+<form id="excluir-venda-form" method="post" action="vendas/_excluir_venda.php" hidden>
+  <?=campoCsrfSob()?>
+  <input type="hidden" name="id_animal">
+  <input type="hidden" name="id_comprador" value="<?=(int)$id_comprador?>">
+</form>

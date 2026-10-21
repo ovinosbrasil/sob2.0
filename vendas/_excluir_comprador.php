@@ -1,5 +1,7 @@
 <?php
 require_once __DIR__ . '/../_config.php';
+require_once __DIR__ . '/../includes/csrf.php';
+exigirPostCsrfSob(true);
 require_once __DIR__ . '/_alertas_compradores.php';
 $respostaJson = true;
 $id = filter_var($_POST['id_comprador'] ?? 0, FILTER_VALIDATE_INT);

@@ -1,5 +1,7 @@
 <?php
 require_once __DIR__ . '/../_config.php';
+require_once __DIR__ . '/../includes/csrf.php';
+exigirPostCsrfSob(false);
 require_once __DIR__ . '/_alertas.php';
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') avisarFinanceiro('warning', 'Envie o formulário para cadastrar o lançamento.');
 $dados = dadosFinanceiro($sufixoFinanceiro, $tipoFinanceiro);

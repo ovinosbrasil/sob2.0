@@ -1,5 +1,7 @@
 <?php
 require_once __DIR__ . '/../_config.php';
+require_once __DIR__ . '/../includes/csrf.php';
+exigirPostCsrfSob((($_POST['formato'] ?? '') === 'json'));
 require_once __DIR__ . '/_alertas.php';
 $campos = array();
 foreach ($_POST as $campo => $valorCampo) {

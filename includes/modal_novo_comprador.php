@@ -1,7 +1,9 @@
+<?php require_once __DIR__ . '/csrf.php'; ?>
 <div class="modal fade" id="novo-comprador-modal" tabindex="-1" role="dialog" aria-labelledby="novo-comprador-titulo">
   <div class="modal-dialog" role="document">
     <div class="modal-content" style="border-radius:10px;">
       <form id="form-novo-comprador" action="vendas/_comprador.php" method="post">
+        <?=campoCsrfSob()?>
         <div class="modal-header">
           <button type="button" class="close" data-dismiss="modal" aria-label="Fechar"><span aria-hidden="true">&times;</span></button>
           <h4 class="modal-title" id="novo-comprador-titulo">Novo comprador</h4>

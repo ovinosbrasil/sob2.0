@@ -1,4 +1,4 @@
-<?
+<?php require_once __DIR__ . '/../includes/csrf.php';
 require_once __DIR__ . '/../_config.php';
 require_once __DIR__ . '/../includes/paginacao_financeiro.php';
 $hFinanceiro = function ($valor) {
@@ -177,6 +177,7 @@ function fechar_alterar(){
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <form method="post" action="financeiro/_<?=$cadastro?>.php" data-alertas-financeiro="<?=$cadastro?>" novalidate>
+        <?=campoCsrfSob()?>
         <div class="modal-header">
           <button type="button" class="close" data-dismiss="modal" aria-label="Fechar"><span aria-hidden="true">&times;</span></button>
           <h4 class="modal-title" id="titulo-<?=$cadastro?>">Cadastrar <?=$rotulo?></h4>
@@ -308,6 +309,7 @@ function fechar_alterar(){
       </div>
       <div class="box-body">
         <form method="post" action="geral.php?pg=financeiro">
+        <?=campoCsrfSob()?>
           <input type="hidden" name="por_pagina" value="<?=$paginacaoFinanceiro['por_pagina']?>">
           <div class="row">
             <div class="form-group col-sm-6 col-md-2">
@@ -512,3 +514,10 @@ document.addEventListener('DOMContentLoaded', function () {
   </div>
 </div>
 <script src="dist/js/confirmacao-financeiro.js?v=<?=filemtime(__DIR__ . '/../dist/js/confirmacao-financeiro.js')?>"></script>
+
+<form id="financeiro-acao-form" method="post" hidden>
+  <?=campoCsrfSob()?>
+  <input type="hidden" name="id_financeiro">
+  <input type="hidden" name="data_inicial">
+  <input type="hidden" name="data_final">
+</form>

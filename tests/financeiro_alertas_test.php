@@ -1,7 +1,7 @@
 <?php
 if (isset($argv[1])) {
     $caso = json_decode(base64_decode($argv[1]), true);
-    $_SESSION = array();
+    $_SESSION = array('_csrf_sob'=>'token-teste');
     $_SERVER['REQUEST_METHOD'] = 'POST';
     $_GET = array('id_financeiro' => 7);
     $sufixo = $caso['sufixo'] ?? 'debito';
@@ -10,6 +10,7 @@ if (isset($argv[1])) {
         $_POST[$nome . '_' . $sufixo] = $valor;
     }
     $_POST = array_merge($_POST, $caso['post'] ?? array());
+    $_POST['_csrf_sob'] = 'token-teste';
     $gravacoes = array();
     function DBEscape($valor) { return addslashes($valor); }
     function DBRead($table, $where) { return !empty($GLOBALS['caso']['ausente']) ? false : array(array_merge(array('id'=>7, 'tipo'=>1), $GLOBALS['caso']['registro'] ?? array())); }

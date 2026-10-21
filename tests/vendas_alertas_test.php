@@ -3,7 +3,8 @@ if (isset($argv[1])) {
     $caso=json_decode(base64_decode($argv[1]),true);
     $_POST=array_merge(array('animal_1'=>'Primeiro','animal_1_id'=>'1','animal_1_origem'=>'rebanho','animal_2_id'=>'2','animal_2_origem'=>'rebanho','preco_conjunto_1'=>'100.00','comprador'=>'Cliente','data'=>'31/01/2026','parcelas'=>'2','tipo_venda'=>'Fazenda','forma'=>'Dinheiro','observacoes'=>'Teste','valor_total'=>'1'),$caso['post']??array());
     $_GET=array_merge(array('id_animal'=>1,'tipo'=>1),$caso['get']??array());
-    $_SESSION=array();$gravacoes=array();
+    if (($caso['arquivo'] ?? '') === '_excluir_venda.php') $_POST=array_merge($_POST,$_GET);
+    $_SESSION=array('_csrf_sob'=>'token-teste');$_POST['_csrf_sob']='token-teste';$_SERVER['REQUEST_METHOD']='POST';$gravacoes=array();
     set_error_handler(function($n,$m){throw new RuntimeException($m);});
     function DBEscape($v){return addslashes($v);}
     function DBRead($tabela,$params='',$fields='*'){

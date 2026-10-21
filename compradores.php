@@ -1,3 +1,4 @@
+<?php require_once __DIR__ . '/includes/csrf.php'; ?>
 
 <section class="content-header">
   <h1>
@@ -17,6 +18,7 @@
           <!-- /.box-header -->
           <div class="box-body">
           <form method="post" action="vendas/_comprador.php">
+        <?=campoCsrfSob()?>
             <div class="form-group">
                 <label for="exampleInputPassword1">Nome completo</label>
                 <input type="text" class="form-control" id="nome" name="nome">
@@ -76,6 +78,7 @@
           <div class="box box-success">
             <!-- /.box-header -->
         <form method="post" action="">
+        <?=campoCsrfSob()?>
           <div class="box-body">
             <div class="col-md-4">
               <div class="form-group">

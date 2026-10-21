@@ -1,5 +1,7 @@
 <?php
 require_once __DIR__ . '/../_config.php';
+require_once __DIR__ . '/../includes/csrf.php';
+exigirPostCsrfSob((($_POST['formato'] ?? '') === 'json'));
 require_once __DIR__ . '/_alertas_compradores.php';
 $dados = dadosFormularioComprador();
 $nome = DBEscape($dados['nome']);

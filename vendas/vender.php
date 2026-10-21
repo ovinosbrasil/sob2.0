@@ -1,4 +1,5 @@
-<?php
+<?php require_once __DIR__ . '/../includes/csrf.php';
+
 require_once __DIR__ . '/../includes/busca_compradores.php';
 require_once __DIR__ . '/../includes/busca_animais.php';
 $camposVenda = $camposVenda ?? array();
@@ -183,6 +184,7 @@ $hVenda = function ($valor) { return htmlspecialchars((string)$valor, ENT_QUOTES
 </template>
 <section class="content">
   <form id="form-venda-conjunta" role="form" action="vendas/_venda_conjunta.php" method="post" onsubmit="return ativar_venda();">
+        <?=campoCsrfSob()?>
     <div class="box" style="border-top:0;">
       <div class="box-header with-border">
         <h3 class="box-title">Animais da venda</h3>

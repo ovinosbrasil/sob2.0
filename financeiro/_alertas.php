@@ -3,7 +3,7 @@ function avisarFinanceiro($tipo, $mensagem, $encerrar = true) {
     $_SESSION['alerta_financeiro'] = array('tipo' => $tipo, 'mensagem' => $mensagem);
     $params = array('pg' => 'financeiro');
     foreach (array('data_inicial', 'data_final') as $campo) {
-        $valor = $_GET[$campo] ?? '';
+        $valor = $_POST[$campo] ?? $_GET[$campo] ?? '';
         if (is_string($valor) && preg_match('~^\d{2}/\d{2}/\d{4}$~D', $valor)) $params[$campo] = $valor;
     }
     header('Location: ../geral.php?' . http_build_query($params), true, 303);
@@ -17,7 +17,7 @@ function gravarFinanceiro($funcao, ...$argumentos) {
     return $resultado;
 }
 function registroFinanceiro() {
-    $id = filter_var($_GET['id_financeiro'] ?? null, FILTER_VALIDATE_INT, array('options' => array('min_range' => 1)));
+    $id = filter_var($_POST['id_financeiro'] ?? $_GET['id_financeiro'] ?? null, FILTER_VALIDATE_INT, array('options' => array('min_range' => 1)));
     if (!$id) avisarFinanceiro('warning', 'Selecione um lançamento válido.');
     $registros = DBRead('controle_financeiro', "WHERE id = '$id'");
     if (!$registros) avisarFinanceiro('warning', 'O lançamento não foi encontrado. Atualize a lista.');
