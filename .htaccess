@@ -1,3 +1,7 @@
+# Credenciais de conexão: nunca servir o .env ou suas cópias.
+<FilesMatch "(?i)^\.env(?:prd|\..*)?$">
+    Require all denied
+</FilesMatch>
 
 
 RewriteEngine On
