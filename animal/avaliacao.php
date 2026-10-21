@@ -200,7 +200,8 @@ $ava1 = DBRead('avaliacao', "WHERE id_animal = '$id_animal' AND avaliacao = 1");
 $ava2 = DBRead('avaliacao', "WHERE id_animal = '$id_animal' AND avaliacao = 2");
 if(!$ava1[0]['id']){ $ava1[0]['tipo'] = 0; }
 if(!$ava2[0]['id']){ $ava2[0]['tipo'] = 0; }
-$db = mysql_connect("localhost", "siste870_sob","sob123");
+require_once __DIR__ . '/../mysqli/environment.php';
+$db = mysql_connect(DB_HOSTNAME, DB_USERNAME, DB_PASSWORD);
 $dados = mysql_select_db("siste870_sob2",$db);
 
 $media1 = mysql_query("SELECT AVG(tipo) FROM avaliacao WHERE avaliacao = '1'");

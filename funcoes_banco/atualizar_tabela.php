@@ -1,10 +1,5 @@
 <?
 
-define('DB_HOSTNAME', 'localhost');
-define('DB_USERNAME', 'siste870_sob');
-define('DB_PASSWORD', 'sob123');
-define('DB_DATABASE', 'siste870_fg');
-define('DB_CHARSET', 'latin1');
 
 
 include "../_config.php";

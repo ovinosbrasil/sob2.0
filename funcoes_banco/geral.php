@@ -1,6 +1,7 @@
 <?
 set_time_limit(9999999999999);
-$db = mysql_connect("localhost", "siste870_sob","sob123");
+require_once __DIR__ . '/../mysqli/environment.php';
+$db = mysql_connect(DB_HOSTNAME, DB_USERNAME, DB_PASSWORD);
 $dados = mysql_select_db("siste870_santaangelina",$db);
 
 /*

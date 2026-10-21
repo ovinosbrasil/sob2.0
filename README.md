@@ -1,5 +1,52 @@
 # SOB — ambiente local
 
+## Proteção CSRF — cadastro e ficha de animais
+
+Cadastros por compra, rebanho, nascimento e terceiros, edição de animal e
+terceiros, exclusão de animal, registro/desfazimento de saída e venda/desfazimento
+pela ficha exigem POST com `_csrf_sob`. Exclusão, desfazer saída e desfazer venda
+recebem o ID no corpo do POST. URLs antigas não executam essas ações por GET.
+As proteções específicas já existentes para excluir/inativar terceiros permanecem.
+
+Os botões usam `dist/js/csrf.js`, carregado por
+`includes/confirmacao_exclusao.php`, para enviar o token de sessão no corpo.
+Publique esses arquivos junto com `dist/js/confirmacao-exclusao.js` e os
+formulários/endpoints de animais alterados. Recarregue abas antigas. Não há SQL.
+Importação, avaliações, sanidade e outros módulos têm fluxos separados e não
+estão todos cobertos por esta etapa.
+
+Validação: `php -d short_open_tag=1 tests/csrf_endpoints_test.php`,
+`php -d short_open_tag=1 tests/animal_venda_parcelas_test.php`,
+`php -d short_open_tag=1 tests/desfazer_venda_test.php` e
+`node tests/csrf_post_front_test.js`.
+
+## Proteção CSRF — perfil, compradores, vendas conjuntas e financeiro
+
+Esses fluxos usam `includes/csrf.php`: token aleatório vinculado à sessão,
+comparação com `hash_equals` e exigência de POST antes de consultas ou gravações
+da operação. GET recebe 405; POST sem token válido recebe 403. O retorno dos
+compradores via AJAX preserva o contrato JSON de erro.
+
+Foram ajustados edição de perfil, cadastro/edição/exclusão de compradores,
+cadastro de venda conjunta e exclusão de venda nas páginas de comprador e
+relatório. No financeiro, cadastro, edição, confirmação, cancelamento e exclusão
+exigem token; os botões de confirmação enviam formulário POST e preservam os
+filtros. Buscas e carregamento de modais continuam sendo consultas.
+
+Publique o helper e todos os formulários/endpoints alterados juntos, incluindo
+`includes/modal_novo_comprador.php` e `dist/js/confirmacao-financeiro.js`.
+Após a publicação, recarregue abas antigas para obter o token. Não há migração SQL.
+O token não deve ser colocado na URL; formulários e AJAX enviam `_csrf_sob` no corpo.
+Não foi aplicada validação global em `_config.php`: outros módulos ainda usam
+proteções próprias ou precisam de revisão específica com seus formulários.
+
+Testes: `php -d short_open_tag=1 tests/csrf_endpoints_test.php`,
+`php -d short_open_tag=1 tests/compradores_alertas_test.php`,
+`php -d short_open_tag=1 tests/vendas_alertas_test.php`,
+`php -d short_open_tag=1 tests/financeiro_alertas_test.php`,
+`php -d short_open_tag=1 tests/financeiro_layout_test.php` e
+`node tests/csrf_financeiro_front_test.js`.
+
 ## Limite de tentativas de login
 
 Antes de publicar `_logar.php` e `includes/limite_login.php`, execute

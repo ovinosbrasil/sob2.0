@@ -1,7 +1,18 @@
 <?php
-// Keep the existing hosting defaults when no environment is supplied.
-define('DB_HOSTNAME', getenv('DB_HOST') !== false ? getenv('DB_HOST') : 'localhost');
-define('DB_USERNAME', getenv('DB_USER') !== false ? getenv('DB_USER') : 'siste870_sob');
-define('DB_PASSWORD', getenv('DB_PASSWORD') !== false ? getenv('DB_PASSWORD') : 'sob123');
-define('DB_DATABASE', isset($databaseName) ? $databaseName : (getenv('DB_DATABASE') ?: 'siste870_sob'));
-define('DB_CHARSET', getenv('DB_CHARSET') ?: 'latin1');
+require_once __DIR__ . '/dotenv.php';
+$sobDadosConexao = array(
+    'DB_HOSTNAME' => valorEnvBancoSob('DB_HOST', 'localhost'),
+    'DB_USERNAME' => valorEnvBancoSob('DB_USER'),
+    'DB_PASSWORD' => valorEnvBancoSob('DB_PASSWORD'),
+    'DB_DATABASE' => isset($databaseName) ? $databaseName : valorEnvBancoSob('DB_DATABASE'),
+    'DB_CHARSET' => valorEnvBancoSob('DB_CHARSET', 'latin1'),
+);
+foreach ($sobDadosConexao as $sobNome => $sobValor) {
+    if (!is_string($sobValor) || $sobValor === '') {
+        error_log('Configuração de banco incompleta: ' . $sobNome);
+        http_response_code(503);
+        exit('Serviço temporariamente indisponível.');
+    }
+}
+foreach ($sobDadosConexao as $sobNome => $sobValor) define($sobNome, $sobValor);
+unset($sobDadosConexao, $sobNome, $sobValor);
