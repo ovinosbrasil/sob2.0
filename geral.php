@@ -279,6 +279,7 @@ $data_expira2 = $data;
       <b>Version</b> 2.0
     </div>
     <strong>Copyright &copy; 2020</strong> Todos os direitos reservados
+    <span style="display:inline-block; margin-left:12px;"><a href="politica_privacidade.pdf" download="Politica-de-Privacidade-Sistema-Ovinos-Brasil.pdf">Política de Privacidade (PDF)</a></span>
   </footer>
 
   <!-- /.control-sidebar -->

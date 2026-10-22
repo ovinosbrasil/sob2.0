@@ -97,6 +97,9 @@
             <!-- /.col -->
           </div>
         </form>
+        <p class="text-center" style="margin:16px 0 0;">
+          <a href="politica_privacidade.pdf" download="Politica-de-Privacidade-Sistema-Ovinos-Brasil.pdf">Baixar Política de Privacidade (PDF)</a>
+        </p>
         <!-- /.social-auth-links -->
       </div>
       <!-- /.login-box-body -->

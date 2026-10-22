@@ -57,7 +57,7 @@ function sessaoSobValida(array $sessao, $agora)
         && $agora - $inicio < 28800 && $agora - $atividade < 1800;
 }
 
-function exigirSessaoSob($json = false)
+function exigirSessaoSob($json = false, $permitirAceite = false)
 {
     iniciarSessaoSob();
     $agora = time();
@@ -75,4 +75,8 @@ function exigirSessaoSob($json = false)
     }
     $_SESSION['ultima_atividade'] = $agora;
     header('Cache-Control: no-store');
+    if (!$permitirAceite) {
+        require_once __DIR__ . '/termos.php';
+        exigirTermosSob($json);
+    }
 }
