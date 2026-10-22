@@ -52,7 +52,7 @@ $urlPaginaAnimaisExposicao = function ($pagina) use ($id_evento, $porPaginaAnima
 
   <div class="box" style="border-top:0;">
     <div class="box-body">
-      <?php $abaInicialExposicao = in_array(($_GET['aba'] ?? ''), array('animais', 'julgamento', 'progenie_pai', 'progenie_mae', 'vendas'), true) ? $_GET['aba'] : 'animais'; $abaExposicao = $abaInicialExposicao; include __DIR__ . '/abas_exposicao.php'; ?>
+      <?php $abaInicialExposicao = in_array(($_GET['aba'] ?? ''), array('animais', 'julgamento', 'progenie_pai', 'progenie_mae', 'conjunto_familia', 'vendas'), true) ? $_GET['aba'] : 'animais'; $abaExposicao = $abaInicialExposicao; include __DIR__ . '/abas_exposicao.php'; ?>
       <div id="conteudo-aba-exposicao" aria-live="polite">
       <div style="display:flex; flex-wrap:wrap; align-items:flex-end; justify-content:space-between; gap:15px; margin-bottom:15px;">
         <div style="width:100%; max-width:520px;"><?php renderBuscaAnimais(array('id' => 'animal-exposicao', 'name' => 'animal_exposicao', 'label' => 'Adicionar animal', 'tipo' => 'rebanho', 'placeholder' => 'Digite para pesquisar', 'classe' => 'busca-animal-exposicao')); ?></div>

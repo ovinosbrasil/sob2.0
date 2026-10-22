@@ -5,12 +5,13 @@ $abasExposicao = array(
     'julgamento' => array('Pista de Julgamento', 'julgamento'),
     'progenie_pai' => array('Progênie de pai', 'exposicao'),
     'progenie_mae' => array('Progênie de mãe', 'exposicao'),
+    'conjunto_familia' => array('Conjunto Família', 'exposicao'),
     'vendas' => array('Relatório de vendas', 'relatorio_vendas_exposicao')
 );
 ?>
 <ul class="nav nav-tabs abas-exposicao" role="tablist" aria-label="Áreas da exposição">
   <?php foreach ($abasExposicao as $chaveAbaExposicao => $dadosAbaExposicao): ?>
-  <li role="presentation" class="<?=$abaExposicao === $chaveAbaExposicao ? 'active' : ''?>"><a role="tab" data-aba-exposicao="<?=$chaveAbaExposicao?>" href="geral.php?pg=<?=$dadosAbaExposicao[1]?>&amp;id_exposicao=<?=(int)$id_evento?>" <?=$abaExposicao === $chaveAbaExposicao ? 'aria-current="page"' : ''?>><?=htmlspecialchars($dadosAbaExposicao[0], ENT_QUOTES, 'UTF-8')?></a></li>
+  <li role="presentation" class="<?=$abaExposicao === $chaveAbaExposicao ? 'active' : ''?>"><a role="tab" data-aba-exposicao="<?=$chaveAbaExposicao?>" href="geral.php?pg=<?=$dadosAbaExposicao[1]?>&amp;aba=<?=$chaveAbaExposicao?>&amp;id_exposicao=<?=(int)$id_evento?>" <?=$abaExposicao === $chaveAbaExposicao ? 'aria-current="page"' : ''?>><?=htmlspecialchars($dadosAbaExposicao[0], ENT_QUOTES, 'UTF-8')?></a></li>
   <?php endforeach; ?>
 </ul>
 <style>

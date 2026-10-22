@@ -7,7 +7,7 @@ header('Content-Type: text/html; charset=UTF-8');
 
 $idEvento = filter_var($_GET['id_exposicao'] ?? 0, FILTER_VALIDATE_INT);
 $aba = is_string($_GET['aba'] ?? null) ? $_GET['aba'] : '';
-if (!$idEvento || !in_array($aba, array('julgamento', 'progenie_pai', 'progenie_mae', 'vendas'), true)) { http_response_code(400); exit('Parâmetros inválidos.'); }
+if (!$idEvento || !in_array($aba, array('julgamento', 'progenie_pai', 'progenie_mae', 'conjunto_familia', 'vendas'), true)) { http_response_code(400); exit('Parâmetros inválidos.'); }
 $h = function ($valor) { return htmlspecialchars((string)$valor, ENT_QUOTES, 'UTF-8'); };
 $evento = (DBRead('julgamento', "WHERE id = '" . (int)$idEvento . "' LIMIT 1") ?: array())[0] ?? null;
 if (!$evento) { http_response_code(404); exit('<div class="alert alert-warning">Exposição não encontrada.</div>'); }
@@ -15,7 +15,10 @@ $porPagina = filter_var($_GET['por_pagina'] ?? 10, FILTER_VALIDATE_INT);
 if (!in_array($porPagina, array(10, 20, 50, 100), true)) $porPagina = 10;
 $pagina = max(1, (int)($_GET['pag'] ?? 1));
 
-if ($aba === 'julgamento') {
+if ($aba === 'conjunto_familia') {
+    require_once __DIR__ . '/conjunto_familia.php';
+    $registros = listarConjuntosFamiliaExposicao($idEvento);
+} elseif ($aba === 'julgamento') {
     $registros = DBRead(
         'julgamento_controle jc INNER JOIN animais a ON a.id = jc.id_animal LEFT JOIN animais pa ON pa.id = a.pai AND COALESCE(a.terceiro_pai,0) = 0 LEFT JOIN terceiros pt ON pt.id = a.pai AND a.terceiro_pai = 1 LEFT JOIN animais ma ON ma.id = a.mae AND COALESCE(a.terceiro_mae,0) = 0 LEFT JOIN terceiros mt ON mt.id = a.mae AND a.terceiro_mae = 1',
         "WHERE jc.id_julgamento = '" . (int)$idEvento . "' ORDER BY a.sexo DESC, a.data_de_nascimento DESC, a.id ASC",
@@ -56,7 +59,7 @@ if ($aba === 'julgamento') {
         'Fêmeas' => array_values(array_filter($registros, function ($animal) { return $animal['sexo'] === 'Fêmea'; }))
     );
     $paginas = 1; $pagina = 1; $offset = 0; $paginaRegistros = $registros;
-} elseif ($aba === 'vendas') {
+} elseif (in_array($aba, array('vendas', 'conjunto_familia'), true)) {
     $paginas = max(1, (int)ceil($total / $porPagina)); $pagina = min($pagina, $paginas); $offset = ($pagina - 1) * $porPagina; $paginaRegistros = array_slice($registros, $offset, $porPagina);
 } else {
     $progeniesAgrupadas = array();
@@ -68,7 +71,9 @@ if ($aba === 'julgamento') {
     $paginas = 1; $pagina = 1; $offset = 0; $paginaRegistros = $registros;
 }
 ?>
-<?php if ($aba === 'julgamento'): ?>
+<?php if ($aba === 'conjunto_familia'): ?>
+<?php require __DIR__ . '/conjunto_familia_tabela.php'; ?>
+<?php elseif ($aba === 'julgamento'): ?>
 <div style="display:flex; flex-wrap:wrap; align-items:flex-end; justify-content:space-between; gap:15px; margin-bottom:15px;"><div style="width:100%; max-width:520px;"><?php renderBuscaAnimais(array('id'=>'animal-pista-exposicao','name'=>'animal_pista','label'=>'Adicionar animal à pista','tipo'=>'rebanho','placeholder'=>'Digite para pesquisar','classe'=>'busca-animal-pista-exposicao')); ?></div><span class="text-muted"><?=$total?> animal(is) na pista</span></div>
 <?php foreach ($gruposJulgamento as $tituloGrupo => $animaisGrupo): ?>
 <div style="display:flex;align-items:center;justify-content:space-between;margin:20px 0 10px;"><strong><?=$h($tituloGrupo)?></strong><span class="text-muted"><?=count($animaisGrupo)?> animal(is)</span></div>
@@ -112,4 +117,4 @@ if ($aba === 'julgamento') {
 </div>
 <?php endforeach; ?>
 <?php endif; ?>
-<?php if ($aba === 'vendas'): ?><form data-paginacao-aba-exposicao style="display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:16px;border-top:1px solid #f4f4f4;padding-top:10px;"><label style="margin:0;font-weight:normal;">Por página</label><select class="form-control" name="por_pagina" style="width:70px;"><?php foreach(array(10,20,50,100) as $limite): ?><option value="<?=$limite?>" <?=$limite===$porPagina?'selected':''?>><?=$limite?></option><?php endforeach; ?></select><span class="text-muted">Exibindo <?=$total?$offset+1:0?> a <?=min($offset+$porPagina,$total)?> de <?=$total?> registros</span><ul class="pagination pagination-sm" style="margin:0;"><li class="<?=$pagina===1?'disabled':''?>"><a href="#" data-pagina="<?=max(1,$pagina-1)?>">«</a></li><?php for($p=1;$p<=$paginas;$p++): if($p!==1&&$p!==$paginas&&abs($p-$pagina)>1){if($p===2||$p===$paginas-1)echo '<li class="disabled"><span>…</span></li>';continue;} ?><li class="<?=$p===$pagina?'active':''?>"><a href="#" data-pagina="<?=$p?>"><?=$p?></a></li><?php endfor; ?><li class="<?=$pagina===$paginas?'disabled':''?>"><a href="#" data-pagina="<?=min($paginas,$pagina+1)?>">»</a></li></ul></form><?php endif; ?>
+<?php if (in_array($aba, array('vendas', 'conjunto_familia'), true)): ?><form data-paginacao-aba-exposicao style="display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:16px;border-top:1px solid #f4f4f4;padding-top:10px;"><label style="margin:0;font-weight:normal;">Por página</label><select class="form-control" name="por_pagina" style="width:70px;"><?php foreach(array(10,20,50,100) as $limite): ?><option value="<?=$limite?>" <?=$limite===$porPagina?'selected':''?>><?=$limite?></option><?php endforeach; ?></select><span class="text-muted">Exibindo <?=$total?$offset+1:0?> a <?=min($offset+$porPagina,$total)?> de <?=$total?> registros</span><ul class="pagination pagination-sm" style="margin:0;"><li class="<?=$pagina===1?'disabled':''?>"><a href="#" data-pagina="<?=max(1,$pagina-1)?>">«</a></li><?php for($p=1;$p<=$paginas;$p++): if($p!==1&&$p!==$paginas&&abs($p-$pagina)>1){if($p===2||$p===$paginas-1)echo '<li class="disabled"><span>…</span></li>';continue;} ?><li class="<?=$p===$pagina?'active':''?>"><a href="#" data-pagina="<?=$p?>"><?=$p?></a></li><?php endfor; ?><li class="<?=$pagina===$paginas?'disabled':''?>"><a href="#" data-pagina="<?=min($paginas,$pagina+1)?>">»</a></li></ul></form><?php endif; ?>
