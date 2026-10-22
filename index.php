@@ -69,17 +69,17 @@
       <div class="login-box-body">
         <p class="login-box-msg">Preencha corretamente os campos abaixo.</p>
 
-        <form action="_cadastro.php" method="post" onsubmit="return validar3()">
+        <form action="_cadastro.php" method="post" onsubmit="return validar3(this)">
           <div class="form-group has-feedback">
-            <input type="input" class="form-control" placeholder="Nome completo" name="nome" id="nome">
+            <input type="text" class="form-control" placeholder="Nome completo" name="nome" id="nome" autocomplete="name" required oninput="this.setCustomValidity('')">
             <span class="glyphicon glyphicon-user form-control-feedback"></span>
           </div>
           <div class="form-group has-feedback">
-            <input type="e-mail" class="form-control" placeholder="E-mail" name="email" id="email">
+            <input type="email" class="form-control" placeholder="E-mail" name="email" id="cadastro-email" autocomplete="email" required oninput="this.setCustomValidity('')">
             <span class="glyphicon glyphicon-envelope form-control-feedback"></span>
           </div>
           <div class="form-group has-feedback">
-            <input type="input" class="form-control" placeholder="WhatsApp" name="telefone" id="telefone">
+            <input type="tel" class="form-control" placeholder="WhatsApp" name="telefone" id="telefone" autocomplete="tel" required oninput="this.setCustomValidity('')">
             <span class="glyphicon glyphicon-user form-control-feedback"></span>
           </div>
           <div class="row">
@@ -170,6 +170,16 @@
     if(saida){ return false; }else{ return true; }
   }
 
+  function validar3(formulario){
+    var campos = ['nome', 'email', 'telefone'];
+    for (var i = 0; i < campos.length; i++) {
+      var campo = formulario.elements[campos[i]];
+      campo.setCustomValidity(campo.value.trim() ? '' : 'Preencha este campo.');
+      if (!campo.reportValidity()) { campo.focus(); return false; }
+    }
+    return true;
+  }
+
   function validar2(){
     saida = 0;
   	if(!document.getElementById("email").value){
@@ -191,6 +201,8 @@
     document.getElementById('bloco_esqueceu').style.display = 'none';
     document.getElementById('bloco_cadastro').style.display = 'block';
   }
+
+  if (new URLSearchParams(window.location.search).get('cadastro') === '1') cadastro();
 
   function voltar(){
     document.getElementById('bloco').style.display = 'block';

@@ -1,5 +1,54 @@
 # SOB — ambiente local
 
+## Publicação da conexão em produção sem Docker
+
+O `.env` fica na raiz do sistema, ao lado de `_config.php`, com o mesmo formato
+do `.envprd` local. `.envprd` é apenas referência: não é carregado pela aplicação
+e está ignorado pelo Git. `APP_PORT` é ignorada pelo carregador de banco.
+
+Os arquivos corrigidos estão em `mysqli/` e na cópia `mysqliprd/`:
+
+- Publicar `mysqliprd/dotenv.php` como `mysqli/dotenv.php` no servidor.
+- Publicar `mysqliprd/environment.php` como `mysqli/environment.php` no servidor.
+- Publicar o `_config.php` da raiz atualizado, que lê `DB_PREFIX` antes de
+  montar o banco da fazenda, e o `.htaccess` que bloqueia os arquivos de ambiente.
+- Preservar o `.env` de produção com seus próprios dados e os demais arquivos
+  de conexão/consultas já existentes no servidor.
+
+O carregamento não depende de `putenv`, Composer ou configuração de variáveis
+na hospedagem. O PHP precisa conseguir ler o `.env`. Variáveis já fornecidas
+ao processo, quando existentes, continuam tendo prioridade para compatibilidade
+com o Docker local. Credenciais ausentes retornam 503 sem valores sensíveis.
+
+O login usa `DB_DATABASE`; as telas usam `DB_PREFIX` e o banco autorizado da
+sessão. O caminho do `.env` é absoluto, relativo à pasta dos arquivos PHP,
+independente da URL ou subpasta acessada. Nenhuma senha de MySQL foi alterada.
+
+Validação: `php tests/environment_producao_test.php` simula a hospedagem sem
+Docker e com `putenv` desabilitado, usando apenas valores sintéticos.
+
+## Conexão com banco pelo `.env`
+
+O PHP carrega automaticamente o `.env` na raiz do projeto, por meio de
+`mysqli/dotenv.php`. Preencha `DB_HOST`, `DB_USER`, `DB_PASSWORD`,
+`DB_DATABASE` (banco central de login) e `DB_PREFIX`. O arquivo está ignorado
+pelo Git. As credenciais não devem ser colocadas em `environment.php`.
+
+Valores entre aspas simples ou duplas são lidos literalmente, sem interpolação.
+Use uma configuração por linha, sem comentários após o valor. Variáveis já
+fornecidas pelo Docker têm prioridade; assim, seu host interno `db` permanece
+funcionando. A senha local existente foi preservada.
+
+Na produção, configure o `.env` com os dados reais antes de publicar o PHP.
+Publique também o `.htaccess`, que bloqueia o download do `.env` e de cópias
+como `.env.backup`. Em outro servidor web, aplique a regra equivalente.
+Usuário ou senha ausentes resultam em 503, sem expor os valores.
+Não houve alteração de senha do MySQL, remoção de scripts ou migração das
+rotinas antigas `mysql_*` nesta etapa. Segredos no histórico Git permanecem
+e devem ser tratados separadamente se ainda forem válidos.
+
+Teste: `php tests/dotenv_test.php`.
+
 ## Proteção CSRF — cadastro e ficha de animais
 
 Cadastros por compra, rebanho, nascimento e terceiros, edição de animal e
